@@ -16,6 +16,9 @@ from scriptgenerator import *
 #class and functions to create input fo gamess program 
 #=======================================================================
 
+
+path_to_dftb = "/home/barden/Dropbox/Mestrado_Igor/Revisão/dftb/mio-1-1/"
+
 class gms_inp:
 	
 #-----------------------------------------------------------------------
@@ -55,6 +58,7 @@ class gms_inp:
 		self.elspot_group = ''
 		self.guess_group  = '' 
 		self.other_groups = ''
+		self.dftb_group   = ''
 		self.input_text   = '' 
 		self.diis         = False
 		self.soscf        = True
@@ -66,6 +70,7 @@ class gms_inp:
 		self.dfttyp       = 'b3lyp'
 		self.punch		  = 0
 		self.basis 		  = ''
+		self.dftb         = 0
 		
 		if not self.basis == '':		
 			if self.basis == '3-21G':			
@@ -97,6 +102,7 @@ class gms_inp:
 				self.ndfunc = 2
 				self.diffuseP = True
 				self.diffuseS = True
+				self.disp     = "UFF"
 			
 #------------------------------------------------------------------------------------------
 		# init_groups method
@@ -151,7 +157,7 @@ class gms_inp:
 			self.basis_group +=' $basis gbasis = {0} ngauss = {1} $end \n'.format(self.gbasis,self.ngauss)
 			self.basis_group +=  ' $basis ndfunc = {0} npfunc = {1} $end \n'.format(self.ndfunc,self.npfunc)
 			if not self.polar == '': 
-				ssself.basis_group +=  ' $basis polar = {0} $end \n'.format(self.polar)
+				self.basis_group +=  ' $basis polar = {0} $end \n'.format(self.polar)
 	
 			if self.diffuseP == True:
 				self.basis_group +=  ' $basis diffp =.true.  $end \n'
@@ -159,6 +165,35 @@ class gms_inp:
 			elif self.diffuseP == False and self.diffuseP == True:
 				self.basis_group +=  ' $basis diffs =.true. $end \n'
 		
+		elif self.dftb > 0:
+			self.basis_group += ' $basis gbasis =dftb $end \n'
+			self.dftb_group +=  ' $dftb scc=.true. ndftb={0} modgam=1 modesd=2 disp={1} $end \n'.format(self.dftb,self.disp)
+			self.dftb_group +=  ' $dftbsk \n'
+			self.dftb_group += "   C C "+ path_to_dftb +"/C-C.skf \n"
+			self.dftb_group += "   C H "+ path_to_dftb +"/C-H.skf \n"
+			self.dftb_group += "   C O "+ path_to_dftb +"/C-O.skf \n"
+			self.dftb_group += "   C N "+ path_to_dftb +"/C-N.skf \n"
+			self.dftb_group += "   H C "+ path_to_dftb +"/H-C.skf \n"
+			self.dftb_group += "   H H "+ path_to_dftb +"/H-H.skf \n"
+			self.dftb_group += "   H O "+ path_to_dftb +"/H-O.skf \n"
+			self.dftb_group += "   H N "+ path_to_dftb +"/H-N.skf \n"
+			self.dftb_group += "   O C "+ path_to_dftb +"/O-C.skf \n"
+			self.dftb_group += "   O H "+ path_to_dftb +"/O-H.skf \n"
+			self.dftb_group += "   O N "+ path_to_dftb +"/O-N.skf \n"
+			self.dftb_group += "   O O "+ path_to_dftb +"/O-O.skf \n"
+			self.dftb_group += "   N C "+ path_to_dftb +"/N-C.skf \n"
+			self.dftb_group += "   N H "+ path_to_dftb +"/N-H.skf \n"
+			self.dftb_group += "   N O "+ path_to_dftb +"/N-O.skf \n"
+			self.dftb_group += "   N N "+ path_to_dftb +"/N-N.skf \n"
+			self.dftb_group += "   S S "+ path_to_dftb +"/S-S.skf \n"
+			self.dftb_group += "   S H "+ path_to_dftb +"/S-H.skf \n"
+			self.dftb_group += "   S C "+ path_to_dftb +"/S-C.skf \n"
+			self.dftb_group += "   S O "+ path_to_dftb +"/S-O.skf \n"
+			self.dftb_group += "   S N "+ path_to_dftb +"/S-N.skf \n"
+			self.dftb_group += "   N S "+ path_to_dftb +"/N-S.skf \n"
+			self.dftb_group += "   O S "+ path_to_dftb +"/O-S.skf \n"				
+			self.dftb_group += "   H S "+ path_to_dftb +"/H-S.skf \n" 
+			self.dftb_group += "   C S "+ path_to_dftb +"/C-S.skf \n"
 		else:
 			self.basis_group += '$basis gbasis = {0} $end \n'.format(self.semiEmpi)
 		
@@ -177,7 +212,7 @@ class gms_inp:
 		if self.elsden == True:	
 			self.elsden_group += ' $eldens  ieden=1 morb=0 where=grid output=punch $end \n'
 			self.grid_cube += ' $grid modgrd=1 $end \n'
-			self.grid_cube += ' $grid size = 0.5 $end \n'
+			self.grid_cube += ' $grid size = 0.25 $end \n'
 			
 			self.xyzA.parse_xyz()
 			self.xyzA.get_origin()
@@ -190,7 +225,7 @@ class gms_inp:
 		if self.elspot == True:	
 			self.elspot_group += ' $elpot ieden=1 morb=0 where=grid output=punch $end \n'
 			self.grid_cube += ' $grid modgrd=1 $end \n'
-			self.grid_cube += ' $grid size = 0.5 $end \n'
+			self.grid_cube += ' $grid size = 0.25 $end \n'
 			
 			self.xyzA.parse_xyz()
 			self.xyzA.get_origin()
@@ -241,6 +276,7 @@ class gms_inp:
 		self.input_text += self.grid_cube
 		self.input_text += self.elspot_group
 		self.input_text += self.guess_group
+		self.input_text += self.dftb_group
 		self.input_text += self.other_groups
 		self.input_text += self.data_group
 		
