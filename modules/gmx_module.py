@@ -20,9 +20,11 @@ class min_prot:
 		self.net_charge = 0
 		self.protein = pdb_code[:-4]
 
+		
+
 	def top_init(self):
 
-		text_to_run = gmx + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_processed.pdb -water spce << EOF \n"
+		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_processed.pdb -water spce << EOF \n"
 		text_to_run += "1 \n"
 		text_to_run += "EOF"
 
@@ -30,11 +32,11 @@ class min_prot:
 
 	def solvate(self):
 
-		text_to_run = gmx + " editconf -f " + self.protein + "_processed.pdb -o " + self.protein +"_newbox.pdb -c -d 1.0 -bt cubic"
+		text_to_run = "/usr/bin/gmx" + " editconf -f " + self.protein + "_processed.pdb -o " + self.protein +"_newbox.pdb -c -d 1.0 -bt cubic"
 
 		os.system(text_to_run)
 
-		text_to_run = gmx + " solvate -cp " +  self.protein + "_newbox.pdb -cs spc216.gro -o " + self.protein + "_solv.pdb -p topol.top"
+		text_to_run = "/usr/bin/gmx" + " solvate -cp " +  self.protein + "_newbox.pdb -cs spc216.gro -o " + self.protein + "_solv.pdb -p topol.top"
 
 		os.system(text_to_run)
 
@@ -78,12 +80,12 @@ class min_prot:
 		mdp_inp.write(mdp_file)
 		mdp_inp.close()
 
-		text_to_run = gmx +" grompp -f ions.mdp -c " + self.protein + "_solv.pdb -p topol.top -o ions.tpr << EOF\n"
+		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.protein + "_solv.pdb -p topol.top -o ions.tpr << EOF\n"
 		text_to_run += "13 \n"
 		text_to_run += "EOF"
 		os.system(text_to_run)
 
-		text_to_run = gmx + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
+		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
 		os.system(text_to_run)
 
 	def Minimization(self):	
@@ -104,10 +106,10 @@ class min_prot:
 		mdp_inp.write(mdp_file)
 		mdp_inp.close()
 
-		text_to_run = gmx +" grompp -f minim.mdp -c " + self.protein + "_solv_ions.pdb -p topol.top -o em.tpr"
+		text_to_run = "/usr/bin/gmx" +" grompp -f minim.mdp -c " + self.protein + "_solv_ions.pdb -p topol.top -o em.tpr"
 		os.system(text_to_run)
 
-		text_to_run = gmx + " mdrun -v -deffnm em"
+		text_to_run = "/usr/bin/gmx" + " mdrun -v -deffnm em"
 		os.system(text_to_run)		
 		
 	def write_minStruct(self):
@@ -124,9 +126,11 @@ class min_prot:
 		zcoord = []
 
 		word1 = "NUCLEAR"
+		word2 = "Protein"
 
 		couter = 0
 		for line in emgro:
+			print(line)
 			line2 = line.split()
 			if line2[0] == word1:
 				continue			
@@ -136,9 +140,9 @@ class min_prot:
 					res_num.append(line2[0][:-3])
 					atom_name.append(line2[1])
 					atomN.append(line2[2])
-					xxx = round(10*(float(line[3])),5)
-					yyy = round(10*(float(line[4])),5)
-					zzz = round(10*(float(line[5])),5)
+					xxx = round(10*(float(line2[3])),5)
+					yyy = round(10*(float(line2[4])),5)
+					zzz = round(10*(float(line2[5])),5)
 					xcoord.append(xxx)
 					ycoord.append(yyy)
 					zcoord.append(zzz)
@@ -168,7 +172,7 @@ class min_prot:
 		a = protein(self.protein)
 		a.pdb_parse(self.protein+"_min.pdb")
 		a.residue_def(reorg=True)
-		a.write_pdb(self.protein+"_.pdb")
+		a.write_pdb(self.protein+"_.pdb")		
 
 	def run(self):
 		self.top_init()
