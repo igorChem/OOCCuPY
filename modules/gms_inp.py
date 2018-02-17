@@ -17,7 +17,7 @@ from scriptgenerator import *
 #=======================================================================
 
 
-path_to_dftb = "/home/barden/Dropbox/Mestrado_Igor/Revisão/dftb/mio-1-1/"
+path_to_dftb = "/home/barden/Dropbox/mestrado/Revisão/dftb/mio-1-1/"
 
 class gms_inp:
 	
@@ -71,7 +71,9 @@ class gms_inp:
 		self.punch		  = 0
 		self.basis 		  = ''
 		self.dftb         = 0
-		
+		self.disp         = "UFF"
+		self.morb         = 0
+
 		if not self.basis == '':		
 			if self.basis == '3-21G':			
 				self.gbasis = 'n21'			
@@ -102,7 +104,7 @@ class gms_inp:
 				self.ndfunc = 2
 				self.diffuseP = True
 				self.diffuseS = True
-				self.disp     = "UFF"
+				
 			
 #------------------------------------------------------------------------------------------
 		# init_groups method
@@ -167,7 +169,7 @@ class gms_inp:
 		
 		elif self.dftb > 0:
 			self.basis_group += ' $basis gbasis =dftb $end \n'
-			self.dftb_group +=  ' $dftb scc=.true. ndftb={0} modgam=1 modesd=2 disp={1} $end \n'.format(self.dftb,self.disp)
+			self.dftb_group +=  ' $dftb scc=.true. ndftb={0} modgam=1 modesd=2 disp={1} itypmx =-1 $end \n'.format(self.dftb,self.disp)
 			self.dftb_group +=  ' $dftbsk \n'
 			self.dftb_group += "   C C "+ path_to_dftb +"/C-C.skf \n"
 			self.dftb_group += "   C H "+ path_to_dftb +"/C-H.skf \n"
@@ -210,9 +212,9 @@ class gms_inp:
 		#-----------------------------------------------------------#
 		
 		if self.elsden == True:	
-			self.elsden_group += ' $eldens  ieden=1 morb=0 where=grid output=punch $end \n'
+			self.elsden_group += ' $eldens  ieden=1 morb={0} where=grid output=punch $end \n'.format(self.morb)
 			self.grid_cube += ' $grid modgrd=1 $end \n'
-			self.grid_cube += ' $grid size = 0.25 $end \n'
+			self.grid_cube += ' $grid size = 0.4 $end \n'
 			
 			self.xyzA.parse_xyz()
 			self.xyzA.get_origin()
@@ -351,6 +353,14 @@ class gms_inp:
 		self.ab_initio = QMmet
 		self.charge = chg
 		self.multiplicity = multi
+
+		if QMmet == "DFTB2":
+			self.dftb = 2
+			self.ab_initio = "SemiEmpi"
+		elif QMmet == "DFTB3":
+			self.dftb = 3
+			self.ab_initio = "SemiEmpi"
+
 		
 		self.ngauss = 3
 		self.gbasis = 'N21'
@@ -365,7 +375,7 @@ class gms_inp:
 			self.elspot= True
 			self.elsden = False
 
-		if not conv == 0 :
+		if not conv == 0:
 			if conv == 1: 
 				self.damp = True
 			elif conv == 2: 
