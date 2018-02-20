@@ -198,7 +198,7 @@ basis_functions = [mini,sto_g,HO_3_21G,HO_6_31Gpol,HO_6_311Gpol,DFTB]
 
 text_basis = {"MINI":0,"STO-3G":1,"3-21G":2,"6-31G*":3,"6-311G*":4,"dftb":5}
 
-path_to_dftb = "/home/barden/Dropbox/Mestrado_Igor/Revisão/dftb/mio-1-1/"
+path_to_dftb = "/home/barden/Dropbox/Mestrado_Igor/Revisão/dftb/mio-1-1"
 
 #=======================================================================
 
@@ -253,7 +253,7 @@ class FMO_input:
 		self.input_text   = '' 
 		self.nresFrag     = nres
 		self.print_level  = "low"
-		self.grid_size    = 0.5
+		self.grid_size    = 0.45
 		self.res          = []
 		self.basis        = basis
 		self.nbody        = nbody
@@ -282,6 +282,13 @@ class FMO_input:
 			if self.basis == '3-21G':			
 				self.gbasis = 'n21'			
 				self.ngauss = 3
+			elif self.basis == 'STO-3G':
+				self.gbasis = 'STO'
+				self.ngauss = 3
+			elif self.basis == '3-21+G*':
+				self.gbasis = 'n21'
+				self.ngauss = 3
+				self.npfunc = 1
 			elif self.basis == '6-31G':
 				self.gbsis = 'n31'
 			elif self.basis == '6-31G*':
@@ -317,7 +324,7 @@ class FMO_input:
 		if self.print_level == "low":
 			PL="-5"
 		
-		self.mw = 200
+		self.mw = 300
 					
 		self.input_text += " $contrl runtyp=energy nprint={0} maxit=200 $end \n".format(PL)
 		self.input_text += " $system mwords={0} $end \n".format(self.mw)
@@ -444,7 +451,7 @@ class FMO_input:
 		self.fragm[n].charge = init_chg + chg		
 
 		if not abs(chg) % 2 == 0:			
-			self.scftyp = 'rohf'
+			self.scftyp = 'uhf'
 			self.fragm[n].mult=2
 
 		if self.base == "dftb" and self.scftyp=="rohf":

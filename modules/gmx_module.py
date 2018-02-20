@@ -130,7 +130,6 @@ class min_prot:
 
 		couter = 0
 		for line in emgro:
-			print(line)
 			line2 = line.split()
 			if line2[0] == word1:
 				continue			
