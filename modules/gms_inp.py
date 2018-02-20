@@ -17,7 +17,7 @@ from scriptgenerator import *
 #=======================================================================
 
 
-path_to_dftb = "/home/barden/Dropbox/mestrado/Revisão/dftb/mio-1-1/"
+path_to_dftb = "/home/barden/Dropbox/mestrado/Revisão/dftb/mio-1-1"
 
 class gms_inp:
 	
@@ -116,7 +116,7 @@ class gms_inp:
 		self.xyzB = xyz_parser(self.name)
 
 		if not self.multiplicity == 1:
-			self.scf_typ = 'rohf'			
+			self.scf_typ = 'uhf'			
 		
 		#------------------------------------------------------------#
 			#contrl group
