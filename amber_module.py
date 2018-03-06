@@ -10,10 +10,10 @@ from gmx_module import*
 
 class amber_mod:
 
-	def __init__(self,
-			pdbfile,
-			H_opt=True,
-			path="/home/barden/programs/amber16/bin"):
+	def __init__(self                                    ,
+			     pdbfile                                 ,
+			     H_opt=True                              ,
+			     path="/home/barden/programs/amber16/bin"):
 
 		self.name = pdbfile
 		self.nameAf = self.name[:-4] + "_h.pdb"
@@ -94,6 +94,11 @@ class amber_mod:
 		opt_pdb.pdb_parse()
 		opt_pdb.mopac_mop()
 	
+	def equilibration(self):
+
+	def production(self):
+
+	def analysis_MD(self): 
 '''	
 a = amber_mod("1a2y_p1.pdb")
 a.tleap_call()
