@@ -37,6 +37,7 @@ class pdb_atom:
 		self.resNum   = []
 		self.resTyp   = ''
 		self.name     = ''
+		self.charge   = 0
 
 class residue:
 	

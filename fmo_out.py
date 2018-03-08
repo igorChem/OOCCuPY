@@ -11,6 +11,12 @@ from cube_class import *
 from pdb_class import *
 
 #=======================================================================
+
+atomnumber = {'H':1,'C':6,'N':7,'O':8,'F':9,'P':15,'S':16,'Cl':17,'Br':36,'BR':36,'CL':17}
+numberatom = ['H','He','Li','Be','B','C','N','O','F','Ar','Na','Mg','Al','a','P','S']
+
+#=======================================================================
+
 class Fragment:
 	
 	
@@ -18,16 +24,11 @@ class Fragment:
 		self.name = ''
 		self.index = 0
 		self.charge = 0
-		self.Natoms = 0		
-		self.chargeN1 = []		
+		self.Natoms = 0	
+		self.dipole = []				
 		self.chargeN2 = []
 		self.chargeN3 = []
-		self.atomsN = []
-		self.xcoord = []
-		self.ycoord = []
-		self.zcoord = []
-		self.energy = []
-		
+		self.energy = 0		
 	
 	def get_energy(self):
 		pass
@@ -38,33 +39,45 @@ class Fragment:
 	def get_coord(self):
 		pass
 
+#========================================================================
+
 class fmo_parser:
 	
-	def __init__(self,logfile,totCharge=0):
-		self.name = logfile
-		self.datfile = logfile[:-4] + '.dat'
-		self.HOMOn = 0
-		self.LUMOn = 0
-		self.Energy = 0 
-		self.totCharge = 0
-		self.chargesN1 = []
+	def __init__(self      ,
+				logfile    ,
+				totCharge=0):
+
+		self.name      = logfile
+		self.datfile   = logfile[:-4] + '.dat'		
+		self.Energy    = 0 
+		self.EnergyS   = 0 
+		self.nAtoms    = 0 
+		self.nFrag     = 0 
+		self.atoms     = []
+		self.totCharge = 0		
 		self.chargesN2 = []
 		self.chargesN3 = []			
-		self.Frag = []
-		self.nbody = 2 
+		self.Frag      = []
+		self.nbody     = 2 
+		self.deltQ     = 0
+		self.deltAQ    = 0
+		self.solvent   = False
 		
-	def get_front_orb(self):
-		
-		log = open(self.name,'r')
-		
-		for line in log: 
-			line = line.split()
-			if len(line) == 8:
-				if line[1] == 'ORBITALS' and line[3] == 'OCCUPIED':
-					self.HOMOn += int(line[0])
-		self.LUMOn = self.HOMOn + 1
-		
-		log.close()
+		file_g = open(self.logfile,'r')
+
+		for line in file_g:
+			line2 = line.split()
+			if not line2:
+				continue
+			if len(line2) > 2:
+				if line2[1] == "absolute" and line2[3] == "transf.":
+					self.deltQ = float(line2[6])
+				elif line2[1] == "amount" and line2[4] == "transf.":
+					self.deltAQ = float(line2[6])
+				elif line2[0] == "Free" and line2[4] == "solvent=":
+					self.EnergyS = float(line2[5])
+				elif line2[0] == "Total" and line2[1] == "Energy":
+					self.Energy = float(line2[3])
 	
 	def cube_from_dat(self):
 				
@@ -105,11 +118,9 @@ class fmo_parser:
 		with open(self.name,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase1 in line:
-					stat_init=i					
+					stat_init=i
 				elif phrase2 in line:
 					stat_fin=i
-					
-
 					
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
@@ -121,8 +132,30 @@ class fmo_parser:
 						frg.index  = line2[0]
 						frg.charge = line2[2]
 						frg.Natoms = line2[3]
-						self.Frag.append(frg)					
+						self.nFrag += 1 
+						self.Frag.append(frg)
+
+		prhase3 = "One-body FMO properties."
+		prhase4 = "Frontier molecular orbital (FMO!) properties based on Koopmans' theorem."
+
+		fragp_init = 0
+		fragp_fin = 0 
+
+		with open(self.name,'r') as text:
+			for (i, line) in enumerate(text):
+				if phrase3 in line:
+					fragp_init=i
+				elif phrase4 in line:
+					fragp_fin=i	
+
+		with open(self.name,'r') as text:
+			for (i,line) in enumerate(text):
+				if i >= fragp_init and i <= fragp_fin:
+					line2 = line.split()					
+					if len(line2) == 5:
+						self.Frag[i].energy = float(line2[1])
 					
+
 	def get_charges(self):
 		
 		phrase1 = 'IAT  IFG   Z       Q(1)        Q(2)        Q(3)'
@@ -142,67 +175,124 @@ class fmo_parser:
 					
 		if self.nbody == 2:
 			lline = 5
-		elif self.nbody ==3:
+		elif self.nbody == 3:
 			lline = 6
 			
-		IAT = []
-		IFG = []	
-		
-					
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
 				if i >= chg_init and chg_fin <= stat_fin:
 					line2 = line.split()					
 					if len(line2) == lline:						
-						IAT.append(line2[0])
-						IFG.append(line2[1])
-						self.ChargesN1 = line2[3]
-						self.ChargesN2 = line2[4]
+						a = pdb_atom()
+						a.num = int(line2[0])
+						a.resNum = int(line2[1])
+						a.element = numberatom[int(line2[2])]
+						a.charge = float(line2[4])	
+						self.atoms.append(a)				
+						self.ChargesN2 = float(line2[4])
 					elif len(line2) == lline:
-						IAT.append(line2[0])
-						IFG.append(line2[1])
-						self.ChargesN1 = line2[3]
-						self.ChargesN2 = line2[4]
-						self.chargesN3 = line2[5]
+						a = pdb_atom()
+						a.num = line2[0]
+						a.resNum = line2[1]
+						a.element = numberatom[int(line2[2])]						
+						a.charge = float(line2[5])
+						self.atoms.append(a)
+						self.ChargesN2 = float(line2[4])
+						self.chargesN3 = float(line2[5])
 
-def cond_Fukui(file1,file2,chg):
-	pass
+#======================================================================
 
-def cube_Fukui_elec(file1,file2,chg):
-	
-	prot_neutro = Cube(Typ='Elec_Den')
-	prot_anion = Cube(Typ='Elec_Den')
-	
-	prot_neutro.Read_Elec_Cube(file1)
-	prot_anion.Read_Elec_Cube(file2)
-		
-	prot_neutro.scalar3d = np.absolute((-prot_neutro.scalar3d) - (-prot_anion.scalar3d))
-	prot_neutro.scalar3d = prot_neutro.scalar3d/chg
-	prot_neutro.write_cubeElec(file1[:-5]+'Fukui_elec')
+class global_rd:
 
-'''	
-def cube_Fukui_Nuc(file1,file2,chg):
-	
-	prot_neutro = Cube(Typ='Elec_Den')
-	prot_cation = Cube(Typ='Elec_Den')
-	
-	prot_neutro.Read_Elec_Cube(file1)
-	prot_anion.Read_Elec_Cube(file2)
-'''	
-	
-	
-#cube_Fukui_elec('rta_Fukui0.cube','rta_Fukui20.cube',4)	
+	def __init__(self  ,
+				 neutro,
+				 cation,
+				 anion):
+		self.neutro = neutro
+		self.cation = cation
+		self.anion = anion 
+		self.hardness = 0.00
+		self.softness = 0.00
+		self.electrophilicity = 0.00 
+		self.IP = 0.00
+		self.EA = 0.00
+		self.chem_pot = 0.00 
+		self.frag_hardness = []
+		self.frag_softness = []
+		self.frag_elect = [] 
+		self.frag_chempot = []
 
 
-
-'''
-for i in range(len(rta.Frag)):
-	print(rta.Frag[i].name)
+	def calc_finite(self):
 
 
-rta = 
-rta.get_front_orb()
-rta.cube_from_dat()
-'''
+		energy_neutro = 0
+		energy_cation = 0
+		energy_anion  = 0
+
+		if neutro.solvent == True:		
+			energy_neutro = self.neutro.EnergyS
+			energy_cation = self.cation.EnergyS
+			energy_anion  = self.anion,EnergyS
+		elif neutro.solvent == False:
+			energy_neutro = self.neutro.Energy
+			energy_cation = self.cation.Energy
+			energy_anion  = self.anion.Energy
+
+
+		self.IP = energy_cation - energy_neutro
+		self.EA = energy_neutro - energy_anion
+		self.chem_pot = energy_anion - energy_cation
+		self.hardness = (-self.EA) - (-self.IP)
+		self.softness = 1/self.hardness
+		self.electrophilicity = (self.softness**2)*self.chem_pot
+
+	def rd_frag(self, 
+				neutro):
+
+		for i in range(self.neutro.nFrag):
+			frag_hardness.append((self.anion.Frag[i].energy+self.cation.Frag[i].energy - 2*self.neutro.Frag[i].energy)/2)
+			frag_softness.append(1/((self.anion.Frag[i].energy+self.cation.Frag[i].energy - 2*self.neutro.Frag[i].energy)/2))
+			frag_chempot.append((self.anion.Frag[i].energy-self.cation.Frag[i].energy)/2)
+			frag_elect.append((frag.softness[i]**2)*frag_chempot[i])
+
+	def write_glob(self,
+				   inpname):
+
+		glob_file = open(inpname,'w')
+
+		glob_text = ''
+		glob_file.write(glob_text)
+
+
+#====================================================================
+
+class local_rd:
+
+	def __init__(self):
+		self.globRD = None
+		self.fukuiES = []
+		self.fukuiNS = []
+		self.fukuiRS = []
+		self.deltFukui = []
+		self.softnesMu = []
+		self.electMU = []
+		self.relativeES = []
+		self.relativeNS = [] 
+
+
+	def cond_Fukui(self  ,
+				   neutro,
+				   cation,
+				   anion):
+
+
+
+	def writeLRD(self   , 
+				 inpman):
+		pass
+
+
+
 
 
