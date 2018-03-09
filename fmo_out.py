@@ -190,6 +190,7 @@ class fmo_parser:
 						a.charge = float(line2[4])	
 						self.atoms.append(a)				
 						self.ChargesN2 = float(line2[4])
+						self.nAtoms += 1
 					elif len(line2) == lline:
 						a = pdb_atom()
 						a.num = line2[0]
@@ -197,6 +198,7 @@ class fmo_parser:
 						a.element = numberatom[int(line2[2])]						
 						a.charge = float(line2[5])
 						self.atoms.append(a)
+						self.nAtoms += 1
 						self.ChargesN2 = float(line2[4])
 						self.chargesN3 = float(line2[5])
 
@@ -208,6 +210,7 @@ class global_rd:
 				 neutro,
 				 cation,
 				 anion):
+
 		self.neutro = neutro
 		self.cation = cation
 		self.anion = anion 
@@ -247,8 +250,7 @@ class global_rd:
 		self.softness = 1/self.hardness
 		self.electrophilicity = (self.softness**2)*self.chem_pot
 
-	def rd_frag(self, 
-				neutro):
+	def rd_frag(self):
 
 		for i in range(self.neutro.nFrag):
 			frag_hardness.append((self.anion.Frag[i].energy+self.cation.Frag[i].energy - 2*self.neutro.Frag[i].energy)/2)
@@ -269,7 +271,11 @@ class global_rd:
 
 class local_rd:
 
-	def __init__(self):
+	def __init__(self
+				neutro,
+				cation, 
+				anion):
+
 		self.globRD = None
 		self.fukuiES = []
 		self.fukuiNS = []
@@ -280,13 +286,20 @@ class local_rd:
 		self.relativeES = []
 		self.relativeNS = [] 
 
+		self.globRD = global_rd(self.neutro,self.cation,self.anion)
+		self.globRD.calc_finite()
 
-	def cond_Fukui(self  ,
-				   neutro,
-				   cation,
-				   anion):
+	def cond_Fukui(self):
 
-
+		for i in range(self.neutro.nAtoms):
+			self.fukuiES.append( self.anion.atoms.charge[i] - self.neutro.atoms.charge[i] )
+			self.fukuiNS.append( self.neutro.atoms.charge[i] - self.cation.atoms.charge[i] )
+			self.fukuiRS.append( (self.anion.atoms.charge[i] - self.cation.atoms.charge[i])/2 )
+			self.deltFukui.append( self.fukuiES[i] - self.fukuiNS[i] )
+			self.softnesMu.append( self.globRD.softness*self.deltFukui[i])
+			self.electMU.append( self.globRD.electrophilicity*self.deltFukui[i])
+			self.relativeNS.append ( self.fukuiNS[i]/self.fukuiES[i] )
+			self.relativeES.append ( self.fukuiES[i]/self.fukuiNS[i] )
 
 	def writeLRD(self   , 
 				 inpman):
