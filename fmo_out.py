@@ -63,7 +63,7 @@ class fmo_parser:
 		self.deltAQ    = 0
 		self.solvent   = False
 		
-		file_g = open(self.logfile,'r')
+		file_g = open(self.name,'r')
 
 		for line in file_g:
 			line2 = line.split()
@@ -73,7 +73,7 @@ class fmo_parser:
 				if line2[1] == "absolute" and line2[3] == "transf.":
 					self.deltQ = float(line2[6])
 				elif line2[1] == "amount" and line2[4] == "transf.":
-					self.deltAQ = float(line2[6])
+					self.deltAQ = float(line2[7])
 				elif line2[0] == "Free" and line2[4] == "solvent=":
 					self.EnergyS = float(line2[5])
 				elif line2[0] == "Total" and line2[1] == "Energy":
@@ -110,7 +110,7 @@ class fmo_parser:
 	def get_frag_stat(self):
 		
 		phrase1 = 'Fragment statistics'
-		phrase2 = 'CPU     0: STEP CPU TIME=     0.12 TOTAL CPU TIME=       63.2 (    1.1 MIN)'
+		phrase2 = ' Close fragment pairs, distance relative to vdW radii'
 		
 		stat_init = 0
 		stat_fin  = 0
@@ -126,7 +126,7 @@ class fmo_parser:
 			for (i,line) in enumerate(text):
 				if i >= stat_init and i <= stat_fin:
 					line2 = line.split()
-					if len(line2) == 14:						
+					if len(line2) == 14:
 						frg = Fragment()
 						frg.name   = line2[1]
 						frg.index  = line2[0]
@@ -135,8 +135,8 @@ class fmo_parser:
 						self.nFrag += 1 
 						self.Frag.append(frg)
 
-		prhase3 = "One-body FMO properties."
-		prhase4 = "Frontier molecular orbital (FMO!) properties based on Koopmans' theorem."
+		phrase3 = "One-body FMO properties."
+		phrase4 = "Frontier molecular orbital (FMO!) properties based on Koopmans' theorem."
 
 		fragp_init = 0
 		fragp_fin = 0 
@@ -144,21 +144,41 @@ class fmo_parser:
 		with open(self.name,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase3 in line:
-					fragp_init=i
+					fragp_init=i+4 
 				elif phrase4 in line:
 					fragp_fin=i	
-
+		
+		energies = []
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
 				if i >= fragp_init and i <= fragp_fin:
-					line2 = line.split()					
-					if len(line2) == 5:
-						self.Frag[i].energy = float(line2[1])
+					line2 = line.split()
+					try:
+						if len(line2) == 5:
+							energies.append( float(line2[1]) )
+						elif len(line2) == 4:
+							energies.append( float(line2[1]) )
+					except:
+						if len(line2) == 5: 
+							energies.append( float(line2[2]) )
+						elif len(line2) == 4:
+							energies.append( float(line2[1]) )	
+
+	
+		for i in range(self.nFrag):			
+			self.Frag[i].energy=energies[i]
+						
 					
 
 	def get_charges(self):
 		
-		phrase1 = 'IAT  IFG   Z       Q(1)        Q(2)        Q(3)'
+
+		phrase1 =''
+		if self.solvent == True:
+			phrase1 = 'IAT  IFG   Z  surface cover,%   q(ASC)       Q(1)        Q(2)        Q(3)'
+		else:
+			phrase1 = 'IAT  IFG   Z       Q(1)        Q(2)        Q(3)'
+
 		phrase2 = 'Done with FMO properties.'
 		
 		chg_init = 0
@@ -167,40 +187,58 @@ class fmo_parser:
 		with open(self.name,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase1 in line:
-					chg_init=i					
+					chg_init=i										
 				elif phrase2 in line:
 					chg_fin=i
-					
-		print(chg_init,chg_fin,i)
-					
-		if self.nbody == 2:
-			lline = 5
-		elif self.nbody == 3:
-			lline = 6
-			
+
+
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
-				if i >= chg_init and chg_fin <= stat_fin:
+				if i >= chg_init+1 and i <= chg_fin:
 					line2 = line.split()					
-					if len(line2) == lline:						
+					if len(line2) == 5:	
+						print(line2)											
 						a = pdb_atom()
 						a.num = int(line2[0])
 						a.resNum = int(line2[1])
-						a.element = numberatom[int(line2[2])]
-						a.charge = float(line2[4])	
+						a.element = numberatom[int(float(line2[2]))-1]
+						a.charge = float(line2[4])							
 						self.atoms.append(a)				
 						self.ChargesN2 = float(line2[4])
 						self.nAtoms += 1
-					elif len(line2) == lline:
+					elif len(line2) == 6:
 						a = pdb_atom()
 						a.num = line2[0]
 						a.resNum = line2[1]
-						a.element = numberatom[int(line2[2])]						
+						a.element = numberatom[int(line2[2])-1]						
 						a.charge = float(line2[5])
 						self.atoms.append(a)
 						self.nAtoms += 1
 						self.ChargesN2 = float(line2[4])
 						self.chargesN3 = float(line2[5])
+					elif len(line2) == 8:
+						print(line2)											
+						a = pdb_atom()
+						a.num = int(line2[0])
+						a.resNum = int(line2[1])
+						print(line2[2])
+						a.element = numberatom[int(float(line2[2]))-1]
+						a.charge = float(line2[7])							
+						self.atoms.append(a)				
+						self.ChargesN2 = float(line2[7])
+						self.nAtoms += 1
+					elif len(line2) == 9:
+						print(line2)											
+						a = pdb_atom()
+						a.num = int(line2[0])
+						a.resNum = int(line2[1])
+						a.element = numberatom[int(float(line2[2]))-1]
+						a.charge = float(line2[8])							
+						self.atoms.append(a)				
+						self.ChargesN2 = float(line2[7])
+						self.chargesN3 = float(line2[8])
+						self.nAtoms += 1
+						
 
 #======================================================================
 
@@ -271,7 +309,7 @@ class global_rd:
 
 class local_rd:
 
-	def __init__(self
+	def __init__(self,
 				neutro,
 				cation, 
 				anion):
