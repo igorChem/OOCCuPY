@@ -24,8 +24,7 @@ RES_N0S ={'GLY':2,'ALA':3,'VAL':5,'PHE':9,'ILE':6,'LEU':6,'PRO':5,'MET':5,'ASP':
 
 class pdb_atom:
 	
-	def __init__(self):
-		
+	def __init__(self):		
 		self.name     = ''
 		self.Type     = ''
 		self.element  = ''
