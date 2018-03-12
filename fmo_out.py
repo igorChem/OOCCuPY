@@ -385,7 +385,7 @@ class local_rd:
 		lrd_text += 'local reactivity descriptors by atom \n '
 		lrd_text += 'atom fragment_num  fukuiES, fukuiNS,  fukuiRS, deltFukui, softnesMu, electMU \n'
 		for i in range(len(self.neutro.atoms)):
-			lrd_text += '{0} {1} {2} {3} {4} {5} {6} {7}  \n'.format(self.neutro.atoms[i].element,self.neutro.atoms[i].resNum,self.fukuiES[i],self.fukuiNS[i],self.fukuiRS[i],self.deltFukui[i],self.softnesMu[i],self.electMU[i]) 
+			lrd_text += '{0} {1} {2:<05.5f} {3:<05.5f} {4:<05.5f} {5:<05.5f} {6:<05.5f} {7:<05.5f}  \n'.format(self.neutro.atoms[i].element,self.neutro.atoms[i].resNum,self.fukuiES[i],self.fukuiNS[i],self.fukuiRS[i],self.deltFukui[i],self.softnesMu[i],self.electMU[i]) 
 
 		lrd_file.write(lrd_text)
 		lrd_file.close()
