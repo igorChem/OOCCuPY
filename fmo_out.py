@@ -164,7 +164,7 @@ class fmo_parser:
 						elif len(line2) == 4:
 							energies.append( float(line2[1]) )	
 
-	
+		print(self.nFrag,len(energies))
 		for i in range(self.nFrag):			
 			self.Frag[i].energy=energies[i]
 						
