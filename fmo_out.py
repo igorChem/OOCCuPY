@@ -158,11 +158,17 @@ class fmo_parser:
 							energies.append( float(line2[1]) )
 						elif len(line2) == 4:
 							energies.append( float(line2[1]) )
+						elif len(line2) == 3: 
+							energies.append( float( line2[1][:10] ) )
+							print("ok",line2)	
 					except:
 						if len(line2) == 5: 
 							energies.append( float(line2[2]) )
 						elif len(line2) == 4:
-							energies.append( float(line2[1]) )	
+							energies.append( float(line2[1]) )
+						elif len(line2) == 3: 
+							energies.append( float( line2[1][:10] ) )
+							print("ok",line2)	
 
 		print(self.nFrag,len(energies))
 		for i in range(self.nFrag):			
