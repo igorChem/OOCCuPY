@@ -17,7 +17,7 @@ from scriptgenerator import *
 #=======================================================================
 
 
-path_to_dftb = "/home/barden/Dropbox/mestrado/Revisão/dftb/mio-1-1"
+path_to_dftb = "/home/barden/Dropbox/mestradoIgor/Revisão/dftb/mio-1-1"
 
 class gms_inp:
 	
@@ -73,6 +73,8 @@ class gms_inp:
 		self.dftb         = 0
 		self.disp         = "UFF"
 		self.morb         = 0
+		self.dumph        = 4.2 
+		self.convDFTB     = -1
 
 		if not self.basis == '':		
 			if self.basis == '3-21G':			
@@ -169,7 +171,7 @@ class gms_inp:
 		
 		elif self.dftb > 0:
 			self.basis_group += ' $basis gbasis =dftb $end \n'
-			self.dftb_group +=  ' $dftb scc=.true. ndftb={0} modgam=1 modesd=2 disp={1} itypmx =-1 $end \n'.format(self.dftb,self.disp)
+			self.dftb_group +=  ' $dftb scc=.true. ndftb={0} dampxh=.t. dampex={1} disp={2} itypmx ={3} $end \n'.format(self.dftb,self.dumph,self.disp,self.convDFTB)
 			self.dftb_group +=  ' $dftbsk \n'
 			self.dftb_group += "   C C "+ path_to_dftb +"/C-C.skf \n"
 			self.dftb_group += "   C H "+ path_to_dftb +"/C-H.skf \n"
