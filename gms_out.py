@@ -4,7 +4,7 @@
 
 
 from pdb_class import*
-from xyzclass import*
+from xyz_class import*
 from cube_class import*
 
 
@@ -24,9 +24,9 @@ class gms_out:
 
 	def parse_log(self):
 
-		logFile = open(logfile,'r')
+		logFile = open(self.name,'r')
 
-		for line in logfile:
+		for line in logFile:
 			line2 = line.split()
 			if len(line2) == 5:
 				if line2[0] == "CHARGE" and line2[2] == "MOLECULE":
@@ -46,14 +46,14 @@ class gms_out:
 		ch_init = 0
 		ch_fin  = 0
 				
-		with open(self.datfile,'r') as text:
+		with open(self.name,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase1 in line:
 					ch_init=i								
 				elif phrase2 in line:
 					ch_fin=i
 					
-		with open(self.datfile,'r') as text:
+		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
 				if i >= ch_init and i <=ch_fin :
 					line2 = line.split()
@@ -92,13 +92,11 @@ class gms_out:
 		cube_file0 = open(self.name[:-4]+'.cube','w')
 		cube_file0.write(cube_info)
 		cube_file0.close()
-
 		
 
-	def write_report(self,file_name):
-		
+	def write_report(self):		
 
-		report_file = open(name+".rep",'r')
+		report_file = open(self.name+".rep",'w')
 
 		report_text = ""
 		report_text += "qunatum report of {0} \n".format(self.name)
@@ -112,6 +110,8 @@ class gms_out:
 		report_file.write(report_text)
 		report_file.close()
 
-
+a = gms_out("1l2yab01d.log")
+a.parse_log()
+a.write_report()
 
 
