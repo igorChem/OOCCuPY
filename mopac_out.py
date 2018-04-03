@@ -8,7 +8,6 @@ from pdb_class import*
 from xyz_class import*
 from cube_class import*
 
-
 class mopac_out:
 
 	def __init__(self,outfile, method="RM1"):
@@ -20,8 +19,19 @@ class mopac_out:
 		self.atoms = []
 		self.homo_en = 0
 		self.lumo_en = 0
+		self.gap = 0
 		self.method = method
 		self.numOfatoms = 0
+		self.overlap = []
+		self.m_dens = []
+		self.MO = []
+		self.dipole = []
+		self.Tdipole = [] 
+		self.symmetries = []
+		self.AOzetas = []
+		self.AOatomIndices = []
+		self.AOpqn = []
+
 
 	def parse_out(self):
 
@@ -31,14 +41,15 @@ class mopac_out:
 			line2 = line.split()
 			if len(line2) == 9:
 				if line2[1] == "HEAT" and line2[3] == "FORMATION":
-					self.heat = line2[7]
+					self.heat = float(line2[7])
 			elif len(line2) == 5:
 				if line2[0] == "TOTAL" and line2[1] == "ENERGY":
-					self.energy = line2[3]
+					self.energy = float(line2[3])
 			elif len(line2) == 7:
 				if line2[0] == "HOMO" and line2[1] == "LUMO":
-					self.homo_en = line2[5]
-					self.lumo_en = line2[6]
+					self.homo_en = float(line2[5])
+					self.lumo_en = float(line2[6])
+					self.gap = self.lumo_en - self.homo_en
 
 
 		phrase1 = 'ATOM NO.   TYPE          CHARGE      No. of ELECS.   s-Pop       p-Pop'
@@ -68,6 +79,61 @@ class mopac_out:
 						self.atoms.append(atom)
 						self.numOfatoms +=1
 
+		outfile.close();
+
+	def parse_aux(self):
+
+
+		atom_typ_in   = 0
+		atom_typ_fin  = 0
+		atom_indx_in  = 0
+		atom_indx_fin = 0
+		coords_in     = 0
+		coords_fin    = 0
+		atom_symtype_in = 0
+		atom_symtype_fin = 0
+		ao_zeta_in  = 0
+		ao_zeta_fin = 0
+
+		out_file = open(self.name,'r')
+		indx = 0
+		for line in out_file: 
+			line2 = line.split()
+			if line2 > 0:
+				if line2[0][:8] == 'ATOM_EL[': 
+					if line2[0][12] == ']':
+						self.numOfatoms = int(line2[0][9:12])
+						atom_typ_in = indx
+					else:
+						self.numOfatoms = int(line2[0][9:13])
+						atom_typ_in = indx
+				elif line2[0][:10] == 'ATOM_CORE[':
+					atom_typ_fin = i
+				elif line2[0][:17] == 'ATOM_X:ANGSTROMS[':
+					coords_in = i
+				elif line2[0][:12] == 'AO_ATOMINDEX[':
+					coords_fin = i
+					atom_indx_in = i
+				elif line2[0][:13] == 'ATOM_SYMTYPE[':
+					atom_indx_fin = i
+					atom_symtype_in = i
+				elif line2[0][:8] == 'AO_ZETA[':
+					atom_symtype_fin = i
+					ao_zeta_in = i
+				elif line2[0][:9] == 'ATOM_PQN[':
+					pass
+
+
+
+
+			indx +=1
+
+
+
+
+
+
+
 
 	def write_report(self):
 
@@ -85,8 +151,26 @@ class mopac_out:
 		report_file.write(report_text)
 		report_file.close()
 
+
+def all_out():
+
+	list = glob.glob('.')
+	text = 'name heat_of_formation gap'
+
+	for out in list:
+		obj = mopac_out(out)
+		obj.parse_out()
+		text+= obj.name + " " + obj.heat + " " obj.gap  
+
+	filerep = open("reportmopac",'w')
+	filerep.write(text)
+	filerep.close()
+
+
+
+'''
 a = mopac_out("1l2yRM1neutro.out")
 a.parse_out()
 a.write_report()
-
+'''
 
