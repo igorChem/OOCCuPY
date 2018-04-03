@@ -123,16 +123,7 @@ class mopac_out:
 				elif line2[0][:9] == 'ATOM_PQN[':
 					pass
 
-
-
-
 			indx +=1
-
-
-
-
-
-
 
 
 	def write_report(self):
@@ -154,7 +145,7 @@ class mopac_out:
 
 def all_out():
 
-	list = glob.glob('.')
+	list = glob.glob('*.out')
 	text = 'name heat_of_formation gap'
 
 	for out in list:
