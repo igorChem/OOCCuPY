@@ -39,9 +39,10 @@ class mopac_out:
 
 		for line in out_file:
 			line2 = line.split()
-			if len(line2) == 9:
+			if len(line2) == 10:
 				if line2[1] == "HEAT" and line2[3] == "FORMATION":
-					self.heat = float(line2[7])
+					#print(line)
+					self.heat = float(line2[5])
 			elif len(line2) == 5:
 				if line2[0] == "TOTAL" and line2[1] == "ENERGY":
 					self.energy = float(line2[3])
@@ -75,11 +76,11 @@ class mopac_out:
 						atom.num = line2[0]
 						atom.element = line2[1]
 						atom.charge = line2[2]
-						print(line2[3],i)
+						#print(line2[3],i)
 						self.atoms.append(atom)
 						self.numOfatoms +=1
 
-		outfile.close();
+		out_file.close();
 
 	def parse_aux(self):
 
@@ -146,12 +147,12 @@ class mopac_out:
 def all_out():
 
 	list = glob.glob('*.out')
-	text = 'name heat_of_formation gap'
+	text = 'name heat_of_formation gap \n'
 
 	for out in list:
 		obj = mopac_out(out)
 		obj.parse_out()
-		text+= obj.name + " " + obj.heat + " " obj.gap  
+		text+= "{0} {1} {2} \n".format(obj.name,obj.heat,obj.gap)  
 
 	filerep = open("reportmopac",'w')
 	filerep.write(text)
