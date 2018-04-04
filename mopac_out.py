@@ -5,14 +5,14 @@
 #class to parse mopac output info 
 
 from pdb_class import*
-from xyz_class import*
-from cube_class import*
+#from xyz_class import*
+#from cube_class import*
 
 class mopac_out:
 
 	def __init__(self,outfile, method="RM1"):
 		self.name = outfile
-		self.aux_name = outfile[:-4] + "aux"
+		self.aux_name = outfile[:-4] + ".aux"
 		self.energy = 0
 		self.heat = 0
 		self.energy = 0
@@ -31,6 +31,7 @@ class mopac_out:
 		self.AOzetas = []
 		self.AOatomIndices = []
 		self.AOpqn = []
+		self.eigenv = []
 
 
 	def parse_out(self):
@@ -46,7 +47,7 @@ class mopac_out:
 			elif len(line2) == 5:
 				if line2[0] == "TOTAL" and line2[1] == "ENERGY":
 					self.energy = float(line2[3])
-			elif len(line2) == 7:
+			elif len(line2) == 7:				
 				if line2[0] == "HOMO" and line2[1] == "LUMO":
 					self.homo_en = float(line2[5])
 					self.lumo_en = float(line2[6])
@@ -95,36 +96,110 @@ class mopac_out:
 		atom_symtype_fin = 0
 		ao_zeta_in  = 0
 		ao_zeta_fin = 0
+		atom_pqn_in = 0
+		atom_pqn_fin = 0
+		charges_in   = 0
+		charges_fin  = 0
+		overlap_in   = 0 
+		overlap_fin  = 0
+		denity_in   = 0
+		density_fin  = 0
+		eigenvalue_in = 0
+		eigenvalue_fin = 0
 
-		out_file = open(self.name,'r')
+
+		aux_file = open(self.aux_name,'r')
 		indx = 0
-		for line in out_file: 
+		for line in aux_file: 
 			line2 = line.split()
 			if line2 > 0:
-				if line2[0][:8] == 'ATOM_EL[': 
-					if line2[0][12] == ']':
-						self.numOfatoms = int(line2[0][9:12])
-						atom_typ_in = indx
-					else:
-						self.numOfatoms = int(line2[0][9:13])
-						atom_typ_in = indx
-				elif line2[0][:10] == 'ATOM_CORE[':
-					atom_typ_fin = i
+				if line2[0][:8] == 'ATOM_EL[':					
+					if line2[0][len(line2[0])-1] == ']':
+						self.numOfatoms = int(line2[0][9:len(line2[0])-1])
+						atom_typ_in = indx					
+ 				elif line2[0][:10] == 'ATOM_CORE[':
+					atom_typ_fin = indx
 				elif line2[0][:17] == 'ATOM_X:ANGSTROMS[':
-					coords_in = i
+					coords_in = indx
 				elif line2[0][:12] == 'AO_ATOMINDEX[':
-					coords_fin = i
-					atom_indx_in = i
+					coords_fin = indx
+					atom_indx_in = indx
 				elif line2[0][:13] == 'ATOM_SYMTYPE[':
-					atom_indx_fin = i
-					atom_symtype_in = i
+					atom_indx_fin = indx
+					atom_symtype_in = indx
 				elif line2[0][:8] == 'AO_ZETA[':
-					atom_symtype_fin = i
-					ao_zeta_in = i
+					atom_symtype_fin = indx
+					ao_zeta_in = indx
 				elif line2[0][:9] == 'ATOM_PQN[':
-					pass
-
+					ao_zeta_fin = indx
+					atom_pqn_in = indx
+				elif line2[0][:14] == 'NUM_ELECTRONS':
+					atom_pqn_fin = indx
+				elif line2[0][:13] == 'ATOM_CHARGES[':
+					charges_in = indx
+				elif line2[0][:15] == 'OVERLAP_MATRIX[':
+					charges_fin = indx
+					overlap_in = indx			
+				elif line2[0][:21] == 'TOTAL_DENSITY_MATRIX[' or line2[0][:21] == 'ALPHA_DENSITY_MATRIX[' or line2[0][:20] == 'BETA_DENSITY_MATRIX[':            
+					overlap_fin = indx
+					density_in = indx
+				elif line2[0][:25] == 'BETA_M.O.SYMMETRY_LABELS[' or line2[0][:20] == 'M.O.SYMMETRY_LABELS[':
+					density_fin = indx
+				elif line2[0][:36] == 'ALPHA_MOLECULAR_ORBITAL_OCCUPANCIES[' or line2[0][:12] == 'EIGENVALUES[':
+					eigenvalue_in = indx
+				elif line2[0][:30] ==  'MOLECULAR_ORBITAL_OCCUPANCIES[':
+					eigenvalue_fin = indx
 			indx +=1
+
+		aux_file.close()
+
+		l = 0 
+		m = 0
+		with open(self.name,'r') as text:
+			for (i,line) in enumerate(text):
+				line2 = line.split()
+				if i > atom_typ_in and i < atom_typ_fin:					
+					if len(line2) > 1:
+						for k in range(len(line2)):
+							atom = pdb_atom()
+							atom.element = line2[k]
+							self.atoms.append(atom)
+				elif i > coords_in and i < coords_fin:
+					if len(line2) == 3:						
+						self.atom[l].xcoord = float(line2[0])
+						self.atom[l].ycoord = float(line2[1])
+						self.atom[l].zcoord = float(line2[2])
+						l += 1
+				elif i > atom_indx_in and i < atom_indx_fin:
+					if len(line2) > 1:
+						for k in range(len(line2)):
+							self.AOatomIndices.append(int(line2[k]))
+				elif i > atom_symtype_in and i < atom_symtype_fin:
+					if line(line) > 1:
+						for k in range(len(line2)):
+							self.symmetries.append(line2[k])
+				elif i > ao_zeta_in and i < ao_zeta_fin:
+					if len(line2) > 1:
+						for k in range(len(line2)):
+							self.AOzetas.append(line2[k])
+				elif i > atom_pqn_in and i < atom_pqn_fin:
+					if len(line2) > 1:
+						for k in range(len(line2)):
+							self.AOpqn.append(line2[k])
+				elif i > charges_in and i < charges_fin:
+					if len(line2) > 1:
+						for k in range(len(line2)):
+							self.atoms[m].charge = line2[k]
+							m += 1
+				elif i > overlap_in and i < overlap_fin:
+					for k in range(len(line2)):
+						self.overlap.append(line2[k])
+				elif i > density_in and i < density_fin:
+					for k in range(len(line2)):
+						self.m_dens.append(line2[k])
+				elif i > eigenvalue_in and i < eigenvalue_fin:
+					for k in range(len(line2)):
+						self.eigenv.append(line2[k])
 
 
 	def write_report(self):
@@ -160,9 +235,6 @@ def all_out():
 
 
 
-'''
-a = mopac_out("1l2yRM1neutro.out")
-a.parse_out()
-a.write_report()
-'''
+
+
 
