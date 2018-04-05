@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # mopac_out.py
 
-#class to parse mopac output info 
+#class to parse mopac output info
 
 from pdb_class import*
 #from xyz_class import*
@@ -26,10 +26,9 @@ class mopac_out:
 		self.m_dens = []
 		self.MO = []
 		self.dipole = []
-		self.Tdipole = [] 
+		self.Tdipole = []
 		self.symmetries = []
 		self.AOzetas = []
-		self.AOatomIndices = []
 		self.AOpqn = []
 		self.eigenv = []
 
@@ -47,7 +46,7 @@ class mopac_out:
 			elif len(line2) == 5:
 				if line2[0] == "TOTAL" and line2[1] == "ENERGY":
 					self.energy = float(line2[3])
-			elif len(line2) == 7:				
+			elif len(line2) == 7:
 				if line2[0] == "HOMO" and line2[1] == "LUMO":
 					self.homo_en = float(line2[5])
 					self.lumo_en = float(line2[6])
@@ -56,18 +55,18 @@ class mopac_out:
 
 		phrase1 = 'ATOM NO.   TYPE          CHARGE      No. of ELECS.   s-Pop       p-Pop'
 		phrase2 = 'DIPOLE           X         Y         Z       TOTAL'
-		
-		
+
+
 		ch_init = 0
 		ch_fin  = 0
-				
+
 		with open(self.name,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase1 in line:
-					ch_init=i								
+					ch_init=i
 				elif phrase2 in line:
 					ch_fin=i
-					
+
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
 				if i > ch_init and i <ch_fin :
@@ -100,7 +99,7 @@ class mopac_out:
 		atom_pqn_fin = 0
 		charges_in   = 0
 		charges_fin  = 0
-		overlap_in   = 0 
+		overlap_in   = 0
 		overlap_fin  = 0
 		denity_in   = 0
 		density_fin  = 0
@@ -110,18 +109,18 @@ class mopac_out:
 
 		aux_file = open(self.aux_name,'r')
 		indx = 0
-		for line in aux_file: 
+		for line in aux_file:
 			line2 = line.split()
 			if line2 > 0:
-				if line2[0][:8] == 'ATOM_EL[':					
-					if line2[0][len(line2[0])-1] == ']':
-						self.numOfatoms = int(line2[0][9:len(line2[0])-1])
-						atom_typ_in = indx					
+				if line2[0][:8] == 'ATOM_EL[':
+					if line2[0][len(line2[0])-2] == ']':
+						self.numOfatoms = int(line2[0][9:len(line2[0])-2])
+						atom_typ_in = indx
  				elif line2[0][:10] == 'ATOM_CORE[':
 					atom_typ_fin = indx
 				elif line2[0][:17] == 'ATOM_X:ANGSTROMS[':
 					coords_in = indx
-				elif line2[0][:12] == 'AO_ATOMINDEX[':
+				elif line2[0][:13] == 'AO_ATOMINDEX[':
 					coords_fin = indx
 					atom_indx_in = indx
 				elif line2[0][:13] == 'ATOM_SYMTYPE[':
@@ -133,14 +132,14 @@ class mopac_out:
 				elif line2[0][:9] == 'ATOM_PQN[':
 					ao_zeta_fin = indx
 					atom_pqn_in = indx
-				elif line2[0][:14] == 'NUM_ELECTRONS':
+				elif line2[0][:14] == 'NUM_ELECTRONS=':
 					atom_pqn_fin = indx
 				elif line2[0][:13] == 'ATOM_CHARGES[':
 					charges_in = indx
 				elif line2[0][:15] == 'OVERLAP_MATRIX[':
 					charges_fin = indx
-					overlap_in = indx			
-				elif line2[0][:21] == 'TOTAL_DENSITY_MATRIX[' or line2[0][:21] == 'ALPHA_DENSITY_MATRIX[' or line2[0][:20] == 'BETA_DENSITY_MATRIX[':            
+					overlap_in = indx
+				elif line2[0][:21] == 'TOTAL_DENSITY_MATRIX[' or line2[0][:21] == 'ALPHA_DENSITY_MATRIX[' or line2[0][:20] == 'BETA_DENSITY_MATRIX[':
 					overlap_fin = indx
 					density_in = indx
 				elif line2[0][:25] == 'BETA_M.O.SYMMETRY_LABELS[' or line2[0][:20] == 'M.O.SYMMETRY_LABELS[':
@@ -153,29 +152,31 @@ class mopac_out:
 
 		aux_file.close()
 
-		l = 0 
+		l = 0
 		m = 0
 		with open(self.name,'r') as text:
 			for (i,line) in enumerate(text):
 				line2 = line.split()
-				if i > atom_typ_in and i < atom_typ_fin:					
+				if i > atom_typ_in and i < atom_typ_fin:
 					if len(line2) > 1:
 						for k in range(len(line2)):
 							atom = pdb_atom()
 							atom.element = line2[k]
 							self.atoms.append(atom)
 				elif i > coords_in and i < coords_fin:
-					if len(line2) == 3:						
-						self.atom[l].xcoord = float(line2[0])
-						self.atom[l].ycoord = float(line2[1])
-						self.atom[l].zcoord = float(line2[2])
+					if len(line2) == 3:
+						self.atoms[l].xcoord = float(line2[0])
+						self.atoms[l].ycoord = float(line2[1])
+						self.atoms[l].zcoord = float(line2[2])
 						l += 1
 				elif i > atom_indx_in and i < atom_indx_fin:
 					if len(line2) > 1:
 						for k in range(len(line2)):
-							self.AOatomIndices.append(int(line2[k]))
+							orb = AOorbital()
+							orb.aoindx = int(line2[k])
+							self.atoms[int(line2[k])].orbs.append(orb)
 				elif i > atom_symtype_in and i < atom_symtype_fin:
-					if line(line) > 1:
+					if len(line2) > 1:
 						for k in range(len(line2)):
 							self.symmetries.append(line2[k])
 				elif i > ao_zeta_in and i < ao_zeta_fin:
@@ -196,24 +197,49 @@ class mopac_out:
 						self.overlap.append(line2[k])
 				elif i > density_in and i < density_fin:
 					for k in range(len(line2)):
-						self.m_dens.append(line2[k])
+						self.m_dens.append(float(line2[k]))
 				elif i > eigenvalue_in and i < eigenvalue_fin:
 					for k in range(len(line2)):
-						self.eigenv.append(line2[k])
+						self.eigenv.append(float(line2[k]))
 
+		zz = 0
+		for x in range(len(self.atoms)):
+			for y in  range(len(self.atoms[x].orbs)):
+				self.atoms[x].orbs[y].pqn = self.AOpqn[zz]
+				self.atoms[x].orbs[y].symmetry = self.symmetries[zz]
+				self.atoms[x].orbs[y].zeta = self.AOzetas[zz]
+				zz +=1
 
 	def write_report(self):
 
 		report_file = open(self.name+".rep",'w')
 
 		report_text = ""
-		report_text += "qunatum report of {0} \n".format(self.name)
-		report_text += "number of atoms in molecule {0}\n".format(self.numOfatoms)
-		report_text += "Total energy = {0} | Heat of formation = {1}\n".format(self.energy,self.heat)
-		report_text += "atoms and its muliken charges \n "
+		report_text += "{0} \n".format(self.name)
+		report_text += "{0} \n".format(self.numOfatoms)
+		report_text += "{0} \n".format(self.energy)
 
-		for atom in self.atoms:
-			report_text += "{0} {1} {2} \n".format(atom.num,atom.element,atom.charge)
+		for i in range(len(self.atoms)):
+			if len(self.atoms[i].orbs) == 1:
+				report_text += "{0} {1} {2} {3} {4} \n".format(self.atoms[i].element,self.atoms[i].xcoord,self.atoms[i].ycoord,self.atoms[i].zcoord,self.atoms[i].charge)
+			elif len(self.atoms[i].orbs) == 4:
+				report_text += "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16}\n".format(atom.element,
+															  atom.xcoord,
+															  atom.ycoord,
+															  atom.zcoord,
+															  atom.charge,
+															  atom.orbs[0].symmetry,
+															  atom.orbs[0].pqn,
+															  atom.orbs[0].zeta,
+															  atom.orbs[1].symmetry,
+															  atom.orbs[1].pqn,
+															  atom.orbs[1].zeta,
+															  atom.orbs[2].symmetry,
+															  atom.orbs[2].pqn,
+															  atom.orbs[2].zeta,
+															  atom.orbs[3].symmetry,
+															  atom.orbs[3].pqn,
+															  atom.orbs[3].zeta)
 
 		report_file.write(report_text)
 		report_file.close()
@@ -227,14 +253,8 @@ def all_out():
 	for out in list:
 		obj = mopac_out(out)
 		obj.parse_out()
-		text+= "{0} {1} {2} \n".format(obj.name,obj.heat,obj.gap)  
+		text+= "{0} {1} {2} \n".format(obj.name,obj.heat,obj.gap)
 
 	filerep = open("reportmopac",'w')
 	filerep.write(text)
 	filerep.close()
-
-
-
-
-
-
