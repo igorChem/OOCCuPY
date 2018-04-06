@@ -31,7 +31,7 @@ class mopac_out:
 		self.AOzetas = []
 		self.AOpqn = []
 		self.eigenv = []
-
+		self.AOindx = []
 
 	def parse_out(self):
 
@@ -105,6 +105,8 @@ class mopac_out:
 		density_fin  = 0
 		eigenvalue_in = 0
 		eigenvalue_fin = 0
+		eigenvecs_in = 0
+		eigenvecs_fin = 0
 
 
 		aux_file = open(self.aux_name,'r')
@@ -139,14 +141,18 @@ class mopac_out:
 				elif line2[0][:15] == 'OVERLAP_MATRIX[':
 					charges_fin = indx
 					overlap_in = indx
+				elif line2[0][:11] == 'SET_OF_MOS=' or  line2[0][:17] == 'SET_OF_ALPHA_MOS=':
+					overlap_fin =indx
+				elif line2[0][:13] == 'EIGENVECTORS[' or line2[0][:19] == 'ALPHA_EIGENVECTORS[':
+					eigenvecs_in = indx
 				elif line2[0][:21] == 'TOTAL_DENSITY_MATRIX[' or line2[0][:21] == 'ALPHA_DENSITY_MATRIX[' or line2[0][:20] == 'BETA_DENSITY_MATRIX[':
-					overlap_fin = indx
+					eigenvecs_fin = indx
 					density_in = indx
 				elif line2[0][:25] == 'BETA_M.O.SYMMETRY_LABELS[' or line2[0][:20] == 'M.O.SYMMETRY_LABELS[':
 					density_fin = indx
 				elif line2[0][:36] == 'ALPHA_MOLECULAR_ORBITAL_OCCUPANCIES[' or line2[0][:12] == 'EIGENVALUES[':
 					eigenvalue_in = indx
-				elif line2[0][:30] ==  'MOLECULAR_ORBITAL_OCCUPANCIES[':
+				elif line2[0][:30] == 'MOLECULAR_ORBITAL_OCCUPANCIES[':
 					eigenvalue_fin = indx
 			indx +=1
 
@@ -172,9 +178,7 @@ class mopac_out:
 				elif i > atom_indx_in and i < atom_indx_fin:
 					if len(line2) > 1:
 						for k in range(len(line2)):
-							orb = AOorbital()
-							orb.aoindx = int(line2[k])
-							self.atoms[int(line2[k])].orbs.append(orb)
+							self.AOindx.append(line2[k])
 				elif i > atom_symtype_in and i < atom_symtype_fin:
 					if len(line2) > 1:
 						for k in range(len(line2)):
@@ -190,25 +194,22 @@ class mopac_out:
 				elif i > charges_in and i < charges_fin:
 					if len(line2) > 1:
 						for k in range(len(line2)):
-							self.atoms[m].charge = line2[k]
+							self.atoms[m].charge = float(line2[k])
 							m += 1
-				elif i > overlap_in and i < overlap_fin:
+				elif i > (overlap_in+1) and i < (overlap_fin-1):
+					print (i,line2)
 					for k in range(len(line2)):
-						self.overlap.append(line2[k])
-				elif i > density_in and i < density_fin:
+						if line2[0] != 'SET_OF_MOS=' and line2[0] != 'SET_OF_ALPHA_MOS=':
+							self.overlap.append(float(line2[k]))
+				elif i > (eigenvecs_in+1) and i < (eigenvecs_fin-1):
+					for k in range(len(line2)):
+						self.MO.append(float(line2[k]))
+				elif i > (density_in+1) and i < density_fin:
 					for k in range(len(line2)):
 						self.m_dens.append(float(line2[k]))
 				elif i > eigenvalue_in and i < eigenvalue_fin:
 					for k in range(len(line2)):
 						self.eigenv.append(float(line2[k]))
-
-		zz = 0
-		for x in range(len(self.atoms)):
-			for y in  range(len(self.atoms[x].orbs)):
-				self.atoms[x].orbs[y].pqn = self.AOpqn[zz]
-				self.atoms[x].orbs[y].symmetry = self.symmetries[zz]
-				self.atoms[x].orbs[y].zeta = self.AOzetas[zz]
-				zz +=1
 
 	def write_report(self):
 
@@ -218,28 +219,34 @@ class mopac_out:
 		report_text += "{0} \n".format(self.name)
 		report_text += "{0} \n".format(self.numOfatoms)
 		report_text += "{0} \n".format(self.energy)
+		report_text += "{0} \n".format(self.homo_en)
+		report_text += "{0} \n".format(self.lumo_en)
 
 		for i in range(len(self.atoms)):
-			if len(self.atoms[i].orbs) == 1:
-				report_text += "{0} {1} {2} {3} {4} \n".format(self.atoms[i].element,self.atoms[i].xcoord,self.atoms[i].ycoord,self.atoms[i].zcoord,self.atoms[i].charge)
-			elif len(self.atoms[i].orbs) == 4:
-				report_text += "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16}\n".format(atom.element,
-															  atom.xcoord,
-															  atom.ycoord,
-															  atom.zcoord,
-															  atom.charge,
-															  atom.orbs[0].symmetry,
-															  atom.orbs[0].pqn,
-															  atom.orbs[0].zeta,
-															  atom.orbs[1].symmetry,
-															  atom.orbs[1].pqn,
-															  atom.orbs[1].zeta,
-															  atom.orbs[2].symmetry,
-															  atom.orbs[2].pqn,
-															  atom.orbs[2].zeta,
-															  atom.orbs[3].symmetry,
-															  atom.orbs[3].pqn,
-															  atom.orbs[3].zeta)
+			report_text += "{0} {1} {2} {3} {4} \n".format(self.atoms[i].element,
+														   self.atoms[i].xcoord,
+														   self.atoms[i].ycoord,
+														   self.atoms[i].zcoord,
+														   self.atoms[i].charge)
+
+		for i in range(len(self.AOpqn)):
+			report_text += "{0} {1} {2} {3} \n".format(self.AOindx[i],self.AOpqn[i],self.AOzetas[i],self.symmetries[i])
+
+		for i in range(len(self.overlap)):
+			report_text += "{0:.6f} ".format(self.overlap[i])
+			if i%12 == 0:
+				report_text +="\n"
+
+		for i in range(len(self.m_dens)):
+			report_text += "{0:.6f} ".format(self.m_dens[i])
+			if i%12 == 0:
+				report_text +="\n"
+
+		for i in range(len(self.MO)):
+			report_text += "{0:.6f} ".format(self.MO[i])
+			if i%12 == 0:
+				report_text +="\n"
+
 
 		report_file.write(report_text)
 		report_file.close()

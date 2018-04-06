@@ -22,15 +22,6 @@ RES_N0S ={'GLY':2,'ALA':3,'VAL':5,'PHE':9,'ILE':6,'LEU':6,'PRO':5,'MET':5,'ASP':
 
 # main classes coding
 
-class AOorbital:
-
-    def __init__(self):
-        self.symmetry = ''
-        self.pqn      = 0
-        self.zeta     = 0.0
-        self.aoindx   = 0
-
-
 class pdb_atom:
 
 	def __init__(self):
@@ -46,7 +37,6 @@ class pdb_atom:
 		self.resTyp    = ''
 		self.name      = ''
 		self.charge    = 0
-        self.orbs      = []
 
 class residue:
 
