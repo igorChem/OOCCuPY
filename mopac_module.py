@@ -57,7 +57,7 @@ def run_all(met):
 		a.write_xyz()
 	listxyz = glob.glob('*.xyz')
 	for xyz in listxyz:
-		a = mopac_inp(xyz,1,1,xyz[:-4]+".mop",met)
+		a = mopac_inp(xyz,1,1,xyz[:-4]+"neutro.mop",met)
 		a.write_mop()
 		b = mopac_inp(xyz,2,2,xyz[:-4]+"cation.mop",met)
 		b.write_mop()
