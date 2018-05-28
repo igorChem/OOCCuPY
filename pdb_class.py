@@ -115,17 +115,14 @@ class protein:
 						a.ptype = line[2]
 						a.resTyp = line[3]
 						a.resNum = line[4]
-						a.xcoord = round(float(line[5]),3)
-						a.ycoord = round(float(line[6]),3)
-						a.zcoord = round(float(line[7]),3)
-						a.Type = line[10]
-						a.element = a.Type[0][0]
+						a.xcoord = round(float(line[6]),3)
+						a.ycoord = round(float(line[7]),3)
+						a.zcoord = round(float(line[8]),3)
+						#a.Type = line[10]
+						a.element = a.ptype[0]
 						a.name = a.Type + str(a.num)
 						self.atoms.append(a)
-
-
 		return(self.atoms)
-
 		pdb_file.close()
 
 
@@ -308,7 +305,7 @@ class protein:
 		for atom in self.atoms:
 			input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
 
-		xyz =open(self.name +'.xyz','w')
+		xyz =open(self.name[:-4] +'.xyz','w')
 		xyz.write(input_text)
 		xyz.close()
 
@@ -345,8 +342,7 @@ class protein:
 		else:
 			sol = ""
 
-		input_text = "{0} 1SCF XYZ PDB PL T={1} TIMES MOZYME {2} CUTOFF={3} \n\n".format(method,max_time,sol,cutoff)
-
+		input_text = "{0} 1SCF XYZ PL T={1} TIMES MOZYME {2} CUTOFF={3} \n\n".format(method,max_time,sol,cutoff)
 		chain = ""
 
 		i=1
