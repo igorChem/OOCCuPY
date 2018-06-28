@@ -12,7 +12,7 @@ class gms_out:
 
 	def __init__(self,logfile):
 		self.name = logfile;
-		self.dat_file = logfile[:-4]
+		self.dat_file = logfile
 		self.energy = 0
 		self.enegyPCM = 0
 		self.total_charge = 0
@@ -75,14 +75,14 @@ class gms_out:
 		ir_fin  = 0
 		cube_info =''
 		
-		with open(self.datfile,'r') as text:
+		with open(self.dat_file,'r') as text:
 			for (i, line) in enumerate(text):
 				if phrase1 in line:
 					ir_init=i								
 				elif phrase2 in line:
 					ir_fin=i
 					
-		with open(self.datfile,'r') as text:
+		with open(self.dat_file,'r') as text:
 			for (i,line) in enumerate(text):
 				if i >= ir_init and i <=ir_fin :
 					line2 = line.split()
@@ -110,8 +110,5 @@ class gms_out:
 		report_file.write(report_text)
 		report_file.close()
 
-a = gms_out("1l2yab01d.log")
-a.parse_log()
-a.write_report()
 
 

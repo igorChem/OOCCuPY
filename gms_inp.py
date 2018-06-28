@@ -123,12 +123,12 @@ class gms_inp:
 		#------------------------------------------------------------#
 			#contrl group
 		#------------------------------------------------------------#			
-		self.contrl_group =  ' $contrl runtyp= {0} maxit=150 $end \n'.format(self.runtyp)
-		self.contrl_group += ' $contrl  icharg = {0} mult = {1}  $end \n'.format(self.charge,self.multiplicity)
+		self.contrl_group =  ' $contrl runtyp={0} maxit=150 AIMPAC=.t. $end \n'.format(self.runtyp)
+		self.contrl_group += ' $contrl  icharg={0} mult={1}  $end \n'.format(self.charge,self.multiplicity)
 		self.contrl_group += ' $contrl scftyp={0} $end \n'.format(self.scf_typ)
 		
 		if self.ab_initio == 'DFT':
-			self.contrl_group +=' $contrl  dfttyp = b3lyp $end \n'
+			self.contrl_group +=' $contrl  dfttyp = {0} $end \n'.format(self.dfttyp)
 		elif self.ab_initio == 'MP2':
 			self.contrl_group +=' $contrl  mplevl=2 $end \n'
 		#------------------------------------------------------------#	
@@ -346,7 +346,7 @@ class gms_inp:
 	def protein_inp(self          ,
 					chg=0         ,
 					inpnam= ''    ,
-					QMmet = 'HF'  ,
+					QMmet = ''  ,
 					conv = 0      ,
 					diis = False  ,
 					elspot = False,
@@ -364,8 +364,12 @@ class gms_inp:
 			self.ab_initio = "SemiEmpi"
 
 		
-		self.ngauss = 3
-		self.gbasis = 'N21'
+		self.dfttyp = "wb97xd"
+		
+		self.ngauss = 6
+		self.gbasis = 'N31'
+		
+		self.diffuseP = True
 				
 		self.pcm = True
 		self.elsden = True
