@@ -89,24 +89,23 @@ class protein:
 		pdb_file = open(filename,'r')
 
 		for line in pdb_file:
-			line = line.split()
+			print(line)
+			line2 = line.split()
 			if self.amber == False:
-				if line[0]=='ATOM':
-					if not line[3] == "WAT":
-						a = pdb_atom()
-						a.num = line[1]
-						a.ptype = line[2]
-						a.resTyp = line[3]
-						a.resNum = line[5]
-						a.xcoord = float(line[6])
-						a.ycoord = float(line[7])
-						a.zcoord = float(line[8])
-						a.Type = line[11]
-						a.element = a.Type[0][0]
-						a.name = a.Type + str(a.num)
-						self.atoms.append(a)
-					else:
-						print("water atom")
+				if len(line2) > 0:
+					if line2[0]=='ATOM':
+						if not line[3] == "WAT":
+							a = pdb_atom()
+							a.num = line2[1]
+							a.ptype = line2[2]
+							a.resTyp = line2[3]
+							a.resNum = line2[5]
+							a.xcoord = float(line2[5])
+							a.ycoord = float(line2[6])
+							a.zcoord = float(line2[7])
+							a.element = a.ptype[0][0]
+							a.name = a.Type + str(a.num)
+							self.atoms.append(a)
 			elif self.amber == True:
 				if line[0]=='ATOM':
 					if not line[3] == "WAT":
@@ -342,12 +341,12 @@ class protein:
 		else:
 			sol = ""
 
-		input_text = "{0} 1SCF XYZ PL T={1} TIMES MOZYME {2} CUTOFF={3} \n\n".format(method,max_time,sol,cutoff)
+		input_text = "{0} 1SCF large aux MOZYME {2} CUTOFF={3} \n\n".format(method,max_time,sol,cutoff)
 		chain = ""
 
 		i=1
 		for atom in self.atoms:
-			input_text += "ATOM {0:>6} {1:<5} {2:<4} {3} {4:<4} {5:<05.3f} {6:<05.3f} {7:<05.3f}  1.00  0.00  {8:>10} \n".format(i,atom.ptype,atom.resTyp,chain,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.element)
+			input_text += "{0} {1}  1  {2} 1 {3} \n".format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
 			i+=1
 
 
