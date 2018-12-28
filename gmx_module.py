@@ -347,7 +347,7 @@ class min_prot:
 		text_to_run = "/usr/bin/gmx" + " mdrun  -deffnm md_0_1"
 		os.system(text_to_run)
 		
-		text_to_run = "/usr/bin/gmx" + " trjconv -f  arquivo.trr -s arquivo.tpr -pbc mol -dt 10 -o output.pdb"
+		text_to_run = "/usr/bin/gmx" + " trjconv -f  md_0_1.trr -s md_0_1.tpr -pbc mol -dt 10 -o output.pdb"
 		os.system(text_to_run)
 		
 	def run(self):
