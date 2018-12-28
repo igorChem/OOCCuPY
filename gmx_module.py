@@ -24,7 +24,7 @@ class min_prot:
 
 	def top_init(self):
 
-		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_processed.pdb -water spce << EOF \n"
+		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_processed.pdb -water tip3p << EOF \n"
 		text_to_run += "1 \n"
 		text_to_run += "EOF"
 
@@ -94,7 +94,7 @@ class min_prot:
 		mdp_file += "emtol = 1000.0 \n"
 		mdp_file += "emstep = 0.0051 \n"
 		mdp_file += "nsteps = 50000 \n"		
-		mdp_file += "nstlist		 = 1	\n "
+		mdp_file += "nstlist		 = 2	\n "
 		mdp_file += "cutoff-scheme   = Verlet \n"
 		mdp_file += "ns_type		 = grid\n "
 		mdp_file += "coulombtype	 = PME\n "
@@ -173,13 +173,17 @@ class min_prot:
 		a.residue_def(reorg=True)
 		a.write_pdb(self.protein+"_.pdb")		
 
+	def equilibration(self):
+
+		equi_file = open("")
+
 	def run(self):
 		self.top_init()
 		self.solvate()
 		self.add_ions()
 		self.Minimization()
-		self.write_minStruct()
-		self.rewrite_pdb()	
+		#self.write_minStruct()
+		#self.rewrite_pdb()	
 		
 		os.system("/usr/bin/pymol "+self.protein+"_min.xyz")
 
