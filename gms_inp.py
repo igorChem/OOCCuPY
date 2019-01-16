@@ -60,6 +60,7 @@ class gms_inp:
 		self.other_groups = ''
 		self.dftb_group   = ''
 		self.input_text   = '' 
+		self.vec_group    = ''
 		self.diis         = False
 		self.soscf        = True
 		self.damp         = False 
@@ -282,7 +283,9 @@ class gms_inp:
 		self.input_text += self.guess_group
 		self.input_text += self.dftb_group
 		self.input_text += self.other_groups
+		self.input_text += self.vec_group
 		self.input_text += self.data_group
+		
 		
 		
 		if  inp_name == '':
@@ -343,14 +346,15 @@ class gms_inp:
 		self.join_text(inp_name=inpnam,Script=script)	
 		
 	
-	def protein_inp(self          ,
-					chg=0         ,
-					inpnam= ''    ,
-					QMmet = ''  ,
-					conv = 0      ,
-					diis = False  ,
-					elspot = False,
-					multi=1	      ):
+	def protein_inp(self              ,
+					chg    = 0        ,
+					inpnam = ''       ,
+					QMmet  = ''       ,
+					conv   = 0        ,
+					diis   = False    ,
+					dat    = 'log.dat',
+					elspot = False    ,
+					multi  = 1	      ):
 						
 		self.ab_initio = QMmet
 		self.charge = chg
@@ -364,12 +368,12 @@ class gms_inp:
 			self.ab_initio = "SemiEmpi"
 
 		
-		self.dfttyp = "wb97xd"
+		self.dfttyp = "b3lyp"
 		
-		self.ngauss = 6
-		self.gbasis = 'N31'
+		self.ngauss = 3
+		self.gbasis = 'N21'
 		
-		self.diffuseP = True
+		self.diffuseP = False
 				
 		self.pcm = True
 		self.elsden = True
@@ -402,8 +406,32 @@ class gms_inp:
 				self.rstrct = True
 				self.damp = True
 		
+		i=0
+		vecin = 0
+		vecfin = 0
+		if not dat == 'log.data':
+			vec_data = open(dat,'r')
+			for line in vec_data:
+				line2 = line.split()
+				if len(line2) > 0:
+					if line2[0] == "$VEC":
+						vecin = i
+						self.vec_group += line
+						i+=1
+					elif vecin>0 and line2[0] == "$END":
+						self.vec_group += line
+						vecfin = i
+						i+=1
+					elif vecin > 0 and vecfin ==0:
+						self.vec_group +=line
+					elif vecfin > 0:
+						vec_data.close()
+						break
+					else:
+						i+=1
+		
 		self.init_groups()
-		self.join_text(inp_name=inpnam)				
+		self.join_text(inp_name=inpnam)
 		
 	
 #========================================================================#

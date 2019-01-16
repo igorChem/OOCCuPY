@@ -89,7 +89,6 @@ class protein:
 		pdb_file = open(filename,'r')
 
 		for line in pdb_file:
-			print(line)
 			line2 = line.split()
 			if self.amber == False:
 				if len(line2) > 0:
@@ -103,7 +102,7 @@ class protein:
 							a.xcoord = float(line2[5])
 							a.ycoord = float(line2[6])
 							a.zcoord = float(line2[7])
-							a.element = a.ptype[0][0]
+							a.element = line2[-1]
 							a.name = a.Type + str(a.num)
 							self.atoms.append(a)
 			elif self.amber == True:
@@ -121,7 +120,6 @@ class protein:
 						a.element = a.ptype[0]
 						a.name = a.Type + str(a.num)
 						self.atoms.append(a)
-		return(self.atoms)
 		pdb_file.close()
 
 
@@ -300,15 +298,15 @@ class protein:
 	def write_xyz(self):
 
 		input_text = '{0} \n \n'.format(len(self.atoms))
-
+		xyz=open(self.name[:-4] +'.xyz','w')
+		
 		for atom in self.atoms:
 			input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
 
-		xyz =open(self.name[:-4] +'.xyz','w')
 		xyz.write(input_text)
 		xyz.close()
 
-		return(input_text)
+		#return(input_text)
 
 	def write_pdb(self,filename):
 
