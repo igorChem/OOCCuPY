@@ -41,7 +41,7 @@ class amber_mod:
 	
 	def tleap_call(self):
 
-		tleap_in ="tleap \n" 
+		tleap_in  = "tleap \n" 
 		tleap_in += "source leaprc.protein.ff14SB \n"
 		tleap_in += "prot = loadPdb " + self.clear + "\n"
 		tleap_in += "source leaprc.water.tip3p \n"

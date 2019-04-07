@@ -40,7 +40,7 @@ class mopac_inp:
 
 		mop_inp = open(self.inpnam,'w')
 		mop_text = ''
-		mop_text += '{0} 1SCF PL T=1D TIMES charge={1} {2} GEO-OK\n\n\n'.format(self.hamilt,self.charge,self.mult)
+		mop_text += '{0} 1SCF ALLVECS VECTOR graphf charge={1} {2} \n\n\n'.format(self.hamilt,self.charge,self.mult)
 
 		for i in range(self.xyz.Natoms):
 			mop_text +="{0}  {1}  1 {2}  1 {3} \n".format(self.xyz.AtomLabels[i],self.xyz.xCoord[i],self.xyz.yCoord[i],self.xyz.zCoord[i])
