@@ -87,22 +87,22 @@ class protein:
 				 filename   ):
 
 		pdb_file = open(filename,'r')
-
+		print(filename)
 		for line in pdb_file:
 			line2 = line.split()
 			if self.amber == False:
 				if len(line2) > 0:
-					if line2[0]=='ATOM':
+					if line2[0]=='ATOM' or line2[0][:6]=="HETATM":
 						if not line[3] == "WAT":
 							a = pdb_atom()
 							a.num = line2[1]
 							a.ptype = line2[2]
 							a.resTyp = line2[3]
-							a.resNum = line2[5]
-							a.xcoord = float(line2[5])
-							a.ycoord = float(line2[6])
-							a.zcoord = float(line2[7])
-							a.element = line2[-1]
+							#a.resNum = line2[5]
+							a.xcoord = float(line2[6])
+							a.ycoord = float(line2[7])
+							a.zcoord = float(line2[8])
+							a.element = line2[-1][0]
 							a.name = a.Type + str(a.num)
 							self.atoms.append(a)
 			elif self.amber == True:
