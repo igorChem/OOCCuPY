@@ -99,10 +99,10 @@ class protein:
 							a.ptype = line2[2]
 							a.resTyp = line2[3]
 							#a.resNum = line2[5]
-							a.xcoord = float(line2[6])
-							a.ycoord = float(line2[7])
-							a.zcoord = float(line2[8])
-							a.element = line2[-1][0]
+							a.xcoord = float(line2[5])
+							a.ycoord = float(line2[6])
+							a.zcoord = float(line2[7])
+							a.element = line2[2][0]
 							a.name = a.Type + str(a.num)
 							self.atoms.append(a)
 			elif self.amber == True:
