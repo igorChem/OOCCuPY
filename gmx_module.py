@@ -80,12 +80,12 @@ class min_prot:
 		mdp_inp.write(mdp_file)
 		mdp_inp.close()
 
-		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.protein + "_solv.pdb -p topol.top -o ions.tpr << EOF\n"
+		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.protein + "_solv.pdb -p topol.top -o ions.tpr -maxwarn 50<< EOF\n"
 		text_to_run += "13 \n"
 		text_to_run += "EOF"
 		os.system(text_to_run)
 
-		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
+		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -n12name CL -nn {0} -np {1} -maxwarn 50".format(NN,NP)
 		os.system(text_to_run)
 
 	def Minimization(self):	
@@ -106,7 +106,7 @@ class min_prot:
 		mdp_inp.write(mdp_file)
 		mdp_inp.close()
 
-		text_to_run = "/usr/bin/gmx" +" grompp -f minim.mdp -c " + self.protein + "_solv_ions.pdb -p topol.top -o em.tpr"
+		text_to_run = "/usr/bin/gmx" +" grompp -f minim.mdp -c " + self.protein + "_solv_ions.pdb -p topol.top -o em.tpr -maxwarn 50"
 		os.system(text_to_run)
 
 		text_to_run = "/usr/bin/gmx" + " mdrun -v -deffnm em"
