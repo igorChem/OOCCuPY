@@ -85,7 +85,7 @@ class min_prot:
 		text_to_run += "EOF"
 		os.system(text_to_run)
 
-		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -n12name CL -nn {0} -np {1} -maxwarn 50".format(NN,NP)
+		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.protein + "_solv_ions.pdb -p topol.top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
 		os.system(text_to_run)
 
 	def Minimization(self):	
