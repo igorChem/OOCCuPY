@@ -301,7 +301,8 @@ class protein:
 		xyz=open(self.name[:-4] +'.xyz','w')
 		
 		for atom in self.atoms:
-			input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
+			if atom.element == "1" or atom.element == "2" or atom.element == "3":
+				input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
 
 		xyz.write(input_text)
 		xyz.close()

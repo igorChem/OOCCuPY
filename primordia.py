@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # pdb_Reader.py
 
-import os
+import os,glob
 
 
 def ls_gen():
@@ -15,6 +15,18 @@ def ls_gen():
 		else:
 			a.append(sc)
 
+
+class primordia_inp:
+	def __init__(self):
+		pdb = glob.glob("*pdb")
+		aux = glob.glob("*aux")
+		f = open("input_pri",'w')
+		text ="eband 5\n"
+		for i in range(len(pdb)):
+			text+="3 {} potential_fukui 0 100 {} mopac 0 0 0 0 EW elecdens mep".format(aux[i],pdb[i])
+			
+		f.write(text)
+		f.close()
 
 class primordia:
 	def __init__(self,comp,pro,listr):
