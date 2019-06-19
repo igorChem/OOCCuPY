@@ -17,16 +17,14 @@ def ls_gen():
 
 
 class primordia_inp:
-	def __init__(self):
-		pdb = glob.glob("*pdb")
-		aux = glob.glob("*aux")
-		f = open("input_pri",'w')
-		text ="eband 5\n"
-		for i in range(len(pdb)):
-			text+="3 {} potential_fukui 0 100 {} mopac 0 0 0 0 EW elecdens mep".format(aux[i],pdb[i])
+	pdb = glob.glob("*pdb")
+	f = open("input_pri",'w')
+	text ="eband 5\n"
+	for i in range(len(pdb)):
+		text+="3 {0} potential_fukui 0 100 {1} mopac 0 0 0 0 EW elecdens mep\n".format(pdb[i][:-4]+".aux",pdb[i])
 			
-		f.write(text)
-		f.close()
+	f.write(text)
+	f.close()
 
 class primordia:
 	def __init__(self,comp,pro,listr):
@@ -107,8 +105,8 @@ class primordia:
 		self.eas_ch.append(sum(self.eas_ch))    
 		self.nas_ch.append(sum(self.nas_ch))   
 		self.ras_ch.append(sum(self.ras_ch))   
-		self.dual_ch.append(sum(self.dual_ch))  
-		self.pot_ch.append(sum(self.pot_ch)) 
+		self.dual_ch.append(sum(self.dual_ch)) 
+		self.pot_ch.append(sum(self.pot_ch))
 		
 			
 			
