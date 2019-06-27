@@ -23,20 +23,25 @@ RES_N0S ={'GLY':2,'ALA':3,'VAL':5,'PHE':9,'ILE':6,'LEU':6,'PRO':5,'MET':5,'ASP':
 # main classes coding
 
 class pdb_atom:
+	"""
 
+	"""
 	def __init__(self):
 		self.name      = ''
 		self.Type      = ''
 		self.element   = ''
 		self.ptype     = ''
-		self.xcoord    = []
-		self.ycoord    = []
-		self.zcoord    = []
-		self.num       = []
-		self.resNum    = []
+		self.xcoord    = 0
+		self.ycoord    = 0
+		self.zcoord    = 0
+		self.num       = 0
+		self.resNum    = 0
+		self.chain_t   = ''
 		self.resTyp    = ''
 		self.name      = ''
 		self.charge    = 0
+		self.occ       = 0
+		self.bfactor   = 0
 
 class residue:
 
@@ -74,52 +79,32 @@ class residue:
 
 class protein:
 
-	def __init__(self         ,
-				 name         ,
-				 amber = False):
-		self.name  = name
-		self.chain = []
-		self.resN  = 0
-		self.atoms = []
-		self.amber = amber
+	def __init__(self,name):
+		self.name    = name
+		self.chain   = []
+		self.resN    = 0
+		self.atoms   = []
+		self.amber   = amber
 
-	def pdb_parse(self      ,
-				 filename   ):
-
-		pdb_file = open(filename,'r')
-		print(filename)
+	def pdb_parse(self):
+		i = 1
+		pdb_file = open(self.name,'r')
 		for line in pdb_file:
-			line2 = line.split()
-			if self.amber == False:
-				if len(line2) > 0:
-					if line2[0]=='ATOM' or line2[0][:6]=="HETATM":
-						if not line[3] == "WAT":
-							a = pdb_atom()
-							a.num = line2[1]
-							a.ptype = line2[2]
-							a.resTyp = line2[3]
-							#a.resNum = line2[5]
-							a.xcoord = float(line2[5])
-							a.ycoord = float(line2[6])
-							a.zcoord = float(line2[7])
-							a.element = line2[2][0]
-							a.name = a.Type + str(a.num)
-							self.atoms.append(a)
-			elif self.amber == True:
-				if line[0]=='ATOM':
-					if not line[3] == "WAT":
-						a = pdb_atom()
-						a.num = line[1]
-						a.ptype = line[2]
-						a.resTyp = line[3]
-						a.resNum = line[4]
-						a.xcoord = round(float(line[6]),3)
-						a.ycoord = round(float(line[7]),3)
-						a.zcoord = round(float(line[8]),3)
-						#a.Type = line[10]
-						a.element = a.ptype[0]
-						a.name = a.Type + str(a.num)
-						self.atoms.append(a)
+			if len(line2) > 0:
+				if line[0:4]=="ATOM" or line[0:6]=="HETATM":
+					a = pdb_atom()
+					a.num     = i
+					a.ptype   = line[12:16]
+					a.resTyp  = line[17:20]
+					a.chain_t = line[21:22]
+					a.resNum  = int(line[23:26])
+					a.xcoord  = float(line[31:39])
+					a.ycoord  = float(line[41:48])
+					a.zcoord  = float(line[49:56])
+					a.element = line[2][0]
+					a.name = a.Type + str(a.num)
+					self.atoms.append(a)
+			i+=1
 		pdb_file.close()
 
 
