@@ -76,6 +76,7 @@ class gms_inp:
 		self.morb         = 0
 		self.dumph        = 4.2 
 		self.convDFTB     = -1
+		self.dat          = 'none'
 
 		if not self.basis == '':		
 			if self.basis == '3-21G':			
@@ -124,12 +125,12 @@ class gms_inp:
 		#------------------------------------------------------------#
 			#contrl group
 		#------------------------------------------------------------#			
-		self.contrl_group =  ' $contrl runtyp={0} maxit=150 AIMPAC=.t. $end \n'.format(self.runtyp)
-		self.contrl_group += ' $contrl  icharg={0} mult={1}  $end \n'.format(self.charge,self.multiplicity)
+		self.contrl_group =  ' $contrl runtyp={0} maxit=100 nprint=3 $end \n'.format(self.runtyp)
+		self.contrl_group += ' $contrl icharg={0} mult={1}  $end \n'.format(self.charge,self.multiplicity)
 		self.contrl_group += ' $contrl scftyp={0} $end \n'.format(self.scf_typ)
 		
 		if self.ab_initio == 'DFT':
-			self.contrl_group +=' $contrl  dfttyp = {0} $end \n'.format(self.dfttyp)
+			self.contrl_group +=' $contrl swoff=1.0e-3 dfttyp={0} $end \n'.format(self.dfttyp)
 		elif self.ab_initio == 'MP2':
 			self.contrl_group +=' $contrl  mplevl=2 $end \n'
 		#------------------------------------------------------------#	
@@ -140,7 +141,6 @@ class gms_inp:
 			#scf group 
 		#------------------------------------------------------------#
 		self.scf_group = ' $scf dirscf =.true. npunch={0} $end \n'.format(self.punch)
-		self.scf_group += ' $scf npreo(1)=0,-1,1,9999 $end \n'
 		
 		if self.diis   == False:
 			self.scf_group += ' $scf soscf=.true. $end \n'
@@ -208,33 +208,8 @@ class gms_inp:
 		
 		if self.runtyp == 'optimize':
 			self.opt_group += ' $statpt opttol={0} nstep=150 $end \n'.format(self.opttol)
-			self.opt_group += ' $statpt method={0} $end \n'.format(self.alg_opt)
-		
-		#-----------------------------------------------------------#
-			#electronic density group
-		#-----------------------------------------------------------#
-		
-		if self.elsden == True:	
-			self.elsden_group += ' $eldens  ieden=1 morb={0} where=grid output=punch $end \n'.format(self.morb)
-			self.grid_cube += ' $grid modgrd=1 $end \n'
-			self.grid_cube += ' $grid size = 0.4 $end \n'
-			
-			self.xyzA.parse_xyz()
-			self.xyzA.get_origin()
-			self.grid_cube += self.xyzA.elsden_text
-			
-		#-----------------------------------------------------------#
-			#electrostatic potential group
-		#-----------------------------------------------------------#
-		
-		if self.elspot == True:	
-			self.elspot_group += ' $elpot ieden=1 morb=0 where=grid output=punch $end \n'
-			self.grid_cube += ' $grid modgrd=1 $end \n'
-			self.grid_cube += ' $grid size = 0.25 $end \n'
-			
-			self.xyzA.parse_xyz()
-			self.xyzA.get_origin()
-			self.grid_cube += self.xyzA.elsden_text
+			self.opt_group += ' $statpt method={0} $end \n'.format(self.alg_opt)		
+	
 		
 		#-----------------------------------------------------------#
 			#implict solvent group (pcm)
@@ -249,7 +224,31 @@ class gms_inp:
 		
 		self.guess += ' $guess guess={0} $end \n'.format(self.guess)
 		
+		if not self.dat=="none":
+			i=0
+			vecin = 0
+			vecfin = 0
 			
+			vec_data = open(self.dat,'r')
+			for line in vec_data:
+				line2 = line.split()
+				if len(line2) > 0:
+					if line2[0] == "$VEC":
+						vecin = i
+						self.vec_group += line
+						i+=1
+					elif vecin>0 and line2[0] == "$END":
+						self.vec_group += line
+						vecfin = i
+						i+=1
+					elif vecin > 0 and vecfin ==0:
+						self.vec_group +=line
+					elif vecfin > 0:
+						vec_data.close()
+						break
+					else:
+						i+=1
+		
 		#-----------------------------------------------------------#
 			#data group
 		#-----------------------------------------------------------#
@@ -257,8 +256,8 @@ class gms_inp:
 		self.data_group =  ' $data \n' 	
 		self.data_group += 'Molecule specification \n'
 		self.data_group += 'c1 \n'
-	
 		
+
 		self.xyzB.parse_xyz()
 		self.xyzB.get_atomnumber()
 		self.data_group += self.xyzB.write_text()		
@@ -405,30 +404,6 @@ class gms_inp:
 				self.shift = True
 				self.rstrct = True
 				self.damp = True
-		
-		i=0
-		vecin = 0
-		vecfin = 0
-		if not dat == 'log.data':
-			vec_data = open(dat,'r')
-			for line in vec_data:
-				line2 = line.split()
-				if len(line2) > 0:
-					if line2[0] == "$VEC":
-						vecin = i
-						self.vec_group += line
-						i+=1
-					elif vecin>0 and line2[0] == "$END":
-						self.vec_group += line
-						vecfin = i
-						i+=1
-					elif vecin > 0 and vecfin ==0:
-						self.vec_group +=line
-					elif vecfin > 0:
-						vec_data.close()
-						break
-					else:
-						i+=1
 		
 		self.init_groups()
 		self.join_text(inp_name=inpnam)

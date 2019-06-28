@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pdb_Reader.py
+# pdb_class.py
 
 #=======================================================================
 
@@ -75,41 +75,81 @@ class residue:
 			self.r_atoms.append(self.side_chain[i])
 			#print(self.r_atoms[i].ptype)
 
-
-
 class protein:
 
 	def __init__(self,name):
-		self.name    = name
-		self.chain   = []
-		self.resN    = 0
-		self.atoms   = []
-		self.amber   = amber
+		self.name         = name
+		self.chain        = []
+		self.resN         = 0
+		self.atoms        = []
+		self.total_charge = 0
 
 	def pdb_parse(self):
 		i = 1
 		pdb_file = open(self.name,'r')
 		for line in pdb_file:
-			if len(line2) > 0:
-				if line[0:4]=="ATOM" or line[0:6]=="HETATM":
-					a = pdb_atom()
-					a.num     = i
-					a.ptype   = line[12:16]
-					a.resTyp  = line[17:20]
-					a.chain_t = line[21:22]
-					a.resNum  = int(line[23:26])
-					a.xcoord  = float(line[31:39])
-					a.ycoord  = float(line[41:48])
-					a.zcoord  = float(line[49:56])
-					a.element = line[2][0]
-					a.name = a.Type + str(a.num)
-					self.atoms.append(a)
+			if line[0:4]=="ATOM" or line[0:6]=="HETATM":
+				a = pdb_atom()
+				a.num     = i
+				a.ptype   = line[12:16]
+				a.resTyp  = line[17:20]
+				a.chain_t = line[21:22]
+				a.resNum  = int(line[23:26])
+				a.xcoord  = float(line[31:39])
+				a.ycoord  = float(line[39:47])
+				a.zcoord  = float(line[47:56])
+				a.occ     = float(line[56:60])
+				a.bfactor = float(line[61:66])
+				a.name    = a.Type + str(a.num)
+				if a.element =="1" or a.element=="2" or a.element=="3":
+					a.element = "H"
+				else:
+					a.element = a.ptype[0:2]				
+				self.atoms.append(a)
 			i+=1
 		pdb_file.close()
 
+	def remove_atom(self,i):
+		del self.atoms[i]
+
+	def prune_pdb(self):
+		a = []
+		for i in range(len(self.atoms)):
+			if self.atoms[i].resTyp[0]=="B":
+				a.append(i)
+				
+		for i in sorted(a,reverse=True):
+			del self.atoms[i]
+
+	def split_complex(self,lig):
+		lig = []
+		atoms_swap = []
+		a   = []
+		for i in range(len(self.atoms)):
+			if self.atoms[i].resTyp==lig:
+				a.append(i)
+				
+		for i in sorted(a,reverse=True):
+			lig.append[self.atoms[i]]
+			del self.atoms[i]
+
+		self.write_pdb(self.name[:-4]+"_wl.pdb")
+		atoms_swap = self.atoms
+		self.atoms = lig
+		self.write_pdb(self.name[:-4]+"_lig.pdb")
+		self.atoms = atoms_swap
+		
+	def remove_waters(self):
+		a = []
+		for i in range(len(self.atoms)):
+			if self.atoms[i].resTyp=="WAT" or self.atoms[i].resTyp=="HOH":
+				a.append(i)
+				
+		for i in sorted(a,reverse=True):
+			del self.atoms[i]
+				
 
 	def residue_def(self,reorg = False):
-
 		for i in range(len(self.atoms)):
 			if self.atoms[i].ptype == 'N':
 				a=residue()
@@ -160,7 +200,6 @@ class protein:
 		self.resN = len(self.chain)
 
 	def charge_res(self):
-
 
 		for i in range(len(self.chain)):
 
@@ -286,46 +325,40 @@ class protein:
 		xyz=open(self.name[:-4] +'.xyz','w')
 		
 		for atom in self.atoms:
-			if atom.element == "1" or atom.element == "2" or atom.element == "3":
-				input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
+			input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
 
 		xyz.write(input_text)
 		xyz.close()
 
-		#return(input_text)
-
 	def write_pdb(self,filename):
 
-		input_text =''
-
-		if self.amber == True:
-			chain = ''
-		else:
-			chain = 'A'
+		input_text ="HEADER {0} pdb file\n".format(self.name)
 
 		i=1
 		for atom in self.atoms:
-			input_text += "ATOM {0:>4} {1:<5} {2:<4} {3} {4:<4} {5:<05.3f} {6:<05.3f} {7:<05.3f}  1.00  0.00  {8:>10} \n".format(i,atom.ptype,atom.resTyp,chain,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.element)
+			input_text += "ATOM {0:6} {1:4} {2:2} {3:<1} {4:<7} {5:7.3f} {6:7.3f} {7:7.3f} {8:>5.2f} {9:>4.2f} \n".format(i,atom.ptype,atom.resTyp,atom.chain_t,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.occ,atom.bfactor)
 			i+=1
 
-		pdb =open(filename,'w')
+		pdb = open(filename,'w')
 		pdb.write(input_text)
 		pdb.close()
 
 	def mopac_mop(self           ,
 				  mode = "SP"    ,
-				  max_time = "1D",
+				  mozyme = True  ,
 				  solvent =True  ,
-				  cutoff = 9.0   ,
 				  method ="PM7"  ):
 
-
-		if solvent == True:
+		sol  = ""
+		mozy = ""
+		if solvent:
 			sol = "EPS=78.4 RSOLV1.3"
-		else:
-			sol = ""
+		
+		if mozyme:
+			mozy = "mozyme"
 
-		input_text = "{0} 1SCF large aux MOZYME {2} CUTOFF={3} \n\n".format(method,max_time,sol,cutoff)
+
+		input_text = "{0} 1SCF large aux allvecs {1} {2}\n\n".format(method,mozy,sol,cutoff)
 		chain = ""
 
 		i=1
