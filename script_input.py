@@ -22,7 +22,7 @@ for xyz in list2:
 
 def inp(pdb):
 	a = protein(pdb)
-	a.pdb_parse(pdb)
+	a.pdb_parse()
 	a.write_xyz()
 	a = mopac_inp(xyzfile=pdb[:-4]+".xyz",charge=0,multi=0,inpnam=pdb[:-4]+".mop",method="PM7")
 	a.write_mop()
