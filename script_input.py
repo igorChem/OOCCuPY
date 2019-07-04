@@ -10,7 +10,7 @@ list = glob.glob("*.pdb")
 
 for pdb in list:
 	a =  protein(pdb)
-	a.pdb_parse(pdb)
+	a.pdb_parse()
 	a.write_xyz()
 
 list2 = glob.glob("*.xyz")
