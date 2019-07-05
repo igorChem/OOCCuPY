@@ -16,12 +16,15 @@ def ls_gen():
 			a.append(sc)
 
 
-class primordia_inp:
-	pdb = glob.glob("*pdb")
+def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100):
+
 	f = open("input_pri",'w')
-	text ="eband 5\n"
-	for i in range(len(pdb)):
-		text+="3 {0} potential_fukui 0 100 {1} mopac 0 0 0 0 EW elecdens mep\n".format(pdb[i][:-4]+".aux",pdb[i])
+	if option == 3:
+		pdb = glob.glob("*pdb")
+		f = open("input_pri",'w')
+		text ="eband {0} pymols\n".format(eband)
+		for i in range(len(pdb)):
+			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(pdb[i][:-4]+".aux",lh,gridn,norb,pdb[i],program,bandm)
 			
 	f.write(text)
 	f.close()

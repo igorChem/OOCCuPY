@@ -101,10 +101,11 @@ class protein:
 				a.occ     = float(line[56:60])
 				a.bfactor = float(line[61:66])
 				a.name    = a.Type + str(a.num)
-				if a.element =="1" or a.element=="2" or a.element=="3":
+				a.element = a.ptype[0:2]
+				if a.element[0] =="1" or a.element[0]=="2" or a.element[0]=="3":
 					a.element = "H"
-				else:
-					a.element = a.ptype[0:2]				
+				elif a.element == "He":
+					a.element = "H"						
 				self.atoms.append(a)
 			i+=1
 		pdb_file.close()
@@ -142,7 +143,7 @@ class protein:
 	def remove_waters(self):
 		a = []
 		for i in range(len(self.atoms)):
-			if self.atoms[i].resTyp=="WAT" or self.atoms[i].resTyp=="HOH":
+			if self.atoms[i].resTyp=="WAT" or self.atoms[i].resTyp=="HOH" or self.atoms[i].resTyp=="SOL":
 				a.append(i)
 				
 		for i in sorted(a,reverse=True):

@@ -8,6 +8,7 @@
 import os
 from xyz_class import*
 from pdb_class import*
+from primordia import*
 
 #======================================================================
 
@@ -18,20 +19,26 @@ class mopac_inp:
 				charge ,
 				multi  ,
 				inpnam ,
+				mozyme , 
 				method):
 
 		self.name    = xyzfile
 		self.inpnam  = inpnam
-		self.charge  = charge
+		self.charge  = ""
 		self.multi   = multi
 		self.mult    = "Singlet"
 		self.solvent = True
 		self.hamilt  = method
 		self.xyz     = None
+		self.mozyme  = ""
 
 		if not self.multi == 1:
 			self.mult = "Doublet"
 
+		self.charge = "charge=" +str(charge)
+		if mozyme:
+			self.mozyme = "mozyme"
+			self.charge = ""
 		self.xyz = xyz_parser(self.name)
 		self.xyz.parse_xyz()
 
@@ -39,11 +46,9 @@ class mopac_inp:
 
 		mop_inp = open(self.inpnam,'w')
 		mop_text = ''
-		mop_text += '{0} 1SCF ALLVECS VECTOR aux mozyme eps=78.4 large\n\n\n'.format(self.hamilt)
+		mop_text += '{0} 1SCF ALLVECS VECTOR aux {1} {2} eps=78.4 large\n\n\n'.format(self.hamilt,self.mozyme,self.charge)
 
 		for i in range(self.xyz.Natoms):
-			if self.xyz.AtomLabels[i] == "1" or self.xyz.AtomLabels[i] == "2" or self.xyz.AtomLabels[i] == "3":
-				self.xyz.AtomLabels[i] = "H"
 			mop_text +="{0}  {1}  1 {2}  1 {3} \n".format(self.xyz.AtomLabels[i],self.xyz.xCoord[i],self.xyz.yCoord[i],self.xyz.zCoord[i])
 
 		mop_inp.write(mop_text)
