@@ -1,0 +1,73 @@
+#/usr/bin/env python
+# -*- coding: utf-8 -*-
+#OOCCuPY.py
+
+from pdb_class import *
+from mopac_module import *
+import glob
+import sys,os 
+
+'''
+1. Make input for mopac
+2. Make input for gamess
+3. Make input for orca
+4. make input for FMO
+4. make input for primordia
+5. Make protein minimizations with gromacs
+6. Make simple molecular dynamics with gromacs
+7. Find the most probable Structure in molecular dynamics
+'''
+
+sem = "PM7"
+moz = ""
+
+def inp_mopac_from_pdb(pdb):
+	a = protein(pdb)
+	a.pdb_parse()
+	a.write_xyz()
+	a = mopac_inp(xyzfile=pdb[:-4]+".xyz",charge=0,multi=0,inpnam=pdb[:-4]+".mop",method="PM7")
+	a.write_mop()
+ 
+
+def inp_mopac_from_all_pdbs():
+
+	list = glob.glob("*.pdb")
+
+	for pdb in list:
+		a =  protein(pdb)
+		a.pdb_parse()
+		a.remove_waters()
+		a.write_xyz()
+		list2 = glob.glob("*.xyz")
+
+	lmo = False
+	if ( moz == "_zy" ):
+		lmo = True
+
+	for xyz in list2:
+		a = mopac_inp(xyzfile=xyz,charge=0,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem)
+		a.write_mop()
+
+
+def script_shell_from_mop():
+
+	list = glob.glob("*.mop")
+	txt = "#!/bin/sh \n"
+	f = open("mopac_shell.sh","w")
+	for i in range(len(list)):
+		txt += "/opt/mopac/MOPAC2016.exe {0} && \n".format(list[i])
+	f.write(txt)
+	f.close()
+
+
+if __name__ == "__main__":
+	if ( sys.argv[1] == "-imop" ):
+		sem = sys.argv[2]
+		if ( len(sys.argv) > 3 ):
+			if ( sys.argv[3] == "-mozyme" ):
+				moz = "_zy"
+		inp_mopac_from_all_pdbs()
+
+	elif ( sys.argv[1] == "-sh" ):
+		script_shell_from_mop()
+
