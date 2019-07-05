@@ -6,7 +6,6 @@ from pdb_class import *
 from mopac_module import *
 import glob
 import sys,os 
-from primordia import*
 
 '''
 1. Make input for mopac
@@ -29,7 +28,42 @@ def inp_mopac_from_pdb(pdb):
 	a.write_xyz()
 	a = mopac_inp(xyzfile=pdb[:-4]+".xyz",charge=0,multi=0,inpnam=pdb[:-4]+".mop",method="PM7",mgf=mgf)
 	a.write_mop()
- 
+
+def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100):
+
+	f = open("input_pri",'w')
+	text ="eband {0} pymols\n".format(eband)
+	
+	if option == '3':
+		pdb = glob.glob("*aux")		
+		for i in range(len(pdb)):
+			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(pdb[i],lh,gridn,norb,pdb[i][:-11]+".pdb",program,bandm)
+	elif option == 4:
+		aux = glob.glob("*aux")
+		for i in sorted(aux,reverse=True):
+			if aux[i][-6:-4] == "cat":
+				del aux[i]
+			elif aux[i][-7:-4] == "an":
+				del aux[i]
+
+		log = glob.glob("*log")
+		for i in sorted(log,reverse=True):
+			if aux[i][-6:-4] == "an":
+				del aux[i]
+			elif log[i][-7:-4] == "cat":
+				del log[i]
+		for i in range(len(aux)):
+			text+="1 {0} {1} {2} {3} \n".format(aux[i],lh,gridn,"mopac")
+		for i in range(len(log)):
+			text+="1 {0} {1} {2} {3} \n".format(log[i],lh,gridn,"gamess")
+		for i in range(len(aux)):
+			text+="2 {0} {1} {2} {3} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+		for i in range(len(log)):
+			text+="2 {0} {1} {2} {3} \n".format(log[i],log[i][:-4]+"_cat.log",log[i][:-4]+"_an.log",lh,gridn,2,"gamess")
+
+
+	f.write(text)
+	f.close() 
 
 def inp_mopac_from_all_pdbs():
 
@@ -97,7 +131,6 @@ if __name__ == "__main__":
 				LH = sys.argv[i+1]
 			elif ( sys.argv[i] == "-grid"):
 				grid = int(sys.argv[i+1])	
-
-		primordia_input(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtf,norb=nrb)
+		primordia_inp(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtd,norb=nrb)
 
 
