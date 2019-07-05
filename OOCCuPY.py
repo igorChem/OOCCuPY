@@ -6,6 +6,7 @@ from pdb_class import *
 from mopac_module import *
 import glob
 import sys,os 
+from primordia import*
 
 '''
 1. Make input for mopac
@@ -20,12 +21,13 @@ import sys,os
 
 sem = "PM7"
 moz = ""
+mgf = False
 
 def inp_mopac_from_pdb(pdb):
 	a = protein(pdb)
 	a.pdb_parse()
 	a.write_xyz()
-	a = mopac_inp(xyzfile=pdb[:-4]+".xyz",charge=0,multi=0,inpnam=pdb[:-4]+".mop",method="PM7")
+	a = mopac_inp(xyzfile=pdb[:-4]+".xyz",charge=0,multi=0,inpnam=pdb[:-4]+".mop",method="PM7",mgf=mgf)
 	a.write_mop()
  
 
@@ -45,7 +47,12 @@ def inp_mopac_from_all_pdbs():
 		lmo = True
 
 	for xyz in list2:
-		a = mopac_inp(xyzfile=xyz,charge=0,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem)
+		a = mopac_inp(xyzfile=xyz,charge=0,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem,mgf=mgf)
+		if not lmo:
+			b = mopac_inp(xyzfile=xyz,charge=2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_cat.mop",method=sem,mgf=mgf)
+			c = mopac_inp(xyzfile=xyz,charge=-2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_an.mop",method=sem,mgf=mgf)
+			b.write_mop()
+			c.write_mop()
 		a.write_mop()
 
 
@@ -55,7 +62,10 @@ def script_shell_from_mop():
 	txt = "#!/bin/sh \n"
 	f = open("mopac_shell.sh","w")
 	for i in range(len(list)):
-		txt += "/opt/mopac/MOPAC2016.exe {0} && \n".format(list[i])
+		ee= "&&"
+		if i == len(list)-1:
+			ee =" "
+		txt += "/opt/mopac/MOPAC2016.exe {0} {1}\n".format(list[i],ee)
 	f.write(txt)
 	f.close()
 
@@ -63,11 +73,31 @@ def script_shell_from_mop():
 if __name__ == "__main__":
 	if ( sys.argv[1] == "-imop" ):
 		sem = sys.argv[2]
-		if ( len(sys.argv) > 3 ):
-			if ( sys.argv[3] == "-mozyme" ):
+		for i in range(len(sys.argv)):
+			if  sys.argv[i] == "-mozyme":
 				moz = "_zy"
+			elif  sys.argv[i] == "-mgf":
+				mgf = True
 		inp_mopac_from_all_pdbs()
 
 	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
+
+	elif ( sys.argv[1] == "-pri" ):
+		LH      = "none"
+		grid    = 40 
+		prog    = "mopac"
+		eb      = 5
+		bmtd    = "BD" 
+		nrb     = 100
+		for i in range(len(sys.argv)):
+			if ( sys.argv[i] == "-prog"):
+				prog = sys.argv[i+1]
+			elif ( sys.argv[i] == "-lh"):
+				LH = sys.argv[i+1]
+			elif ( sys.argv[i] == "-grid"):
+				grid = int(sys.argv[i+1])	
+
+		primordia_input(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtf,norb=nrb)
+
 

@@ -8,7 +8,6 @@
 import os
 from xyz_class import*
 from pdb_class import*
-from primordia import*
 
 #======================================================================
 
@@ -20,6 +19,7 @@ class mopac_inp:
 				multi  ,
 				inpnam ,
 				mozyme , 
+				mgf    , 
 				method):
 
 		self.name    = xyzfile
@@ -31,6 +31,7 @@ class mopac_inp:
 		self.hamilt  = method
 		self.xyz     = None
 		self.mozyme  = ""
+		self.mgf     = ""
 
 		if not self.multi == 1:
 			self.mult = "Doublet"
@@ -41,12 +42,13 @@ class mopac_inp:
 			self.charge = ""
 		self.xyz = xyz_parser(self.name)
 		self.xyz.parse_xyz()
-
+		if mgf:
+			self.mgf = "graphf"
 	def write_mop(self):
 
 		mop_inp = open(self.inpnam,'w')
 		mop_text = ''
-		mop_text += '{0} 1SCF ALLVECS VECTOR aux {1} {2} eps=78.4 large\n\n\n'.format(self.hamilt,self.mozyme,self.charge)
+		mop_text += '{0} 1SCF ALLVECS VECTOR aux {1} {2} {3} eps=78.4 large\n\n\n'.format(self.hamilt,self.mozyme,self.charge,self.mgf)
 
 		for i in range(self.xyz.Natoms):
 			mop_text +="{0}  {1}  1 {2}  1 {3} \n".format(self.xyz.AtomLabels[i],self.xyz.xCoord[i],self.xyz.yCoord[i],self.xyz.zCoord[i])

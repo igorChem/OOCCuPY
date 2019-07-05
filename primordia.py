@@ -19,13 +19,35 @@ def ls_gen():
 def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100):
 
 	f = open("input_pri",'w')
+	text ="eband {0} pymols\n".format(eband)
 	if option == 3:
-		pdb = glob.glob("*pdb")
-		f = open("input_pri",'w')
-		text ="eband {0} pymols\n".format(eband)
+		pdb = glob.glob("*pdb")		
 		for i in range(len(pdb)):
 			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(pdb[i][:-4]+".aux",lh,gridn,norb,pdb[i],program,bandm)
-			
+	elif option == 4:
+		aux = glob.glob("*aux")
+		for i in sorted(aux,reverse=True):
+			if aux[i][-6:-4] == "cat":
+				del aux[i]
+			elif aux[i][-7:-4] == "an":
+				del aux[i]
+
+		log = glob.glob("*log")
+		for i in sorted(log,reverse=True):
+			if aux[i][-6:-4] == "an":
+				del aux[i]
+			elif log[i][-7:-4] == "cat":
+				del log[i]
+		for i in range(len(aux)):
+			text+="1 {0} {1} {2} {3} \n".format(aux[i],lh,gridn,"mopac")
+		for i in range(len(log)):
+			text+="1 {0} {1} {2} {3} \n".format(log[i],lh,gridn,"gamess")
+		for i in range(len(aux)):
+			text+="2 {0} {1} {2} {3} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+		for i in range(len(log)):
+			text+="2 {0} {1} {2} {3} \n".format(log[i],log[i][:-4]+"_cat.log",log[i][:-4]+"_an.log",lh,gridn,2,"gamess")
+
+
 	f.write(text)
 	f.close()
 
