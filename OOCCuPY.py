@@ -90,9 +90,9 @@ def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,
 			for i in range(len(aux)):
 				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
 	elif option == '3':
-		pdb = glob.glob("*aux")		
-		for i in range(len(pdb)):
-			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(pdb[i],lh,gridn,norb,pdb[i][:-11]+".pdb",program,bandm)
+		aux = glob.glob("*aux")		
+		for i in range(len(aux)):
+			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
 	
 	elif option == '4':
 		aux = glob.glob("*aux")
