@@ -94,10 +94,10 @@ class protein:
 				a.ptype   = line[12:16]
 				a.resTyp  = line[17:20]
 				a.chain_t = line[21:22]
-				a.resNum  = int(line[23:26])
-				a.xcoord  = float(line[31:39])
-				a.ycoord  = float(line[39:47])
-				a.zcoord  = float(line[47:56])
+				a.resNum  = int(line[22:26])
+				a.xcoord  = float(line[30:38])
+				a.ycoord  = float(line[38:46])
+				a.zcoord  = float(line[46:54])
 				a.occ     = float(line[56:60])
 				a.bfactor = float(line[61:66])
 				a.name    = a.Type + str(a.num)
