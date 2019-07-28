@@ -4,52 +4,306 @@
 
 import os,glob
 
-
-def ls_gen():
-	a = []
-	sc = ",";
-	while True:
-		sc = input()
-		if sc == ".":
-			return(a)
-		else:
-			a.append(sc)
-
-
 def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100):
 
 	f = open("input_pri",'w')
 	text ="eband {0} pymols\n".format(eband)
-	if option == 3:
-		pdb = glob.glob("*pdb")		
-		for i in range(len(pdb)):
-			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(pdb[i][:-4]+".aux",lh,gridn,norb,pdb[i],program,bandm)
-	elif option == 4:
-		aux = glob.glob("*aux")
-		for i in sorted(aux,reverse=True):
-			if aux[i][-6:-4] == "cat":
-				del aux[i]
-			elif aux[i][-7:-4] == "an":
-				del aux[i]
 
-		log = glob.glob("*log")
-		for i in sorted(log,reverse=True):
-			if aux[i][-6:-4] == "an":
+
+	if 	 option == '1':
+		if program   == "mopac":
+			aux = glob.glob("*aux")
+			for ax in aux:
+				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
+		elif program == "gamess":
+			aux = glob.glob("*log")
+			for ax in aux:
+				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
+		elif program == "orca":
+			aux = glob.glob("*out")
+			for ax in aux:
+				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
+		elif program == "gaussian":
+			aux = glob.glob("*fchk")
+			for ax in aux:
+				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)		
+	elif option == '2':
+		if program   == "mopac":
+			aux = glob.glob("*aux")
+			for i in sorted(aux,reverse=True):
+				if aux[i][-6:-4] == "cat":
+					del aux[i]
+				elif aux[i][-7:-4] == "an":
+					del aux[i]			
+			for i in range(len(aux)):
+				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+		elif program == "gamess":
+			aux = glob.glob("*log")
+			for i in sorted(aux,reverse=True):
+				if aux[i][-6:-4] == "cat":
+					del aux[i]
+				elif aux[i][-7:-4] == "an":
+					del aux[i]			
+			for i in range(len(aux)):
+				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+		elif program == "orca":
+			aux = glob.glob("*out")
+			for i in sorted(aux,reverse=True):
+				if aux[i][-6:-4] == "cat":
+					del aux[i]
+				elif aux[i][-7:-4] == "an":
+					del aux[i]			
+			for i in range(len(aux)):
+				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+		elif program == "gaussian":
+			aux = glob.glob("*fchk")
+			for i in sorted(aux,reverse=True):
+				if aux[i][-6:-4] == "cat":
+					del aux[i]
+				elif aux[i][-7:-4] == "an":
+					del aux[i]			
+			for i in range(len(aux)):
+				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+	elif option == '3':
+		aux = glob.glob("*aux")		
+		for i in range(len(aux)):
+			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
+	
+	elif option == '4':
+		aux = glob.glob("*aux")
+		alist =[]
+
+		for i in range(len(aux)):
+			if aux[i][-7:-4] == "cat":
+				alist.append(i)
+			elif aux[i][-6:-4] == "an":
+				alist.append(i)
+
+		for i in sorted(alist,reverse=True):
 				del aux[i]
+	
+		log = glob.glob("*log")
+		blist =[]
+		for i in range(len(log)):
+			if log[i][-6:-4] == "an":
+				blist.append(i)
 			elif log[i][-7:-4] == "cat":
-				del log[i]
+				blist.append(i)
+				
+		for i in sorted(blist,reverse=True):			
+			del log[i]
+
 		for i in range(len(aux)):
 			text+="1 {0} {1} {2} {3} \n".format(aux[i],lh,gridn,"mopac")
 		for i in range(len(log)):
 			text+="1 {0} {1} {2} {3} \n".format(log[i],lh,gridn,"gamess")
+		clist = []
 		for i in range(len(aux)):
-			text+="2 {0} {1} {2} {3} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
+			if aux[i][-6:-4] == "zy":
+				clist.append(i)
+		for i in sorted(clist,reverse=True):
+				del aux[i]
+		for i in range(len(aux)):
+			text+="2 {0} {1} {2} {3} {4} {5} {6}\n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
 		for i in range(len(log)):
-			text+="2 {0} {1} {2} {3} \n".format(log[i],log[i][:-4]+"_cat.log",log[i][:-4]+"_an.log",lh,gridn,2,"gamess")
+			text+="2 {0} {1} {2} {3} {4} {5} {6}\n".format(log[i],log[i][:-4]+"_cat.log",log[i][:-4]+"_an.log",lh,gridn,2,"gamess")
 
 
 	f.write(text)
 	f.close()
+
+
+
+class pair_RD:
+	def __init__(self):
+		self.prds = glob.glob("*.prd")
+		self.pairs = 1
+		self.eas_a1 = []
+		self.eas_a2 = []
+		self.eas_a3 = []
+		self.eas_a4 = []
+		self.nas_a1 = []
+		self.nas_a2 = []
+		self.nas_a3 = []
+		self.nas_a4 = []
+		self.hardness_a1 = []
+		self.hardness_a2 = []
+		self.hardness_a3 = []
+		self.hardness_a4 = []
+		self.CT_p1 = []
+		self.CT_p2 = []
+		self.SPI_p1 = []
+		self.SPI_p2 = []
+		self.HPI_p1 = []
+		self.HPI_p2 = []
+		self.HOF = []
+		self.Elec_en = []
+		self.hardness = []
+		self.ECP = []
+		self.electrophilicity = []
+		self.gstep = []
+		self.lstep = []
+
+		globaln = glob.glob("*global")
+		fgl = open(globaln[0],'r')
+	
+		#read global descriptors 
+		#------------------------------------------------------------------#
+		i=0
+		for line in fgl:
+			if i > 1:
+				line2 = line.split()
+				self.gstep.append(int(line2[0][6:]))
+				self.HOF.append(float(line2[2]))
+				self.Elec_en.append(float(line2[1]))
+				self.hardness.append(float(line2[6]))
+				self.ECP.append(float(line2[5]))
+				self.electrophilicity.append(float(line2[7]))
+			i +=1
+		fgl.close()
+		
+		for j in range(len(self.prds)):
+			prd = open(self.prds[j],'r')
+			self.lstep.append(int(self.prds[j][6:-8]))
+			i = 0
+			for line in prd:
+				line2 = line.split()
+				if i == 0:
+					if len(line2) == 7:
+						self.pairs = 2
+				if i > 0:
+					if line2[0] == "EAS":
+						self.eas_a1.append(float(line2[1]))
+						self.eas_a2.append(float(line2[2]))
+						if self.pairs == 2:
+							self.eas_a3.append(float(line2[3]))
+							self.eas_a4.append(float(line2[4]))
+					elif line2[0] == "NAS":
+						self.nas_a1.append(float(line2[1]))
+						self.nas_a2.append(float(line2[2]))
+						if self.pairs == 2:
+							self.nas_a3.append(float(line2[3]))
+							self.nas_a4.append(float(line2[4]))
+					elif line2[0] == "Hardness":
+						self.hardness_a1.append(float(line2[1]))
+						self.hardness_a2.append(float(line2[2]))
+						if self.pairs == 2:
+							self.hardness_a3.append(float(line2[3]))
+							self.hardness_a4.append(float(line2[4]))
+					elif line2[0] == "CT":
+						self.CT_p1.append(float(line2[5]))
+						if self.pairs == 2:
+							self.CT_p1.append(float(line2[6]))
+					elif line2[0] == "SPI":
+						self.SPI_p1.append(float(line2[5]))
+						if self.pairs == 2:
+							self.SPI_p1.append(float(line2[6]))
+					elif line2[0] == "HPI":
+						self.HPI_p1.append(float(line2[5]))
+						if self.pairs == 2:
+							self.HPI_p1.append(float(line2[6]))
+				i+=1
+			prd.close()
+		
+	def write(self):
+		
+		shof = min(self.HOF)
+		selec = min(self.Elec_en)
+		for i in range(len(self.gstep)):
+			self.HOF[i] = self.HOF[i] - shof
+			self.Elec_en[i] = self.Elec_en[i] - selec
+		
+		fgr_text = "n HOF Energy Hardness ECP Electrophilicity \n"
+		fgr = open("global_resume_data",'w')
+		for i in range(len(self.gstep)):
+			fgr_text += "{} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i])
+		fgr.write(fgr_text)
+		fgr.close()
+		
+		flr_text = ""
+		flr = open("local_resume_data",'w')
+		if self.pairs == 1:
+			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 CT SPI HPI\n"
+			for i in range(len(self.lstep)):
+				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
+				flr_text += "{} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i])
+		elif self.pairs == 2:
+			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2\n"
+			for i in range(len(self.lstep)):	
+				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
+				flr_text += "{} {} {}    ".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i])
+				flr_text += "{} {} {}    ".format(self.eas_a3[i],self.nas_a3[i],self.hardness_a3[i])
+				flr_text += "{} {} {}    ".format(self.eas_a4[i],self.nas_a4[i],self.hardness_a4[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i])
+				flr_text += "{} {} {} {} {} {} \n  ".format(self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.CT_p2[i],self.SPI_p2[i],self.HPI_p2[i])
+		flr.write(flr_text)
+		flr.close()
+
+
+
+	def r_scripts(self):
+		
+		r_text = "#r script generated for OOCCuPY for PRIMoRDiA software\n"
+		r_text += "gldat = read.table('global_resume_data',header=T)\n"
+		r_text += "lldat = read.table('local_resume_data',header=T)\n"
+		r_text += "attach(gldat)\n"
+		r_text += "tiff('hof',units='in',width=4,height=4,res=400)\n"
+		r_text += "plot(HOF~n,data=gldat,type='p',col='black',xlab='Step',ylab='Heat of Formation(kcalmol)')\n"
+		r_text += "dev.off()\n"
+		r_text += "tiff('hardness',units='in',width=4,height=4,res=400)\n"
+		r_text += "plot(Hardness~n,data=gldat,type='p',col='green',xlab='Step',ylab='Hardness(eV)')\n"
+		r_text += "dev.off()\n"
+		r_text += "detach(gldat)\n"
+		r_text += "attach(lldat)\n"
+		
+		if self.pairs == 1:			
+			r_text += "tiff('CT',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(CT~n,data=lldat,type='p',col='blue',xlab='Step',ylab='Charge Transfer')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('SPI',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(SPI~n,data=lldat,type='p',col='orange',xlab='Step',ylab='Softness Pair Interaction')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('HPI',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(HPI~n,data=lldat,type='p',col='red',xlab='Step',ylab='Hardness Pair Interaction')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('atom1',units='in',width=8,height=4,res=400)\n"
+			r_text += "par(mfrow=c(1,3))\n"
+			r_text += "plot(eas_a1~n,data=lldat,type='p',col='blue',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(nas_a1~n,data=lldat,type='p',col='red',xlab='Step',ylab='NAS')\n"
+			r_text += "plot(hardness_a1~n,data=lldat,type='p',col='orange',xlab='Step',ylab='Local Hardness')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('atom2',units='in',width=8,height=4,res=400)\n"
+			r_text += "par(mfrow=c(1,3))\n"
+			r_text += "plot(eas_a2~n,data=lldat,type='p',col='blue',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(nas_a2~n,data=lldat,type='p',col='red',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(hardness_a2~n,data=lldat,type='p',col='orange',xlab='Step',ylab='Local Hardness')\n"
+			r_text += "dev.off()\n"
+		elif self.pairs == 2:			
+			r_text += "tiff('CT',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(CT~n,data=lldat,type='p',col='blue',xlab='Step',ylab='Charge Transfer')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('SPI',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(SPI~n,data=lldat,type='p',col='orange',xlab='Step',ylab='Softness Pair Interaction')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('HPI',units='in',width=4,height=4,res=400)\n"
+			r_text += "plot(HPI~n,data=lldat,type='p',col='red',xlab='Step',ylab='Hardness Pair Interaction')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('atom1',units='in',width=8,height=4,res=400)\n"
+			r_text += "par(mfrow=c(1,3))\n"
+			r_text += "plot(eas_a1~n,data=lldat,type='p',col='blue',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(nas_a1~n,data=lldat,type='p',col='blue',xlab='Step',ylab='NAS')\n"
+			r_text += "plot(hardness_a1~n,data=lldat,type='p',col='blue',xlab='Step',ylab='Local Hardness')\n"
+			r_text += "dev.off()\n"
+			r_text += "tiff('atom2',units='in',width=8,height=4,res=400)\n"
+			r_text += "par(mfrow=c(1,3))\n"
+			r_text += "plot(eas_a2~n,data=lldat,type='p',col='blue',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(nas_a2~n,data=lldat,type='p',col='blue',xlab='Step',ylab='EAS')\n"
+			r_text += "plot(hardness_a2~n,data=lldat,type='p',col='blue',xlab='Step',ylab='Local Hardness')\n"
+			r_text += "dev.off()\n"
+			
+		r_scr = open("pair_rd.R",'w')
+		r_scr.write(r_text)
+		r_scr.close()
+
 
 class primordia:
 	def __init__(self,comp,pro,listr):
