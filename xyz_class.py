@@ -116,9 +116,11 @@ class xyz_parser:
 			for i in range(len(self.AtomLabels)):
 				text_to_return += str(self.AtomLabels[i]) +' '+ str(self.AtomicN[i]) +' '+ str(self.xCoord[i]) + ' '+str(self.yCoord[i]) + ' '+str(self.zCoord[i]) + '\n'
 		
+		
 		if writefile == True:
 			fileout = open(filename,'w')
 			fileout.write(text_to_return)
+			fileout.close()
 			
 		return(text_to_return)
 
@@ -157,6 +159,19 @@ class xyz_parser:
 		
 		print(self.ElNumb)
 		return(self.ElNumb)
-
-
 	
+	def read_mop(self):		
+		mopfile = self.name
+		mop = open(mopfile,'r')	
+		i=0
+		for line in mop:
+			if i>3:
+				line2 = line.split()
+				if len(line2) == 7:
+					self.AtomLabels.append(line2[0])
+					self.xCoord.append(line2[1])
+					self.yCoord.append(line2[3])
+					self.zCoord.append(line2[5])
+			i+=1
+					
+					

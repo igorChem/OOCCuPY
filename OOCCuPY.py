@@ -19,27 +19,41 @@ import sys,os
 7. Find the most probable Structure in molecular dynamics
 '''
 
+#global parameters to be modified in the program call
 sem = "PM7"
 moz = ""
 mgf = False
+inp_m = "pdb"
+chg = 0 
 
 def inp_mopac_from_all_pdbs():
-
-	list = glob.glob("*.pdb")
-
-	for pdb in list:
-		a =  protein(pdb)
-		a.pdb_parse()
-		a.remove_waters()
-		a.write_xyz()
-		list2 = glob.glob("*.xyz")
-
+	
+	if inp_m == "pdb":
+		list = glob.glob("*.pdb")
+		for pdb in list:
+			a =  protein(pdb)
+			a.pdb_parse()
+			a.remove_waters()
+			a.write_xyz()
+		
+	elif inp_m == "mop":
+		list = glob.glob("*.mop")
+		for mop in list:
+			mopin  = xyz_parser(mop)
+			mopin.read_mop()
+			mopin.write_text(filename=mop[:-4]+".xyz",writefile=True)		
+	
+	elif inp_m =="xyz":
+		pass
+		
+		
+	list2 = glob.glob("*.xyz")
 	lmo = False
 	if ( moz == "_zy" ):
 		lmo = True
 
 	for xyz in list2:
-		a = mopac_inp(xyzfile=xyz,charge=0,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem,mgf=mgf)
+		a = mopac_inp(xyzfile=xyz,charge=chg,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem,mgf=mgf)
 		if not lmo:
 			b = mopac_inp(xyzfile=xyz,charge=2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_cat.mop",method=sem,mgf=mgf)
 			c = mopac_inp(xyzfile=xyz,charge=-2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_an.mop",method=sem,mgf=mgf)
@@ -70,6 +84,10 @@ if __name__ == "__main__":
 				moz = "_zy"
 			elif  sys.argv[i] == "-mgf":
 				mgf = True
+			elif sys.argv[i] == "-from":
+				inp_m = sys.argv[i+1]
+			elif sys.argv[i] == "-chg":
+				chg = sys.argv[i+1]
 		inp_mopac_from_all_pdbs()
 
 	elif ( sys.argv[1] == "-sh" ):
@@ -97,5 +115,9 @@ if __name__ == "__main__":
 		a = pair_RD()
 		a.write()
 		a.r_scripts()
+		if sys.argv[2] == "-2d":
+			a = pair_RD(mode="2d")
+			a.write()
+			a.r_scripts()
 
 

@@ -44,6 +44,10 @@ class mopac_inp:
 		self.xyz.parse_xyz()
 		if mgf:
 			self.mgf = "graphf"
+			
+	
+		
+		
 	def write_mop(self):
 
 		mop_inp = open(self.inpnam,'w')
