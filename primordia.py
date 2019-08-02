@@ -151,21 +151,25 @@ class pair_RD:
 		self.SPI_p1_p2 = []
 		self.HPI_p1_p2 = []
 		self.mode = mode 
-		self.dist1  = []
-		self.dist2  = []
+		self.dist1   = []
+		self.dist2   = []
+		self.hamilt  = []
+		self.lhamilt = []
 		
 
-		globaln = glob.glob("*global")
+		globaln = sorted(glob.glob("*global"))
 		print(globaln[0])
 		fgl = open(globaln[0],'r')
 	
 		#read global descriptors 
 		#------------------------------------------------------------------#
 		i=0
+		
 		for line in fgl:
 			if i > 1:
 				line2 = line.split()
 				self.gstep.append(int(line2[0][6:-7]))
+				self.hamilt.append(line2[0][-10:-7])
 				self.HOF.append(float(line2[2]))
 				self.Elec_en.append(float(line2[1]))
 				self.hardness.append(float(line2[6]))
@@ -177,15 +181,14 @@ class pair_RD:
 		for j in range(len(self.prds)):
 			prd = open(self.prds[j],'r')
 			self.lstep.append(int(self.prds[j][6:-15]))
+			self.lhamilt.append(self.prds[j][-14:-11])
 			i = 0
-			j = 0
 			for line in prd:
 				line2 = line.split()
 				if i == 0:
 					if len(line2) == 7:
 						self.pairs = 2
 				if i > 0:
-					j +=0
 					if line2[0] == "dist":
 						self.dist1.append(float(line2[1]))
 						if self.pairs == 2:
@@ -274,7 +277,7 @@ class pair_RD:
 		fgr_text = "n HOF Energy Hardness ECP Electrophilicity \n"
 		fgr = open("global_resume_data",'w')
 		for i in range(len(self.gstep)):
-			fgr_text += "{} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i])
+			fgr_text += "{} {} {} {} {} {}\n".format(self.gstep[i],self.hamilt[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i])
 		fgr.write(fgr_text)
 		fgr.close()
 		
@@ -283,7 +286,7 @@ class pair_RD:
 		if self.pairs == 1:
 			flr_text = "n eas_a1 nas_a1 hardness_a1 chg_a1 chg_a2 eas_a2 nas_a2 hardness_a2 CT SPI HPI\n"
 			for i in range(len(self.lstep)):
-				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
+				flr_text += "{} {} {} {} {} ".format(self.lstep[i],self.lhamilt[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
 				flr_text += "{} {} ".format(self.chg_a1[i],self.chg_a2[i])
 				flr_text += "{} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i])
 		elif self.pairs == 2:
