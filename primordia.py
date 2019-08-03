@@ -168,8 +168,12 @@ class pair_RD:
 		for line in fgl:
 			if i > 1:
 				line2 = line.split()
-				self.gstep.append(int(line2[0][6:-7]))
-				self.hamilt.append(line2[0][-10:-7])
+				if len(line2[0]) > 10:
+					self.gstep.append(int(line2[0][6:-7]))
+					self.hamilt.append(line2[0][-6:-3])
+				else:
+					self.gstep.append(int(line2[0][6:]))
+					self.hamilt.append("pm7")
 				self.HOF.append(float(line2[2]))
 				self.Elec_en.append(float(line2[1]))
 				self.hardness.append(float(line2[6]))
@@ -180,8 +184,12 @@ class pair_RD:
 		
 		for j in range(len(self.prds)):
 			prd = open(self.prds[j],'r')
-			self.lstep.append(int(self.prds[j][6:-15]))
-			self.lhamilt.append(self.prds[j][-14:-11])
+			if len(self.prds[j]) > 16:
+				self.lstep.append(int(self.prds[j][6:-15]))
+				self.lhamilt.append(self.prds[j][-14:-11])
+			else:
+				self.lstep.append(int(self.prds[j][6:-8]))
+				self.lhamilt.append("PM7")
 			i = 0
 			for line in prd:
 				line2 = line.split()
@@ -238,11 +246,13 @@ class pair_RD:
 		
 	def write(self):
 		
+		'''
 		shof = min(self.HOF)
 		selec = min(self.Elec_en)
 		for i in range(len(self.gstep)):
 			self.HOF[i] = self.HOF[i] - shof
 			self.Elec_en[i] = self.Elec_en[i] - selec
+		'''
 		
 		half_dist1 = 0
 		half_dist2 = 0
@@ -274,30 +284,30 @@ class pair_RD:
 					self.dist1[i] = 0	
 					
 		
-		fgr_text = "n HOF Energy Hardness ECP Electrophilicity \n"
+		fgr_text = "n HOF Energy Hardness ECP Electrophilicity method\n"
 		fgr = open("global_resume_data",'w')
 		for i in range(len(self.gstep)):
-			fgr_text += "{} {} {} {} {} {}\n".format(self.gstep[i],self.hamilt[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i])
+			fgr_text += "{} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i])
 		fgr.write(fgr_text)
 		fgr.close()
 		
 		flr_text = ""
 		flr = open("local_resume_data",'w')
 		if self.pairs == 1:
-			flr_text = "n eas_a1 nas_a1 hardness_a1 chg_a1 chg_a2 eas_a2 nas_a2 hardness_a2 CT SPI HPI\n"
+			flr_text = "n eas_a1 nas_a1 hardness_a1 chg_a1 chg_a2 eas_a2 nas_a2 hardness_a2 CT SPI HPI method\n"
 			for i in range(len(self.lstep)):
-				flr_text += "{} {} {} {} {} ".format(self.lstep[i],self.lhamilt[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
+				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
 				flr_text += "{} {} ".format(self.chg_a1[i],self.chg_a2[i])
-				flr_text += "{} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i])
+				flr_text += "{} {} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.lhamilt[i])
 		elif self.pairs == 2:
-			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 chg_a1 chg_a2 chg_a3 chg_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2\n"
+			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 chg_a1 chg_a2 chg_a3 chg_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2 method\n"
 			for i in range(len(self.lstep)):	
 				flr_text += "{} {} {} {}".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
 				flr_text += "{} {} {} ".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i])
 				flr_text += "{} {} {} ".format(self.eas_a3[i],self.nas_a3[i],self.hardness_a3[i])
 				flr_text += "{} {} {} ".format(self.eas_a4[i],self.nas_a4[i],self.hardness_a4[i])
 				flr_text += "{} {} {} {} ".format(self.chg_a1[i],self.chg_a2[i],self.chg_a3[i],self.chg_a4[i])
-				flr_text += "{} {} {} {} {} {} \n".format(self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.CT_p2[i],self.SPI_p2[i],self.HPI_p2[i])
+				flr_text += "{} {} {} {} {} {} {}\n".format(self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.CT_p2[i],self.SPI_p2[i],self.HPI_p2[i],self.lhamilt[i])
 		flr.write(flr_text)
 		flr.close()
 
