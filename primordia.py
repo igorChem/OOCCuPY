@@ -158,7 +158,6 @@ class pair_RD:
 		
 
 		globaln = sorted(glob.glob("*global"))
-		print(globaln[0])
 		fgl = open(globaln[0],'r')
 	
 		#read global descriptors 
