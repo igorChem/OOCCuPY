@@ -47,7 +47,7 @@ class xyz_parser:
 		for line in log:
 			line2 = line.split()
 			if len(line2) == 4:
-				self.AtomLabels.append(line2[0][0])
+				self.AtomLabels.append(line2[0])
 				self.xCoord.append(float(line2[1]))
 				self.yCoord.append(float(line2[2]))
 				self.zCoord.append(float(line2[3]))

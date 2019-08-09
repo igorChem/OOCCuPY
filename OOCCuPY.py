@@ -112,11 +112,12 @@ if __name__ == "__main__":
 		primordia_inp(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtd,norb=nrb)
 
 	elif ( sys.argv[1] == "-prd"):
-		a = pair_RD()
-		a.write()
-		a.r_scripts()
-		if sys.argv[2] == "-2d":
+		if "-2d" in sys.argv:
 			a = pair_RD(mode="2d")
+			a.write()
+			a.r_scripts()
+		else:
+			a = pair_RD()
 			a.write()
 			a.r_scripts()
 

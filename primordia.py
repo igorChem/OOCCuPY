@@ -67,7 +67,8 @@ def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,
 	elif option == '3':
 		aux = glob.glob("*aux")		
 		for i in range(len(aux)):
-			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
+			#text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
+			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,"system_PM7_0_0.pdb",program,bandm)
 	
 	elif option == '4':
 		aux = glob.glob("*aux")
@@ -145,8 +146,10 @@ class pair_RD:
 		self.hardness = []
 		self.ECP = []
 		self.electrophilicity = []
-		self.gstep = []
-		self.lstep = []
+		self.gstep  = []
+		self.gstep2  = []
+		self.lstep  = []
+		self.lstep2 = []
 		self.CT_p1_p2 = []
 		self.SPI_p1_p2 = []
 		self.HPI_p1_p2 = []
@@ -165,14 +168,43 @@ class pair_RD:
 		i=0
 		
 		for line in fgl:
-			if i > 1:
+			if i> 1:
 				line2 = line.split()
-				if len(line2[0]) > 10:
-					self.gstep.append(int(line2[0][6:-7]))
-					self.hamilt.append(line2[0][-6:-3])
+				if mode == "2d":
+					if len(line2[0]) == 16:
+						self.gstep.append(int(line2[0][11:-3]))
+						self.gstep2.append(int(line2[0][14:]))
+						self.hamilt.append(line2[0][7:-6])
+					elif len(line2[0]) == 15:
+						g1 = 0
+						g2 = 0
+						try:
+							g2 = int(line2[0][-2:])
+							g1 = int(line2[0][-4:-3])
+						except:
+							g2 = int(line2[0][-1:])
+							g1 = int(line2[0][-4:-2])
+						self.gstep.append(g1)
+						self.gstep2.append(g2)
+						self.hamilt.append(line2[0][7:-5])
+					elif len(line2[0]) == 14:
+						self.gstep.append(int(line2[0][11:-2]))
+						self.gstep2.append(int(line2[0][13:]))
+						self.hamilt.append(line2[0][7:-4])
 				else:
-					self.gstep.append(int(line2[0][6:]))
-					self.hamilt.append("pm7")
+					line2 = line.split()
+					if len(line2[0]) > 10:
+						#self.gstep.append(int(line2[0][6:-7]))
+						try:
+							self.gstep.append(int(line2[0][11:-9]))
+						except:
+							self.gstep.append(int(line2[0][11:-10]))
+						self.gstep2.append(0)
+						#self.hamilt.append(line2[0][-6:-3])
+						self.hamilt.append("am1")
+					else:
+						self.gstep.append(int(line2[0][6:]))
+						self.hamilt.append("pm7")
 				self.HOF.append(float(line2[2]))
 				self.Elec_en.append(float(line2[1]))
 				self.hardness.append(float(line2[6]))
@@ -184,8 +216,36 @@ class pair_RD:
 		for j in range(len(self.prds)):
 			prd = open(self.prds[j],'r')
 			if len(self.prds[j]) > 16:
-				self.lstep.append(int(self.prds[j][6:-15]))
-				self.lhamilt.append(self.prds[j][-14:-11])
+				if mode == "1d":
+					#self.lstep.append(int(self.prds[j][6:-15]))
+					try:
+						self.lstep.append(int(self.prds[j][11:-17]))
+					except:
+						self.lstep.append(int(self.prds[j][11:-18]))
+					self.lstep2.append(0)
+					#self.lhamilt.append(self.prds[j][-14:-11])
+					self.lhamilt.append("am1")
+				elif mode == "2d":
+					if len(self.prds[j]) == 24:
+						self.lstep.append(int(self.prds[j][11:-11]))
+						self.lstep2.append(int(self.prds[j][14:-8]))
+						self.lhamilt.append(self.prds[j][7:-13])
+					elif len(self.prds[j]) == 23:
+						g1 = 0
+						g2 = 0
+						try:
+							g1 = int(self.prds[j][11:-10])
+							g2 = int(self.prds[j][13:-8])
+						except:							
+							g1 = int(self.prds[j][11:-11])
+							g2 = int(self.prds[j][14:-8])
+							self.lstep.append(g1)
+							self.lstep2.append(g2)
+						self.lhamilt.append(self.prds[j][7:-13])
+					elif len(self.prds[j]) == 22:
+						self.lstep.append(int(self.prds[j][11:-10]))
+						self.lstep2.append(int(self.prds[j][13:-8]))
+						self.lhamilt.append(self.prds[j][7:-12])
 			else:
 				self.lstep.append(int(self.prds[j][6:-8]))
 				self.lhamilt.append("PM7")
@@ -250,7 +310,7 @@ class pair_RD:
 		selec = min(self.Elec_en)
 		for i in range(len(self.gstep)):
 			self.HOF[i] = self.HOF[i] - shof
-			self.Elec_en[i] = self.Elec_en[i] - selec
+			self.Elec_\en[i] = self.Elec_en[i] - selec
 		'''
 		
 		half_dist1 = 0
@@ -286,7 +346,7 @@ class pair_RD:
 		fgr_text = "n HOF Energy Hardness ECP Electrophilicity method\n"
 		fgr = open("global_resume_data",'w')
 		for i in range(len(self.gstep)):
-			fgr_text += "{} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i])
+			fgr_text += "{} {} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i],self.gstep2[i])
 		fgr.write(fgr_text)
 		fgr.close()
 		
@@ -299,14 +359,15 @@ class pair_RD:
 				flr_text += "{} {} ".format(self.chg_a1[i],self.chg_a2[i])
 				flr_text += "{} {} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.lhamilt[i])
 		elif self.pairs == 2:
-			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 chg_a1 chg_a2 chg_a3 chg_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2 method\n"
+			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 chg_a1 chg_a2 chg_a3 chg_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2 method CT12 SPI12 HPI12 m\n"
 			for i in range(len(self.lstep)):	
-				flr_text += "{} {} {} {}".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
+				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
 				flr_text += "{} {} {} ".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i])
 				flr_text += "{} {} {} ".format(self.eas_a3[i],self.nas_a3[i],self.hardness_a3[i])
 				flr_text += "{} {} {} ".format(self.eas_a4[i],self.nas_a4[i],self.hardness_a4[i])
 				flr_text += "{} {} {} {} ".format(self.chg_a1[i],self.chg_a2[i],self.chg_a3[i],self.chg_a4[i])
-				flr_text += "{} {} {} {} {} {} {}\n".format(self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.CT_p2[i],self.SPI_p2[i],self.HPI_p2[i],self.lhamilt[i])
+				flr_text += "{} {} {} {} {} {} {} ".format(self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.CT_p2[i],self.SPI_p2[i],self.HPI_p2[i],self.lhamilt[i])
+				flr_text += "{} {} {} {}\n".format(self.CT_p1_p2[i],self.SPI_p1_p2[i],self.HPI_p1_p2[i],self.lstep2[i])
 		flr.write(flr_text)
 		flr.close()
 
