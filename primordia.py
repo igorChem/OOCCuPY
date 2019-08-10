@@ -350,14 +350,14 @@ class pair_RD:
 					
 		
 		fgr_text = "n HOF Energy Hardness ECP Electrophilicity method\n"
-		fgr = open("global_resume"+x.hour+"_"+x.minute,'w')
+		fgr = open("global_resume"+str(x.hour)+"_"+str(x.minute),'w')
 		for i in range(len(self.gstep)):
 			fgr_text += "{} {} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i],self.gstep2[i])
 		fgr.write(fgr_text)
 		fgr.close()
 		
 		flr_text = ""
-		flr = open("local_resume"+x.hour+"_"+x.minute,'w')
+		flr = open("local_resume"+str(x.hour)+"_"+str(x.minute),'w')
 		if self.pairs == 1:
 			flr_text = "n eas_a1 nas_a1 hardness_a1 chg_a1 chg_a2 eas_a2 nas_a2 hardness_a2 CT SPI HPI method\n"
 			for i in range(len(self.lstep)):
