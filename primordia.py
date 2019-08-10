@@ -3,6 +3,9 @@
 # pdb_Reader.py
 
 import os,glob
+import datetime
+
+x = datetime.datetime.now()
 
 def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100,pdb="none"):
 
@@ -174,26 +177,26 @@ class pair_RD:
 			if i> 1:
 				line2 = line.split()
 				if mode == "2d":
-					if len(line2[0]) == 16:
-						self.gstep.append(int(line2[0][11:-3]))
-						self.gstep2.append(int(line2[0][14:]))
-						self.hamilt.append(line2[0][7:-6])
+					if len(line2[0]) == 18:
+						self.gstep.append(int(line2[0][7:9]))
+						self.gstep2.append(int(line2[0][10:12]))
+						self.hamilt.append(line2[0][-6:-3])
 					elif len(line2[0]) == 15:
 						g1 = 0
 						g2 = 0
 						try:
-							g2 = int(line2[0][-2:])
-							g1 = int(line2[0][-4:-3])
+							g2 = int(line2[0][7:8])
+							g1 = int(line2[0][9:11])
 						except:
-							g2 = int(line2[0][-1:])
-							g1 = int(line2[0][-4:-2])
+							g2 = int(line2[0][7:9])
+							g1 = int(line2[0][10:11])
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
-						self.hamilt.append(line2[0][7:-5])
+						self.hamilt.append(line2[0][12:-3])
 					elif len(line2[0]) == 14:
-						self.gstep.append(int(line2[0][11:-2]))
-						self.gstep2.append(int(line2[0][13:]))
-						self.hamilt.append(line2[0][7:-4])
+						self.gstep.append(int(line2[0][7:8]))
+						self.gstep2.append(int(line2[0][9:10]))
+						self.hamilt.append(line2[0][11:-3])
 				else:
 					line2 = line.split()
 					if len(line2[0]) > 10:
@@ -222,33 +225,33 @@ class pair_RD:
 				if mode == "1d":
 					#self.lstep.append(int(self.prds[j][6:-15]))
 					try:
-						self.lstep.append(int(self.prds[j][11:-17]))
+						self.lstep.append(int(self.prds[j][9:-17]))
 					except:
 						self.lstep.append(int(self.prds[j][11:-18]))
 					self.lstep2.append(0)
 					#self.lhamilt.append(self.prds[j][-14:-11])
 					self.lhamilt.append("am1")
 				elif mode == "2d":
-					if len(self.prds[j]) == 24:
-						self.lstep.append(int(self.prds[j][11:-11]))
-						self.lstep2.append(int(self.prds[j][14:-8]))
-						self.lhamilt.append(self.prds[j][7:-13])
-					elif len(self.prds[j]) == 23:
+					if len(self.prds[j]) == 26:
+						self.lstep.append(int(self.prds[j][7:9]))
+						self.lstep2.append(int(self.prds[j][10:12]))
+						self.lhamilt.append(self.prds[j][13:16])
+					elif len(self.prds[j]) == 25:
 						g1 = 0
 						g2 = 0
 						try:
-							g1 = int(self.prds[j][11:-10])
-							g2 = int(self.prds[j][13:-8])
+							g1 = int(self.prds[j][7:8])
+							g2 = int(self.prds[j][9:11])
 						except:							
-							g1 = int(self.prds[j][11:-11])
-							g2 = int(self.prds[j][14:-8])
+							g1 = int(self.prds[j][7:9])
+							g2 = int(self.prds[j][10:11])
 							self.lstep.append(g1)
 							self.lstep2.append(g2)
-						self.lhamilt.append(self.prds[j][7:-13])
-					elif len(self.prds[j]) == 22:
-						self.lstep.append(int(self.prds[j][11:-10]))
-						self.lstep2.append(int(self.prds[j][13:-8]))
-						self.lhamilt.append(self.prds[j][7:-12])
+						self.lhamilt.append(self.prds[j][12:15])
+					elif len(self.prds[j]) == 24:
+						self.lstep.append(int(self.prds[j][7:8]))
+						self.lstep2.append(int(self.prds[j][9:10]))
+						self.lhamilt.append(self.prds[j][11:14])
 			else:
 				self.lstep.append(int(self.prds[j][6:-8]))
 				self.lhamilt.append("PM7")
@@ -347,14 +350,14 @@ class pair_RD:
 					
 		
 		fgr_text = "n HOF Energy Hardness ECP Electrophilicity method\n"
-		fgr = open("global_resume_data",'w')
+		fgr = open("global_resume"+x.hour+"_"+x.minute,'w')
 		for i in range(len(self.gstep)):
 			fgr_text += "{} {} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i],self.gstep2[i])
 		fgr.write(fgr_text)
 		fgr.close()
 		
 		flr_text = ""
-		flr = open("local_resume_data",'w')
+		flr = open("local_resume"+x.hour+"_"+x.minute,'w')
 		if self.pairs == 1:
 			flr_text = "n eas_a1 nas_a1 hardness_a1 chg_a1 chg_a2 eas_a2 nas_a2 hardness_a2 CT SPI HPI method\n"
 			for i in range(len(self.lstep)):
