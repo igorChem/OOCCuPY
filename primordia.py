@@ -4,7 +4,7 @@
 
 import os,glob
 
-def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100):
+def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100,pdb="none"):
 
 	f = open("input_pri",'w')
 	text ="eband {0} pymols\n".format(eband)
@@ -65,10 +65,13 @@ def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,
 			for i in range(len(aux)):
 				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
 	elif option == '3':
-		aux = glob.glob("*aux")		
-		for i in range(len(aux)):
-			#text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
-			text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,"system_PM7_0_0.pdb",program,bandm)
+		aux = glob.glob("*aux")
+		if pdb == "none":	
+			for i in range(len(aux)):
+				text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
+		else:
+			for i in range(len(aux)):
+				text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,pdb,program,bandm)
 	
 	elif option == '4':
 		aux = glob.glob("*aux")

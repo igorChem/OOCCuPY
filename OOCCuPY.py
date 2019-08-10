@@ -24,7 +24,8 @@ sem = "PM7"
 moz = ""
 mgf = False
 inp_m = "pdb"
-chg = 0 
+chg = 0
+pdbref = "none" 
 
 def inp_mopac_from_all_pdbs():
 	
@@ -108,8 +109,10 @@ if __name__ == "__main__":
 			elif ( sys.argv[i] == "-grid"):
 				grid = int(sys.argv[i+1])
 			elif ( sys.argv[i] == "-norb"):
-				nrb = int(sys.argv[i+1])	
-		primordia_inp(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtd,norb=nrb)
+				nrb = int(sys.argv[i+1])
+			elif sys.argv[i] == "-pdb":
+				pdbref = sys.argv[i+1]	
+		primordia_inp(option=sys.argv[2],program=prog,lh=LH,gridn=grid,eband=eb,bandm=bmtd,norb=nrb,pdb=pdbref)
 
 	elif ( sys.argv[1] == "-prd"):
 		if "-2d" in sys.argv:

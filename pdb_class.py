@@ -122,12 +122,12 @@ class protein:
 		for i in sorted(a,reverse=True):
 			del self.atoms[i]
 
-	def split_complex(self,lig):
+	def split_complex(self,lign):
 		lig = []
 		atoms_swap = []
 		a   = []
 		for i in range(len(self.atoms)):
-			if self.atoms[i].resTyp==lig:
+			if self.atoms[i].resTyp==lign:
 				a.append(i)
 				
 		for i in sorted(a,reverse=True):
