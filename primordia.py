@@ -177,11 +177,11 @@ class pair_RD:
 			if i> 1:
 				line2 = line.split()
 				if mode == "2d":
-					if len(line2[0]) == 18:
+					if len(line2[0]) == 19:
 						self.gstep.append(int(line2[0][7:9]))
 						self.gstep2.append(int(line2[0][10:12]))
 						self.hamilt.append(line2[0][-6:-3])
-					elif len(line2[0]) == 15:
+					elif len(line2[0]) == 18:
 						g1 = 0
 						g2 = 0
 						try:
@@ -193,7 +193,7 @@ class pair_RD:
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
 						self.hamilt.append(line2[0][12:-3])
-					elif len(line2[0]) == 14:
+					elif len(line2[0]) == 17:
 						self.gstep.append(int(line2[0][7:8]))
 						self.gstep2.append(int(line2[0][9:10]))
 						self.hamilt.append(line2[0][11:-3])
