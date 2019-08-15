@@ -55,11 +55,13 @@ def inp_mopac_from_all_pdbs():
 
 	for xyz in list2:
 		a = mopac_inp(xyzfile=xyz,charge=chg,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+".mop",method=sem,mgf=mgf)
+		'''
 		if not lmo:
 			b = mopac_inp(xyzfile=xyz,charge=2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_cat.mop",method=sem,mgf=mgf)
 			c = mopac_inp(xyzfile=xyz,charge=-2,multi=0,mozyme=lmo,inpnam=xyz[:-4]+"_"+sem+moz+"_an.mop",method=sem,mgf=mgf)
 			b.write_mop()
 			c.write_mop()
+		'''
 		a.write_mop()
 
 

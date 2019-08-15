@@ -120,7 +120,6 @@ def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,
 	f.close()
 
 
-
 class pair_RD:
 	def __init__(self,mode="1d"):
 		self.prds = glob.glob("*.prd")
@@ -185,11 +184,11 @@ class pair_RD:
 						g1 = 0
 						g2 = 0
 						try:
-							g2 = int(line2[0][7:8])
-							g1 = int(line2[0][9:11])
+							g1 = int(line2[0][7:8])
+							g2 = int(line2[0][9:11])							
 						except:
-							g2 = int(line2[0][7:9])
-							g1 = int(line2[0][10:11])
+							g1 = int(line2[0][7:9])
+							g2 = int(line2[0][10:11])
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
 						self.hamilt.append(line2[0][12:-3])
@@ -242,6 +241,8 @@ class pair_RD:
 						try:
 							g1 = int(self.prds[j][7:8])
 							g2 = int(self.prds[j][9:11])
+							self.lstep.append(g1)
+							self.lstep2.append(g2) 
 						except:							
 							g1 = int(self.prds[j][7:9])
 							g2 = int(self.prds[j][10:11])
@@ -351,6 +352,7 @@ class pair_RD:
 		
 		fgr_text = "n HOF Energy Hardness ECP Electrophilicity method\n"
 		fgr = open("global_resume"+str(x.hour)+"_"+str(x.minute),'w')
+		print(len(self.gstep),len(self.gstep2),len(self.HOF),len(self.Elec_en),len(self.hardness),len(self.ECP),len(self.electrophilicity),len(self.hamilt))
 		for i in range(len(self.gstep)):
 			fgr_text += "{} {} {} {} {} {} {} {}\n".format(self.gstep[i],self.HOF[i],self.Elec_en[i],self.hardness[i],self.ECP[i],self.electrophilicity[i],self.hamilt[i],self.gstep2[i])
 		fgr.write(fgr_text)
@@ -366,7 +368,7 @@ class pair_RD:
 				flr_text += "{} {} {} {} {} {} {}\n".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i],self.CT_p1[i],self.SPI_p1[i],self.HPI_p1[i],self.lhamilt[i])
 		elif self.pairs == 2:
 			flr_text = "n eas_a1 nas_a1 hardness_a1 eas_a2 nas_a2 hardness_a2 eas_a3 nas_a3 hardness_a3 eas_a4 nas_a4 hardness_a4 chg_a1 chg_a2 chg_a3 chg_a4 CT1 SPI1 HPI1 CT2 SPI2 HPI2 method CT12 SPI12 HPI12 m\n"
-			for i in range(len(self.lstep)):	
+			for i in range(len(self.lstep)):
 				flr_text += "{} {} {} {} ".format(self.lstep[i],self.eas_a1[i],self.nas_a1[i],self.hardness_a1[i])
 				flr_text += "{} {} {} ".format(self.eas_a2[i],self.nas_a2[i],self.hardness_a2[i])
 				flr_text += "{} {} {} ".format(self.eas_a3[i],self.nas_a3[i],self.hardness_a3[i])
