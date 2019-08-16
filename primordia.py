@@ -176,11 +176,11 @@ class pair_RD:
 			if i> 1:
 				line2 = line.split()
 				if mode == "2d":
-					if len(line2[0]) == 19:
+					if len(line2[0]) == 16:
 						self.gstep.append(int(line2[0][7:9]))
 						self.gstep2.append(int(line2[0][10:12]))
-						self.hamilt.append(line2[0][-6:-3])
-					elif len(line2[0]) == 18:
+						self.hamilt.append(line2[0][13:16])
+					elif len(line2[0]) == 15:
 						g1 = 0
 						g2 = 0
 						try:
@@ -191,11 +191,11 @@ class pair_RD:
 							g2 = int(line2[0][10:11])
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
-						self.hamilt.append(line2[0][12:-3])
-					elif len(line2[0]) == 17:
+						self.hamilt.append(line2[0][12:15])
+					elif len(line2[0]) == 14:
 						self.gstep.append(int(line2[0][7:8]))
 						self.gstep2.append(int(line2[0][9:10]))
-						self.hamilt.append(line2[0][11:-3])
+						self.hamilt.append(line2[0][11:14])
 				else:
 					line2 = line.split()
 					if len(line2[0]) > 10:
@@ -231,11 +231,11 @@ class pair_RD:
 					#self.lhamilt.append(self.prds[j][-14:-11])
 					self.lhamilt.append("am1")
 				elif mode == "2d":
-					if len(self.prds[j]) == 27:
+					if len(self.prds[j]) == 24:
 						self.lstep.append(int(self.prds[j][7:9]))
 						self.lstep2.append(int(self.prds[j][10:12]))
 						self.lhamilt.append(self.prds[j][13:16])
-					elif len(self.prds[j]) == 26:
+					elif len(self.prds[j]) == 23:
 						g1 = 0
 						g2 = 0
 						try:
@@ -249,7 +249,7 @@ class pair_RD:
 							self.lstep.append(g1)
 							self.lstep2.append(g2)
 						self.lhamilt.append(self.prds[j][12:15])
-					elif len(self.prds[j]) == 25:
+					elif len(self.prds[j]) == 22:
 						self.lstep.append(int(self.prds[j][7:8]))
 						self.lstep2.append(int(self.prds[j][9:10]))
 						self.lhamilt.append(self.prds[j][11:14])
