@@ -24,7 +24,7 @@ class min_prot:
 	def top_init(self):
 
 		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_P.pdb -water tip3p << EOF \n"
-		text_to_run += "1 \n"
+		text_to_run += "5 \n"
 		text_to_run += "EOF"
 
 		os.system(text_to_run)
