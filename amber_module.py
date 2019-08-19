@@ -13,9 +13,11 @@ class amber_mod:
 	def __init__(self                                    ,
 			     pdbfile                                 ,
 			     H_opt=True                              ,
-			     path="/home/barden/programs/amber16/bin"):
+			     lig  ="none"                            ,
+			     path="/home/igorchem/programs/amber18/bin"):
 
 		self.name = pdbfile
+		self.lig  = lig
 		self.nameAf = self.name[:-4] + "_h.pdb"
 		self.clear = self.name[:-4] +"_clear_h.pdb"
 		self.H_opt = H_opt		
@@ -34,16 +36,16 @@ class amber_mod:
 		
 		print("========== end of reduce =========")
 
-		print(self.pdb4amber +" -i " + self.nameAf +" -o " + self.clear)
+		#print(self.pdb4amber +" -i " + self.nameAf +" -o " + self.clear)
 		
-		os.system(self.pdb4amber +" -i " + self.nameAf +" -o " + self.clear)
+		#os.system(self.pdb4amber +" -i " + self.nameAf +" -o " + self.clear)
 
 	
 	def tleap_call(self):
 
 		tleap_in  = "tleap \n" 
 		tleap_in += "source leaprc.protein.ff14SB \n"
-		tleap_in += "prot = loadPdb " + self.clear + "\n"
+		tleap_in += "prot = loadPdb " + self.nameAf + "\n"
 		tleap_in += "source leaprc.water.tip3p \n"
 		tleap_in += "solvatebox prot TIP3PBOX 10.0 \n"
 		tleap_in += "saveamberparm prot prmtop inpcrd\n"
@@ -55,7 +57,13 @@ class amber_mod:
 
 		os.system(self.tleap + " -f tleap_in" )
 
-
+	def antechamber(self,charge=0):
+		string  = ('antechamber -i %s -fi %s -o %s -fo mol2 -c bcc -nc %i' %('pdb/'+self.lig, self.lig[-3:], 'mol2/'+self.lig[:-3]+'mol2', charge))
+		os.system(string)    
+		string  = ('parmchk -i %s -f mol2 -o %s' %('mol2/'+self.lig[:-3]+'mol2', 'mol2/'+self.lig[:-3]+'frcmod'))
+		os.system(string)
+        
+        
 	def sandro(self):
 
 		if self.H_opt==True:
@@ -95,10 +103,13 @@ class amber_mod:
 		opt_pdb.mopac_mop()
 	
 	def equilibration(self):
+		pass
 
 	def production(self):
+		pass
 
-	def analysis_MD(self): 
+	def analysis_MD(self):
+		pass
 '''	
 a = amber_mod("1a2y_p1.pdb")
 a.tleap_call()

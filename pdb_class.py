@@ -128,18 +128,23 @@ class protein:
 		a   = []
 		for i in range(len(self.atoms)):
 			if self.atoms[i].resTyp==lign:
+				lig.append(self.atoms[i])
 				a.append(i)
 				
 		for i in sorted(a,reverse=True):
-			lig.append[self.atoms[i]]
 			del self.atoms[i]
+				
+		input_text ="HEADER {0} pdb file\n".format(self.name)
 
-		self.write_pdb(self.name[:-4]+"_wl.pdb")
-		atoms_swap = self.atoms
-		self.atoms = lig
-		self.write_pdb(self.name[:-4]+"_lig.pdb")
-		self.atoms = atoms_swap
-		
+		i=1
+		for atom in lig:
+			input_text += "ATOM {0:6} {1:4} {2:2} {3:<1} {4:<7} {5:7.3f} {6:7.3f} {7:7.3f} {8:>5.2f} {9:>4.2f} \n".format(i,atom.ptype,atom.resTyp,atom.chain_t,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.occ,atom.bfactor)
+			i+=1
+
+		pdb = open(self.name[:-4]+"_lig.pdb",'w')
+		pdb.write(input_text)
+		pdb.close()
+
 	def remove_waters(self):
 		a = []
 		for i in range(len(self.atoms)):

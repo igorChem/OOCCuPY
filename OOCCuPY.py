@@ -5,6 +5,8 @@
 from pdb_class import *
 from mopac_module import *
 from primordia import *
+from amber_module import *
+#import parmed as pmd 
 import glob
 import sys,os 
 
@@ -77,7 +79,17 @@ def script_shell_from_mop():
 		txt += "/opt/mopac/MOPAC2016.exe {0} {1}\n".format(list[i],ee)
 	f.write(txt)
 	f.close()
-
+	
+	
+def prepare_complex(pdb,lig):
+	comp = protein(pdb)
+	comp.pdb_parse()
+	if not lig =="none":
+		comp.split_complex(lig)
+		comp.write_pdb(pdb[:-4]+"_wl"+pdb[-4:])
+	else:
+		compb = amber_mod(pdb,H_opt=False)
+		compb.tleap_call()
 
 if __name__ == "__main__":
 	if ( sys.argv[1] == "-imop" ):
@@ -95,6 +107,11 @@ if __name__ == "__main__":
 
 	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
+	elif sys.argv[1] == "-AP":
+		try:
+			prepare_complex(sys.argv[2],sys.argv[3])
+		except:
+			prepare_complex(sys.argv[2],"none")
 
 	elif ( sys.argv[1] == "-pri" ):
 		LH      = "none"
