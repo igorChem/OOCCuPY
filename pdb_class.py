@@ -331,7 +331,11 @@ class protein:
 		xyz=open(self.name[:-4] +'.xyz','w')
 		
 		for atom in self.atoms:
-			input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
+			if atom.element[0] == "H":				
+				input_text += '{0} {1} {2} {3} \n'.format(atom.element[0],atom.xcoord,atom.ycoord,atom.zcoord)
+			else:
+				input_text += '{0} {1} {2} {3} \n'.format(atom.element,atom.xcoord,atom.ycoord,atom.zcoord)
+
 
 		xyz.write(input_text)
 		xyz.close()

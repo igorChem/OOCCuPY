@@ -10,7 +10,6 @@ from pdb_class import*
 from xyz_class import*
 
 
-
 class min_prot:
 
 	def __init__(self,
@@ -24,19 +23,19 @@ class min_prot:
 
 	def top_init(self):
 
-		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_processed.pdb -water tip3p << EOF \n"
-		text_to_run += "1 \n"
+		text_to_run = "/usr/bin/gmx" + " pdb2gmx -ignh -f " + self.protein + ".pdb -o " + self.protein + "_P.pdb -water tip3p << EOF \n"
+		text_to_run += "5 \n"
 		text_to_run += "EOF"
 
 		os.system(text_to_run)
 
 	def solvate(self):
 
-		text_to_run = "/usr/bin/gmx" + " editconf -f " + self.protein + "_processed.pdb -o " + self.protein +"_newbox.pdb -c -d 1.0 -bt cubic"
+		text_to_run = "/usr/bin/gmx" + " editconf -f " + self.protein + "_P.pdb -o " + self.protein +"_NB.pdb -c -d 1.0 -bt cubic"
 
 		os.system(text_to_run)
 
-		text_to_run = "/usr/bin/gmx" + " solvate -cp " +  self.protein + "_newbox.pdb -cs spc216.gro -o " + self.protein + "_solv.pdb -p topol.top"
+		text_to_run = "/usr/bin/gmx" + " solvate -cp " +  self.protein + "_NB.pdb -cs spc216.gro -o " + self.protein + "_solv.pdb -p topol.top"
 
 		os.system(text_to_run)
 
