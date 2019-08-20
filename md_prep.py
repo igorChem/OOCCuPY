@@ -95,22 +95,11 @@ def gromacs_inp():
 	Put options to change basic DM runs.
 	'''
 		
-	mdp_file =  "integrator    = steep  \n"
-	mdp_file += "emtol         = 1000.0 \n"
-	mdp_file += "emstep        = 0.01   \n"
-	mdp_file += "nsteps        = 50000  \n"		
-	mdp_file += "nstlist	   = 1	    \n"
-	mdp_file += "cutoff-scheme = Verlet \n"
-	mdp_file += "ns_type	   = grid   \n"
-	mdp_file += "coulombtype   = PME    \n"
-	mdp_file += "rcoulomb	   = 1.0	\n"
-	mdp_file += "rvdw		   = 1.0	\n"
-	mdp_file += "pbc		   = xyz    \n"
-	
+	mdp_file2 =  "integrator    = steep  \n"
 	mdp_file2 =  "emtol         = 1000.0 \n"
-	mdp_file2 += "emstep        = 0.0051 \n"
-	mdp_file2 += "nsteps        = 50000  \n"		
-	mdp_file2 += "nstlist		= 2	     \n"
+	mdp_file2 += "emstep        = 0.01   \n"
+	mdp_file2 += "nsteps        = 100000 \n"		
+	mdp_file2 += "nstlist		= 15     \n"
 	mdp_file2 += "cutoff-scheme = Verlet \n"
 	mdp_file2 += "ns_type		= grid   \n"
 	mdp_file2 += "coulombtype	= PME    \n"
@@ -120,10 +109,6 @@ def gromacs_inp():
 
 	ls = os.listdir(".")	
 	for fl in ls:		
-		if not fl == "ions.mdp":
-			mdp_inp = open("ions.mdp",'w')
-			mdp_inp.write(mdp_file)
-			mdp_inp.close()
 		if not fl == "em.mdp":
 			mdp_inp = open("em.mdp",'w')
 			mdp_inp.write(mdp_file2)
@@ -298,48 +283,15 @@ class md_prep:
 			ap.save(self.pdb[:-4]+".top")
 			ap.save(self.pdb[:-4]+".gro")
 
-	def prepare_gromacs(self):
-		'''
-		topol_file = open(self.pdb[:-4]+".top",'r')
-		for line in topol_file:
-			line2 = line.split()			
-			if len(line2) == 8:
-				if line2[1] == "residue":
-					if line2[7] == "1.0" or line2[7] == "+1.0":
-						self.net_charge +=1
-					elif line2[7] == "2.0" or line2[7] == "+2.0":
-						self.net_charge +=2
-					elif line2[7] == "-1.0":
-						self.net_charge -=1
-					elif line2[7] == "-2.0":
-						self.net_charge -=2
-		NN = 0
-		NP = 0
-
-		self.net_charge += self.lig_charge
-		print(self.net_charge)
-		if self.net_charge > 0:
-			NN = self.net_charge
-		elif self.net_charge < 0:
-			NP = abs(self.net_charge)
-		'''
+	def min_gromacs(self):
+		
 		gromacs_inp()
 		os.system("sed 's/WAT/SOL/' "+self.current_pdb+" > "+self.current_pdb[:-4]+"_t.pdb")
 		os.rename(self.current_pdb[:-4]+"_t.pdb",self.current_pdb)
 		os.system("sed 's/WAT/SOL/' "+self.pdb[:-4]+".top > "+self.pdb[:-4]+"_t.top")
-		os.rename(self.pdb[:-4]+"_t.top",self.pdb[:-4]+".top")		
-		'''
-		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.current_pdb+" -p "+ self.pdb[:-4] +".top -o ions.tpr -maxwarn 50<< EOF\n"
-		print(text_to_run)
-		os.system(text_to_run)
-
-		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.current_pdb[:-4] + "_i.pdb -p " +self.pdb[:-4] +".top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
-		print(text_to_run)
-		os.system(text_to_run)	
-		'''
-	
-	def min_gromacs(self):
-		text_to_run = "/usr/bin/gmx" +" grompp -f em.mdp -c "+self.current_pdb+ " -p "+ self.pdb[:-4] +".top -o em.tpr -maxwarn 50"
+		os.rename(self.pdb[:-4]+"_t.top",self.pdb[:-4]+".top")	
+		
+		text_to_run = "/usr/bin/gmx" +" grompp -f em.mdp -c "+self.pdb[:-4]+ " -p "+ self.pdb[:-4] +".top -o em.tpr -maxwarn 50"
 		os.system(text_to_run)
 
 		text_to_run = "/usr/bin/gmx" + " mdrun -v -deffnm em"
