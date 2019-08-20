@@ -6,7 +6,7 @@ from pdb_class import *
 from mopac_module import *
 from primordia import *
 from amber_module import *
-#import parmed as pmd 
+from md_prep import *
 import glob
 import sys,os 
 
@@ -108,10 +108,11 @@ if __name__ == "__main__":
 	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
 	elif sys.argv[1] == "-AP":
-		try:
-			prepare_complex(sys.argv[2],sys.argv[3])
-		except:
-			prepare_complex(sys.argv[2],"none")
+		a = md_prep(sys.argv[2])
+		a.prepare_lig(sys.argv[3],sys.argv[4])
+		a.build_complex()
+		a.prepare_gromacs()
+		#a.min_gromacs()
 
 	elif ( sys.argv[1] == "-pri" ):
 		LH      = "none"

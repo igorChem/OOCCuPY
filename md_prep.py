@@ -8,23 +8,66 @@ import glob
 import sys,os 
 
 
+#Cofactor list
+cofac_list = ["ATP","ADN","atp"]
+#ATP atoms list
+atp_list = ["O5'","C5'","C4'","O4'","C3'","O3'","C2'","O2'","C1'"]
+
 #names of bin of amber and gromacs
 path_amber = "/home/igorchem/programs/amber18/bin"
-Reduce = path_amber + "/reduce "
-pdb4 = path_amber + "/pdb4amber "
-antech = path_amber + "/antechamber "
-parmchk = path_amber + "/parmchk2 "
-tleap = path_amber + "/tleap "
+Reduce     = path_amber + "/reduce -Trim "
+pdb4       = path_amber + "/pdb4amber "
+antech     = path_amber + "/antechamber "
+parmchk    = path_amber + "/parmchk2 "
+tleap      = path_amber + "/tleap "
 
+#=======================================================================
+#***********************************************************************
 def my_replace(fl,old,new):
+				   	
+	'''Function Doc
+	Move to another lib file 
+	'''
 	with open(fl, 'r+') as f:
-			s = f.read()
-			s = s.replace(old, new)
-			f.write(s)
-
-
-
-def pdb_cat(pdb1,pdb2):
+		s = f.read()
+		s = s.replace(old, new)
+		f.write(s)
+			
+#***********************************************************************
+def fix_cofac_atoms(lig):	
+	'''Function Doc	
+	'''
+	new_atoms   = []
+	result_text = ""
+	LIG         = ""
+	
+	cofac = protein(lig)
+	cofac.pdb_parse()
+	
+	if lig[:3]  == "ATP":
+		LIG  = "atp"
+	pdb_res  = open(LIG+".pdb",'w')
+	
+	for atom in cofac.atoms:
+		atom.resType = "atp"
+		if atom.ptype[-1:] == "'":
+			atom.ptype   = atom.ptype[:-1]+"*"		
+		new_atoms.append(atom)
+	
+	i=0
+	for atom in new_atoms:
+		result_text+= "ATOM {0:6} {1:4} {2:2} {3:<1} {4:<7} {5:7.3f} {6:7.3f} {7:7.3f} {8:>5.2f} {9:>4.2f} \n".format(i,atom.ptype,LIG,atom.chain_t,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.occ,atom.bfactor)
+		i+=1
+	pdb_res.write(result_text)
+	pdb_res.close()
+	return(LIG)
+	
+#***********************************************************************
+def pdb_cat(pdb1,pdb2):		
+	'''	Function Doc
+	Move to pdb_class file
+	'''
+	
 	pdba = protein(pdb1) 
 	pdbb = protein(pdb2) 
 	pdba.pdb_parse()
@@ -33,6 +76,7 @@ def pdb_cat(pdb1,pdb2):
 	result_text = "HEADER complex of {} {}".format(pdb1,pdb2)
 	
 	pdb_res = open(pdb1[:-4]+"_comp.pdb","w")
+	
 	i = 0
 	for atom in pdba.atoms:
 		result_text+= "ATOM {0:6} {1:4} {2:2} {3:<1} {4:<7} {5:7.3f} {6:7.3f} {7:7.3f} {8:>5.2f} {9:>4.2f} \n".format(i,atom.ptype,atom.resTyp,atom.chain_t,atom.resNum,atom.xcoord,atom.ycoord,atom.zcoord,atom.occ,atom.bfactor)
@@ -42,36 +86,38 @@ def pdb_cat(pdb1,pdb2):
 		i+=1	
 		
 	pdb_res.write(result_text)
-	pdb_res.close()
+	pdb_res.close
 	
+#***********************************************************************
 def gromacs_inp():
-
-	mdp_file =  "integrator = steep \n"
-	mdp_file += "emtol = 1000.0 \n"
-	mdp_file += "emstep = 0.01 \n"
-	mdp_file += "nsteps = 50000 \n"		
-	mdp_file += "nstlist		 = 1	\n "
-	mdp_file += "cutoff-scheme   = Verlet \n"
-	mdp_file += "ns_type		 = grid\n "
-	mdp_file += "coulombtype	 = PME\n "
-	mdp_file += "rcoulomb	    = 1.0	\n"
-	mdp_file += "rvdw		    = 1.0	\n"
-	mdp_file += "pbc		    = xyz\n "
-	mdp_file =  "integrator = steep \n"
+	'''Function Doc
+	Move to gmx_module class file
+	Put options to change basic DM runs.
+	'''
 		
+	mdp_file =  "integrator    = steep  \n"
+	mdp_file += "emtol         = 1000.0 \n"
+	mdp_file += "emstep        = 0.01   \n"
+	mdp_file += "nsteps        = 50000  \n"		
+	mdp_file += "nstlist	   = 1	    \n"
+	mdp_file += "cutoff-scheme = Verlet \n"
+	mdp_file += "ns_type	   = grid   \n"
+	mdp_file += "coulombtype   = PME    \n"
+	mdp_file += "rcoulomb	   = 1.0	\n"
+	mdp_file += "rvdw		   = 1.0	\n"
+	mdp_file += "pbc		   = xyz    \n"
+	mdp_file =  "integrator    = steep  \n"
 		
-	mdp_file2 = "emtol = 1000.0 \n"
-	mdp_file2 += "emstep = 0.0051 \n"
-	mdp_file2 += "nsteps = 50000 \n"		
-	mdp_file2 += "nstlist		 = 2	\n "
-	mdp_file2 += "cutoff-scheme   = Verlet \n"
-	mdp_file2 += "ns_type		 = grid\n "
-	mdp_file2 += "coulombtype	 = PME\n "
-	mdp_file2 += "rcoulomb	    = 1.0	\n"
-	mdp_file2 += "rvdw		    = 1.0	\n"
-	mdp_file2 += "pbc		    = xyz\n "
-
-
+	mdp_file2 =  "emtol         = 1000.0 \n"
+	mdp_file2 += "emstep        = 0.0051 \n"
+	mdp_file2 += "nsteps        = 50000  \n"		
+	mdp_file2 += "nstlist		= 2	     \n"
+	mdp_file2 += "cutoff-scheme = Verlet \n"
+	mdp_file2 += "ns_type		= grid   \n"
+	mdp_file2 += "coulombtype	= PME    \n"
+	mdp_file2 += "rcoulomb	    = 1.0	 \n"
+	mdp_file2 += "rvdw		    = 1.0	 \n"
+	mdp_file2 += "pbc		    = xyz    \n"
 
 	ls = os.listdir(".")	
 	for fl in ls:		
@@ -83,22 +129,39 @@ def gromacs_inp():
 			mdp_inp = open("em.mdp",'w')
 			mdp_inp.write(mdp_file2)
 			mdp_inp.close()
+
+#=======================================================================
 			
 class md_prep:
+	'''	Class Doc
+	'''
+	#-------------------------------------------
 	
 	def __init__(self,pdb):
-		self.pdb = pdb
+		'''Method Doc
+		'''
+		self.pdb         = pdb
 		self.current_pdb = pdb 
-		self.lig = "none"
-		self.net_charge = 0
-	def prepare_lig(self,lign,chg=0,rwat=True):
+		self.lig         = "none"
+		self.net_charge  = 0
+		
+	#-------------------------------------------
+	
+	def prepare_lig(self,
+					lign,
+					chg=0,
+					rwat=True):	
+		'''Method Doc
+		'''
+		lig = []	
+		
 		self.lig = lign
-		pdb = protein(self.pdb)
+		pdb      = protein(self.pdb)
 		pdb.pdb_parse()
+		
 		if rwat:
 			pdb.remove_waters()
-		lig = []
-	
+			
 		for atom in pdb.atoms:
 			if atom.resTyp == lign:
 				lig.append(atom)
@@ -111,49 +174,102 @@ class md_prep:
 			i+=1
 		lig_pdb.write(text_lig)
 		lig_pdb.close()
-			
-		print("grep -v EFZ "+self.pdb+" > "+ self.pdb[:-4] +"_wl.pdb ")
-		os.system("grep -v "+ self.lig +" "+self.pdb+" > "+ self.pdb[:-4] +"_wl.pdb ")
 		
+		print("=======================================================")
+		print("Removing the ligand atoms from the provided PDB")
+		print("grep -v "+self.lig+" "+self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")
+		os.system("grep -v "+self.lig+" "+ self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")
+		os.system("sed 's/OXT/O  /' "+ self.pdb[:-4]+"_w.pdb > "+self.pdb[:-4]+"_wl.pdb ")
+		
+		print("=======================================================")
+		print("Removing any hydrogens in the ligand pdb") 
+		print(Reduce + self.lig+".pdb > " + self.lig+"_h.pdb")
 		os.system(Reduce + self.lig+".pdb > " + self.lig+"_h.pdb")
 		
-		os.system(antech + " -i " + self.lig+"_h.pdb -fi pdb -o " + self.lig+".mol2  -fo mol2 -c bcc -nc "+chg )
-		os.system("rm ANTECHAMBER*")
-		
-		print(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
-		os.system(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
+		if self.lig in cofac_list:
+			self.lig = self.lig+"_h"
+			print("=======================================================")
+			print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
+			self.lig = fix_cofac_atoms(self.lig+".pdb")
+			print(self.lig)
+			fl = os.listdir('.')
+			if self.lig +".frcmod" in fl:
+				print("FRCMOD OK...")
+			else:				
+				print("FRCMOD not found")
+				sys.exit()
+			if self.lig +".lib" in fl:		
+				print("LIB OK...")
+			else:
+				print("LIB file not found")
+				sys.exit()	
+		else:
+			print("=======================================================")
+			print("Ligand parameters will be created with ANTECHAMBER.")		
 			
-		tleap_in = "source leaprc.gaff \n"
-		tleap_in += self.lig + " = loadmol2 " + self.lig +".mol2\n"
-		tleap_in += "check " + self.lig + "\n"
-		tleap_in += "loadamberparams " + self.lig + ".frcmod\n"
-		tleap_in += "saveoff " + self.lig + " " + self.lig +".lib \n"		
-		tleap_in += "saveamberparm prot prmtop inpcrd\n"
-		tleap_in += "quit"
+			par = False
+			fl = os.listdir('.')
+			if self.lig+".frcmod" in f:
+				print("Found parameters for " + self.lig)
+				print("FRCMOD file found for this ligand, antechamber parametrization will be skipped!") 
+				par = True					
+			if not par:
+				print("===================================================")
+				print("Run ANTECHAMBER:")
+				print(antech+" -i "+self.lig+"_h.pdb -fi pdb -o "+self.lig+".mol2 -fo mol2 -c bcc -nc "+chg)
+				os.system(antech + " -i " + self.lig+"_h.pdb -fi pdb -o " + self.lig+".mol2  -fo mol2 -c bcc -nc "+chg )
+				os.system("rm ANTECHAMBER*")
 		
-		tleap_file = open('tleap_in','w')
-		tleap_file.write(tleap_in)
-		tleap_file.close()
-
-		os.system(tleap + " -f tleap_in" )
+				print("===================================================")
+				print("Run Pamchek and generate frcmod")				
+				print(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
+				print(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
+				os.system(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
+		
+				print("=======================================================")	
+				print("Creating tleap input to save ligand library")
+				tleap_in = "source leaprc.gaff2 \n"
+				tleap_in += self.lig+" = loadmol2 "+self.lig+".mol2\n"
+				tleap_in += "check "+self.lig+"\n"
+				tleap_in += "loadamberparams " +self.lig+ ".frcmod\n"
+				tleap_in += "saveoff " +self.lig+" "+self.lig+".lib \n"		
+				tleap_in += "saveamberparm prot prmtop inpcrd\n"
+				tleap_in += "quit"
+		
+				tleap_file = open('tleap_in','w')
+				tleap_file.write(tleap_in)
+				tleap_file.close()
+				print("=======================================================")
+				print("Run tleap and save the library with parameter ligands.")
+				print(tleap + " -f tleap_in")
+				os.system(tleap + " -f tleap_in" )
 		
 		self.current_pdb = self.pdb[:-4] +"_wl.pdb"
-		
+
 	def build_complex(self):
 		
-		os.system(Reduce +"-Trim "+ self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb")
+		print("=======================================================")
+		print("Preparing Receptor/enzyme!")
+		print(Reduce + self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb") 
+		os.system(Reduce + self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb")
+		print("=======================================================")
+		print(pdb4 +  self.current_pdb[:-4]+"_p.pdb"+ " > " +self.current_pdb[:-4]+"_c.pdb")
 		os.system(pdb4 +  self.current_pdb[:-4]+"_p.pdb"+ " > " +self.current_pdb[:-4]+"_c.pdb")
 		
-		pdb_cat(self.current_pdb[:-4]+"_c.pdb",self.lig+"_h.pdb")
+		print("=======================================================")
+		print("Concatenating Receptor/Enzyme with ligand/substrate")
+		pdb_cat(self.current_pdb[:-4]+"_c.pdb",self.lig+".pdb")
 		os.rename(self.current_pdb[:-4]+"_c_comp.pdb",self.pdb[:-4]+"_comp.pdb")
 		self.current_pdb = self.pdb[:-4]+"_comp.pdb"
 		
-		tleap_in = "source leaprc.protein.ff14SB \n"
-		tleap_in += "source leaprc.gaff \n"
+		print("=======================================================")	
+		#Creating tleap input to save ligand library
+		tleap_in =  "source oldff/leaprc.ff99SB \n"		
+		tleap_in += "source leaprc.gaff2 \n"
 		tleap_in += "loadamberparams " + self.lig + ".frcmod\n"
+		tleap_in += "source leaprc.water.tip3p \n"
 		tleap_in += "loadoff " + self.lig + ".lib\n"
 		tleap_in += "complex = loadPdb " + self.current_pdb+ " \n"
-		tleap_in += "source leaprc.water.tip3p \n"
 		tleap_in += "solvatebox complex TIP3PBOX 10.0 \n"
 		tleap_in += "savePdb complex "+self.current_pdb+"\n"
 		tleap_in += "saveamberparm complex " +self.pdb[:-4]+".prmtop "+ self.pdb[:-4] +".inpcrd\n"
@@ -162,15 +278,24 @@ class md_prep:
 		tleap_file = open('tleap_in','w')
 		tleap_file.write(tleap_in)
 		tleap_file.close()
-
-		os.system(tleap + " -f tleap_in" )
 		
-		try:
+		print(tleap + " -f tleap_in")
+		os.system(tleap + " -f tleap_in")
+		
+		#---------------------------------------------------------------
+		
+		fl = os.listdir('.')
+		gromp = False
+		for f in fl:
+			if f == self.pdb+".top":
+				print("Found gromacs parameters for" + self.pdb)
+				gromp = True
+		if not gromp:
+			print("===================================================")
+			print("Saving topologies for gromacs")
 			ap = pmd.load_file(self.pdb[:-4]+".prmtop",self.pdb[:-4] +".inpcrd")
 			ap.save(self.pdb[:-4]+".top")
 			ap.save(self.pdb[:-4]+".gro")
-		except:
-			print("Topologies and coordinates conversions for gromacs was not done this time. ")
 
 	def prepare_gromacs(self):
 		
@@ -203,9 +328,11 @@ class md_prep:
 		
 		
 		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.current_pdb+" -p "+ self.pdb[:-4] +".top -o ions.tpr -maxwarn 50<< EOF\n"
+		print(text_to_run)
 		os.system(text_to_run)
 
 		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.current_pdb[:-4] + "_i.pdb -p " +self.pdb[:-4] +".top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
+		print(text_to_run)
 		os.system(text_to_run)	
 		
 	
@@ -223,17 +350,4 @@ class md_prep:
 		pass 
 		
 		
-	
-if __name__ == "__main__":
-	a = md_prep(sys.argv[1])
-	a.prepare_lig(sys.argv[2],sys.argv[3])
-	a.build_complex()
-	a.prepare_gromacs()
-	a.min_gromacs()
-	'''
-	try:
-		a.prepare_lig(sys.argv[2],sys.argv[3])
-	except:
-		print("Some Error!")
-	'''
-	
+

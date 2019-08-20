@@ -105,7 +105,9 @@ class protein:
 				if a.element[0] =="1" or a.element[0]=="2" or a.element[0]=="3":
 					a.element = "H"
 				elif a.element == "He":
-					a.element = "H"						
+					a.element = "H"	
+				elif a.ptype == "OXT":
+					a.ptype = "O"					
 				self.atoms.append(a)
 			i+=1
 		pdb_file.close()
