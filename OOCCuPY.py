@@ -109,7 +109,7 @@ if __name__ == "__main__":
 		script_shell_from_mop()
 	elif sys.argv[1] == "-AP":
 		a = md_prep(sys.argv[2])
-		a.prepare_lig(sys.argv[3],sys.argv[4])
+		a.prepare_lig(sys.argv[3],chg=sys.argv[4])
 		a.build_complex()
 		a.prepare_gromacs()
 		#a.min_gromacs()

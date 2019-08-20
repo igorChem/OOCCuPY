@@ -106,8 +106,7 @@ def gromacs_inp():
 	mdp_file += "rcoulomb	   = 1.0	\n"
 	mdp_file += "rvdw		   = 1.0	\n"
 	mdp_file += "pbc		   = xyz    \n"
-	mdp_file =  "integrator    = steep  \n"
-		
+	
 	mdp_file2 =  "emtol         = 1000.0 \n"
 	mdp_file2 += "emstep        = 0.0051 \n"
 	mdp_file2 += "nsteps        = 50000  \n"		
@@ -117,7 +116,7 @@ def gromacs_inp():
 	mdp_file2 += "coulombtype	= PME    \n"
 	mdp_file2 += "rcoulomb	    = 1.0	 \n"
 	mdp_file2 += "rvdw		    = 1.0	 \n"
-	mdp_file2 += "pbc		    = xyz    \n"
+	mdp_file2 += "pbc		    = xyz    "
 
 	ls = os.listdir(".")	
 	for fl in ls:		
@@ -144,19 +143,19 @@ class md_prep:
 		self.current_pdb = pdb 
 		self.lig         = "none"
 		self.net_charge  = 0
+		self.lig_charge  = 0 
 		
 	#-------------------------------------------
 	
-	def prepare_lig(self,
-					lign,
-					chg=0,
-					rwat=True):	
+	def prepare_lig(self,lign,chg=0,rwat=True):	
 		'''Method Doc
 		'''
-		lig = []	
 		
-		self.lig = lign
-		pdb      = protein(self.pdb)
+		lig              = []			
+		self.lig         = lign
+		pdb              = protein(self.pdb)
+		self.lig_charge  = int(chg)
+		
 		pdb.pdb_parse()
 		
 		if rwat:
@@ -270,7 +269,9 @@ class md_prep:
 		tleap_in += "source leaprc.water.tip3p \n"
 		tleap_in += "loadoff " + self.lig + ".lib\n"
 		tleap_in += "complex = loadPdb " + self.current_pdb+ " \n"
-		tleap_in += "solvatebox complex TIP3PBOX 10.0 \n"
+		tleap_in += "solvatebox complex TIP3PBOX 12.0 \n"
+		tleap_in += "addions2 complex Na+ 0\n"
+		tleap_in += "addions2 complex Cl- 0\n"
 		tleap_in += "savePdb complex "+self.current_pdb+"\n"
 		tleap_in += "saveamberparm complex " +self.pdb[:-4]+".prmtop "+ self.pdb[:-4] +".inpcrd\n"
 		tleap_in += "quit"
@@ -286,11 +287,11 @@ class md_prep:
 		
 		fl = os.listdir('.')
 		gromp = False
-		for f in fl:
-			if f == self.pdb+".top":
-				print("Found gromacs parameters for" + self.pdb)
-				gromp = True
-		if not gromp:
+		print(self.pdb[:-4]+".top")
+		if self.pdb[:-4]+".top" in fl:
+			print("Found gromacs parameters for " + self.pdb)
+			gromp = True
+		else:
 			print("===================================================")
 			print("Saving topologies for gromacs")
 			ap = pmd.load_file(self.pdb[:-4]+".prmtop",self.pdb[:-4] +".inpcrd")
@@ -298,7 +299,7 @@ class md_prep:
 			ap.save(self.pdb[:-4]+".gro")
 
 	def prepare_gromacs(self):
-		
+		'''
 		topol_file = open(self.pdb[:-4]+".top",'r')
 		for line in topol_file:
 			line2 = line.split()			
@@ -312,21 +313,22 @@ class md_prep:
 						self.net_charge -=1
 					elif line2[7] == "-2.0":
 						self.net_charge -=2
-					print(self.net_charge)
 		NN = 0
 		NP = 0
 
+		self.net_charge += self.lig_charge
+		print(self.net_charge)
 		if self.net_charge > 0:
 			NN = self.net_charge
 		elif self.net_charge < 0:
-			NP = self.net_charge
-		
+			NP = abs(self.net_charge)
+		'''
 		gromacs_inp()
-		my_replace(self.current_pdb,"WAT","SOL")
-		my_replace(self.pdb[:-4]+".top","WAT","SOL")
-		my_replace(self.pdb[:-4]+".gro","WAT","SOL")
-		
-		
+		os.system("sed 's/WAT/SOL/' "+self.current_pdb+" > "+self.current_pdb[:-4]+"_t.pdb")
+		os.rename(self.current_pdb[:-4]+"_t.pdb",self.current_pdb)
+		os.system("sed 's/WAT/SOL/' "+self.pdb[:-4]+".top > "+self.pdb[:-4]+"_t.top")
+		os.rename(self.pdb[:-4]+"_t.top",self.pdb[:-4]+".top")		
+		'''
 		text_to_run = "/usr/bin/gmx" + " grompp -f ions.mdp -c " + self.current_pdb+" -p "+ self.pdb[:-4] +".top -o ions.tpr -maxwarn 50<< EOF\n"
 		print(text_to_run)
 		os.system(text_to_run)
@@ -334,10 +336,10 @@ class md_prep:
 		text_to_run = "/usr/bin/gmx" + " genion -s ions.tpr -o " + self.current_pdb[:-4] + "_i.pdb -p " +self.pdb[:-4] +".top -pname NA -nname CL -nn {0} -np {1}".format(NN,NP)
 		print(text_to_run)
 		os.system(text_to_run)	
-		
+		'''
 	
 	def min_gromacs(self):
-		text_to_run = "/usr/bin/gmx" +" grompp -f em.mdp -c "+self.current_pdb[:-4] + "_i.pdb -p "+ self.pdb[:-4] +".top -o em.tpr -maxwarn 50"
+		text_to_run = "/usr/bin/gmx" +" grompp -f em.mdp -c "+self.current_pdb+ " -p "+ self.pdb[:-4] +".top -o em.tpr -maxwarn 50"
 		os.system(text_to_run)
 
 		text_to_run = "/usr/bin/gmx" + " mdrun -v -deffnm em"
