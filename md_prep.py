@@ -185,7 +185,6 @@ class md_prep:
 				print(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
 				print(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
 				os.system(parmchk + " -i "+ self.lig+".mol2 -f mol2 -o " + self.lig+".frcmod")
-				input()
 				print("=======================================================")	
 				print("Creating tleap input to save ligand library")
 				tleap_in = "source leaprc.gaff2 \n"
