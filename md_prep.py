@@ -96,7 +96,7 @@ def gromacs_inp():
 	'''
 		
 	mdp_file2 =  "integrator    = steep  \n"
-	mdp_file2 =  "emtol         = 1000.0 \n"
+	mdp_file2 += "emtol         = 1000.0 \n"
 	mdp_file2 += "emstep        = 0.01   \n"
 	mdp_file2 += "nsteps        = 100000 \n"		
 	mdp_file2 += "nstlist		= 15     \n"
@@ -106,13 +106,158 @@ def gromacs_inp():
 	mdp_file2 += "rcoulomb	    = 1.0	 \n"
 	mdp_file2 += "rvdw		    = 1.0	 \n"
 	mdp_file2 += "pbc		    = xyz    "
+	
+	equi_file = open("nvt.mdp",'w')
+		
+	equi_text = " define		= -DPOSRES	; position restrain the protein\n"		
+	#Run parameters"
+	equi_text += "integrator	= md		; leap-frog integrator\n"
+	equi_text += "nsteps		= 50000		; 2 * 50000 = 100 ps\n"
+	equi_text += "dt		    = 0.002		; 2 fs\n"
+	#Output control
+	equi_text += "nstxout		= 1000		; save coordinates every 2.0 ps\n"
+	equi_text += "nstvout		= 1000		; save velocities every 2.0 ps\n"
+	equi_text += "nstenergy	    = 500		; save energies every 1.0 ps\n"
+	equi_text += "nstlog		= 1000		; update log file every 2.0 ps\n"
+	#Bond parameters"
+	equi_text += "continuation	          = no		; first dynamics run\n"
+	equi_text += "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	equi_text += "constraints	          = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	equi_text += "lincs_iter	          = 1		    ; accuracy of LINCS\n"
+	equi_text += "lincs_order	          = 4		    ; also related to accuracy\n"
+	#Neighborsearching"
+	equi_text += "cutoff-scheme = Verlet\n"
+	equi_text += "ns_type		= grid		; search neighboring grid cells\n"
+	equi_text += "nstlist	    = 10		; 20 fs, largely irrelevant with Verlet\n"
+	equi_text += "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	equi_text += "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics"
+	equi_text += "coulombtype    = PME	; Particle Mesh Ewald for long-range electrostatics\n"
+	equi_text += "pme_order	     = 4	; cubic interpolation\n"
+	equi_text += "fourierspacing = 0.16	; grid spacing for FFT\n"
+	#Temperature coupling is on"
+	equi_text += "tcoupl	= V-rescale	            ; modified Berendsen thermostat\n"
+	equi_text += "tc-grps	= Protein Non-Protein	; two coupling groups - more accurate\n"
+	equi_text += "tau_t		= 0.1	  0.1           ; time constant, in ps\n"
+	equi_text += "ref_t		= 300 	  300           ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is off"
+	equi_text += "pcoupl		= no 		; no pressure coupling in NVT\n"
+	#Periodic boundary conditions"
+	equi_text += "pbc		= xyz		    ; 3-D PBC\n"
+	#Dispersion correction"
+	equi_text += "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation\n"
+	equi_text += "gen_vel		= yes	; assign velocities from Maxwell distribution\n"
+	equi_text += "gen_temp	= 300		; temperature for Maxwell distribution\n"
+	equi_text += "gen_seed	= -1		; generate a random seed\n"
 
-	ls = os.listdir(".")	
-	for fl in ls:		
-		if not fl == "em.mdp":
-			mdp_inp = open("em.mdp",'w')
-			mdp_inp.write(mdp_file2)
-			mdp_inp.close()
+	equi_file.write(equi_text)
+	equi_file.close()
+		
+	mdp_inp = open("em.mdp",'w')
+	mdp_inp.write(mdp_file2)
+	mdp_inp.close()
+	
+	equi_file2 = open("npt.mdp",'w')
+		
+	equi_text2  = "		define		= -DPOSRES	; position restrain the protein\n"
+	#Run parameters
+	equi_text2 += "integrator	= md		; leap-frog integrator\n"
+	equi_text2 += "nsteps		= 50000		; 2 * 50000 = 100 ps\n"
+	equi_text2 += "dt		    = 0.002		; 2 fs\n"
+	#Output control
+	equi_text2 += "nstxout		= 1000		; save coordinates every 1.0 ps\n"
+	equi_text2 += "nstvout		= 1000		; save velocities every 1.0 ps\n"
+	equi_text2 += "nstenergy	= 500		; save energies every 1.0 ps\n"
+	equi_text2 += "nstlog		= 500		; update log file every 1.0 ps\n"
+	#Bond parameters
+	equi_text2 += "continuation	           = yes		; Restarting after NVT \n"
+	equi_text2 += "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	equi_text2 += "constraints	           = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	equi_text2 += "lincs_iter	           = 1		    ; accuracy of LINCS\n"
+	equi_text2 += "lincs_order	           = 4		    ; also related to accuracy\n"
+	#Neighborsearching
+	equi_text2 += "cutoff-scheme   = Verlet\n"
+	equi_text2 += "ns_type		    = grid		; search neighboring grid cells\n"
+	equi_text2 += "nstlist		    = 10	    ; 20 fs, largely irrelevant with Verlet scheme\n"
+	equi_text2 += "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	equi_text2 += "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics
+	equi_text2 += "coulombtype	    = PME		; Particle Mesh Ewald for long-range electrostatics\n"
+	equi_text2 += "pme_order	    = 4		    ; cubic interpolation\n"
+	equi_text2 += "fourierspacing	= 0.16		; grid spacing for FFT\n"
+	equi_text2 += "; Temperature coupling is on\n"
+	equi_text2 += "tcoupl		= V-rescale	            ; modified Berendsen thermostat\n"
+	equi_text2 += "tc-grps		= Protein Non-Protein	; two coupling groups - more accurate\n"
+	equi_text2 += "tau_t		= 0.1	  0.1	        ; time constant, in ps\n"
+	equi_text2 += "ref_t		= 300 	  300	        ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is on
+	equi_text2 += "pcoupl		        = Parrinello-Rahman	    ; Pressure coupling on in NPT\n"
+	equi_text2 += "pcoupltype	        = isotropic	            ; uniform scaling of box vectors\n"
+	equi_text2 += "tau_p		        = 2.0		            ; time constant, in ps\n"
+	equi_text2 += "ref_p		        = 1.0		            ; reference pressure, in bar\n"
+	equi_text2 += "compressibility     = 4.5e-5	            ; isothermal compressibility of water, bar^-1\n"
+	equi_text2 += "refcoord_scaling    = com\n"
+	#Periodic boundary conditions
+	equi_text2 += "pbc		= xyz		; 3-D PBC\n"
+	#Dispersion correction
+	equi_text2 += "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation
+	equi_text2 += "gen_vel		= no		; Velocity generation is off \n"
+	
+	equi_file2.write(equi_text2)
+	equi_file2.close()
+	
+	equi_file3 = open("md.mdp",'w')
+				 
+	#Run parameters
+	equi_text3  =  "integrator	= md		; leap-frog integrator  \n"
+	equi_text3 +=  "nsteps		= 5000000	; 2 * 5000000 = 10000 ps (10 ns)  \n"
+	equi_text3 +=  "dt		    = 0.002		; 2 fs  \n"
+	#Output control
+	equi_text3 +=  "nstxout		        = 5000		; save coordinates every 10.0 ps  \n"
+	equi_text3 +=  "nstvout		        = 5000		; save velocities every 10.0 ps  \n"
+	equi_text3 +=  "nstenergy	        = 5000		; save energies every 10.0 ps  \n"
+	equi_text3 +=  "nstlog		        = 5000		; update log file every 10.0 ps  \n"
+	equi_text3 +=  "nstxout-compressed  = 5000      ; save compressed coordinates every 10.0 ps  \n"
+	equi_text3 +=  "                                ; nstxout-compressed replaces nstxtcout  \n"
+	equi_text3 +=  "compressed-x-grps   = System    ; replaces xtc-grps\n"
+	#Bond parameters
+	equi_text3 +=  "continuation	        = yes		; Restarting after NPT \n"
+	equi_text3 +=  "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	equi_text3 +=  "constraints	            = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	equi_text3 +=  "lincs_iter	            = 1		    ; accuracy of LINCS\n"
+	equi_text3 +=  "lincs_order	            = 4		    ; also related to accuracy\n"
+	#Neighborsearching
+	equi_text3 +=  "cutoff-scheme   = Verlet\n"
+	equi_text3 +=  "ns_type		    = grid		; search neighboring grid cells\n"
+	equi_text3 +=  "nstlist		    = 10	    ; 20 fs, largely irrelevant with Verlet scheme\n"
+	equi_text3 +=  "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	equi_text3 +=  "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics
+	equi_text3 +=  "coulombtype	    = PME		; Particle Mesh Ewald for long-range electrostatics\n"
+	equi_text3 +=  "pme_order	    = 4		    ; cubic interpolation\n"
+	equi_text3 +=  "fourierspacing	= 0.16		; grid spacing for FFT\n"
+	#Temperature coupling is on
+	equi_text3 +=  "tcoupl		= V-rescale	            ; modified Berendsen thermostat\n"
+	equi_text3 +=  "tc-grps		= Protein Non-Protein	; two coupling groups - more accurate\n"
+	equi_text3 +=  "tau_t		= 0.1	  0.1	        ; time constant, in ps\n"
+	equi_text3 +=  "ref_t		= 300 	  300	        ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is on
+	equi_text3 +=  "pcoupl		        = Parrinello-Rahman	    ; Pressure coupling on in NPT\n"
+	equi_text3 +=  "pcoupltype	        = isotropic	            ; uniform scaling of box vectors\n"
+	equi_text3 +=  "tau_p		        = 2.0		            ; time constant, in ps\n"
+	equi_text3 +=  "ref_p		        = 1.0		            ; reference pressure, in bar\n"
+	equi_text3 +=  "compressibility     = 4.5e-5	            ; isothermal compressibility of water, bar^-1\n"
+	#Periodic boundary conditions
+	equi_text3 +=  "pbc		= xyz		; 3-D PBC\n"
+	#Dispersion correction
+	equi_text3 +=  "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation
+	equi_text3 +=  "gen_vel		= no		; Velocity generation is of\n"
+			 
+	equi_file3.write(equi_text)
+	equi_file3.close()
 
 #=======================================================================
 			
@@ -291,17 +436,32 @@ class md_prep:
 		os.system("sed 's/WAT/SOL/' "+self.pdb[:-4]+".top > "+self.pdb[:-4]+"_t.top")
 		os.rename(self.pdb[:-4]+"_t.top",self.pdb[:-4]+".top")	
 		
+		print("=======================================================")
+		print("Preparing the gromacs input files for structure minimization.")
 		text_to_run = "/usr/bin/gmx" +" grompp -f em.mdp -c "+self.pdb[:-4]+ " -p "+ self.pdb[:-4] +".top -o em.tpr -maxwarn 50"
 		os.system(text_to_run)
-
+		
+		print("=======================================================")
+		print("Running minimization in gromacs.")
 		text_to_run = "/usr/bin/gmx" + " mdrun -v -deffnm em"
-		os.system(text_to_run)		
+		os.system(text_to_run)	
+		
+		print("=======================================================")
+		print("Writting minimized structure pdb")
+		print("gmx editconf -f em.gro -o "+self.pdb[:-4]+"_min.pdb")
+		os.system("gmx editconf -f em.gro -o "+self.pdb[:-4]+"_min.pdb")	
 		
 	def equilibration(self):
 		pass
 	
 	def production(self):
 		pass 
+		
+	def organize_files():
+		pass
+		
+	def process_traj():
+		pass
 		
 		
 
