@@ -171,7 +171,7 @@ def gromacs_inp():
 
 	em_file.write(em_text)
 	nvt_file.write(nvt_text)
-	npt_file.write(npt_text)
+	npt_file.write(npt_text2)
 	md_file.write(md_text)
 	
 	em_file.close()
