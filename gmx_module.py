@@ -9,17 +9,185 @@ import os
 from pdb_class import*
 from xyz_class import*
 
+def gromacs_inp():
+	'''Function Doc
+	Put options to change basic DM runs.
+		time in ns 
+		temperature in K
+	'''
+	
+	em_file    = open("em.mdp",'w')		
+	nvt_file   = open("nvt.mdp",'w')
+	npt_file   = open("npt.mdp",'w')
+	md_file    = open("md.mdp",'w')
+		
+	em_text =  "integrator    = steep  \n"
+	em_text += "emtol         = 1000.0 \n"
+	em_text += "emstep        = 0.01   \n"
+	em_text += "nsteps        = 100000 \n"		
+	em_text += "nstlist		= 15     \n"
+	em_text += "cutoff-scheme = Verlet \n"
+	em_text += "ns_type		= grid   \n"
+	em_text += "coulombtype	= PME    \n"
+	em_text += "rcoulomb	    = 1.0	 \n"
+	em_text += "rvdw		    = 1.0	 \n"
+	em_text += "pbc		    = xyz    "
+	
+		
+	nvt_text = " define		= -DPOSRES	; position restrain the protein\n"		
+	#Run parameters"
+	nvt_text += "integrator	= md		; leap-frog integrator\n"
+	nvt_text += "nsteps		= 50000		; 2 * 50000 = 100 ps\n"
+	nvt_text += "dt		    = 0.002		; 2 fs\n"
+	#Output control
+	nvt_text += "nstxout		= 1000		; save coordinates every 2.0 ps\n"
+	nvt_text += "nstvout		= 1000		; save velocities every 2.0 ps\n"
+	nvt_text += "nstenergy	    = 500		; save energies every 1.0 ps\n"
+	nvt_text += "nstlog		= 1000		; update log file every 2.0 ps\n"
+	#Bond parameters"
+	nvt_text += "continuation	          = no		; first dynamics run\n"
+	nvt_text += "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	nvt_text += "constraints	          = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	nvt_text += "lincs_iter	          = 1		    ; accuracy of LINCS\n"
+	nvt_text += "lincs_order	          = 4		    ; also related to accuracy\n"
+	#Neighborsearching"
+	nvt_text += "cutoff-scheme = Verlet\n"
+	nvt_text += "ns_type		= grid		; search neighboring grid cells\n"
+	nvt_text += "nstlist	    = 10		; 20 fs, largely irrelevant with Verlet\n"
+	nvt_text += "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	nvt_text += "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics"
+	nvt_text += "coulombtype    = PME	; Particle Mesh Ewald for long-range electrostatics\n"
+	nvt_text += "pme_order	     = 4	; cubic interpolation\n"
+	nvt_text += "fourierspacing = 0.16	; grid spacing for FFT\n"
+	#Temperature coupling is on"
+	nvt_text += "tcoupl	= V-rescale	            ; modified Berendsen thermostat\n"
+	nvt_text += "tc-grps	= Protein Non-Protein	; two coupling groups - more accurate\n"
+	nvt_text += "tau_t		= 0.1	  0.1           ; time constant, in ps\n"
+	nvt_text += "ref_t		= 300 	  300           ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is off"
+	nvt_text += "pcoupl		= no 		; no pressure coupling in NVT\n"
+	#Periodic boundary conditions"
+	nvt_text += "pbc		= xyz		    ; 3-D PBC\n"
+	#Dispersion correction"
+	nvt_text += "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation\n"
+	nvt_text += "gen_vel		= yes	; assign velocities from Maxwell distribution\n"
+	nvt_text += "gen_temp	= 300		; temperature for Maxwell distribution\n"
+	nvt_text += "gen_seed	= -1		; generate a random seed\n"
+
+				
+	npt_text2  = "		define		= -DPOSRES	; position restrain the protein\n"
+	#Run parameters
+	npt_text2 += "integrator	= md		; leap-frog integrator\n"
+	npt_text2 += "nsteps		= 50000		; 2 * 50000 = 100 ps\n"
+	npt_text2 += "dt		    = 0.002		; 2 fs\n"
+	#Output control
+	npt_text2 += "nstxout		= 1000		; save coordinates every 1.0 ps\n"
+	npt_text2 += "nstvout		= 1000		; save velocities every 1.0 ps\n"
+	npt_text2 += "nstenergy	= 500		; save energies every 1.0 ps\n"
+	npt_text2 += "nstlog		= 500		; update log file every 1.0 ps\n"
+	#Bond parameters
+	npt_text2 += "continuation	           = yes		; Restarting after NVT \n"
+	npt_text2 += "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	npt_text2 += "constraints	           = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	npt_text2 += "lincs_iter	           = 1		    ; accuracy of LINCS\n"
+	npt_text2 += "lincs_order	           = 4		    ; also related to accuracy\n"
+	#Neighborsearching
+	npt_text2 += "cutoff-scheme   = Verlet\n"
+	npt_text2 += "ns_type		    = grid		; search neighboring grid cells\n"
+	npt_text2 += "nstlist		    = 10	    ; 20 fs, largely irrelevant with Verlet scheme\n"
+	npt_text2 += "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	npt_text2 += "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics
+	npt_text2 += "coulombtype	    = PME		; Particle Mesh Ewald for long-range electrostatics\n"
+	npt_text2 += "pme_order	    = 4		    ; cubic interpolation\n"
+	npt_text2 += "fourierspacing	= 0.16		; grid spacing for FFT\n"
+	npt_text2 += "; Temperature coupling is on\n"
+	npt_text2 += "tcoupl		= V-rescale	            ; modified Berendsen thermostat\n"
+	npt_text2 += "tc-grps		= Protein Non-Protein	; two coupling groups - more accurate\n"
+	npt_text2 += "tau_t		= 0.1	  0.1	        ; time constant, in ps\n"
+	npt_text2 += "ref_t		= 310 	  310	        ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is on
+	npt_text2 += "pcoupl		      = Parrinello-Rahman	    ; Pressure coupling on in NPT\n"
+	npt_text2 += "pcoupltype	      = isotropic	            ; uniform scaling of box vectors\n"
+	npt_text2 += "tau_p		          = 2.0		            ; time constant, in ps\n"
+	npt_text2 += "ref_p		          = 1.0		            ; reference pressure, in bar\n"
+	npt_text2 += "compressibility     = 4.5e-5	            ; isothermal compressibility of water, bar^-1\n"
+	npt_text2 += "refcoord_scaling    = com\n"
+	#Periodic boundary conditions
+	npt_text2 += "pbc		= xyz		; 3-D PBC\n"
+	#Dispersion correction
+	npt_text2 += "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation
+	npt_text2 += "gen_vel		= no		; Velocity generation is off \n"
+	
+			 
+	#Run parameters
+	md_text  =  "integrator	= md		; leap-frog integrator  \n"
+	md_text +=  "nsteps		= 5000000	; 2 * 5000000 = 10000 ps (10 ns)  \n"
+	md_text +=  "dt		    = 0.002		; 2 fs  \n"
+	#Output control
+	md_text +=  "nstxout		        = 5000		; save coordinates every 10.0 ps  \n"
+	md_text +=  "nstvout		        = 5000		; save velocities every 10.0 ps  \n"
+	md_text +=  "nstenergy	        = 5000		; save energies every 10.0 ps  \n"
+	md_text +=  "nstlog		        = 5000		; update log file every 10.0 ps  \n"
+	md_text +=  "nstxout-compressed  = 5000      ; save compressed coordinates every 10.0 ps  \n"
+	md_text +=  "                                ; nstxout-compressed replaces nstxtcout  \n"
+	md_text +=  "compressed-x-grps   = System    ; replaces xtc-grps\n"
+	#Bond parameters
+	md_text +=  "continuation	        = yes		; Restarting after NPT \n"
+	md_text +=  "constraint_algorithm    = lincs	    ; holonomic constraints \n"
+	md_text +=  "constraints	            = all-bonds	; all bonds (even heavy atom-H bonds) constrained\n"
+	md_text +=  "lincs_iter	            = 1		    ; accuracy of LINCS\n"
+	md_text +=  "lincs_order	            = 4		    ; also related to accuracy\n"
+	#Neighborsearching
+	md_text +=  "cutoff-scheme   = Verlet\n"
+	md_text +=  "ns_type		    = grid		; search neighboring grid cells\n"
+	md_text +=  "nstlist		    = 10	    ; 20 fs, largely irrelevant with Verlet scheme\n"
+	md_text +=  "rcoulomb	    = 1.0		; short-range electrostatic cutoff (in nm)\n"
+	md_text +=  "rvdw		    = 1.0		; short-range van der Waals cutoff (in nm)\n"
+	#Electrostatics
+	md_text +=  "coulombtype	    = PME		; Particle Mesh Ewald for long-range electrostatics\n"
+	md_text +=  "pme_order	    = 4		    ; cubic interpolation\n"
+	md_text +=  "fourierspacing	= 0.16		; grid spacing for FFT\n"
+	#Temperature coupling is on
+	md_text +=  "tcoupl		= V-rescale	            ; modified Berendsen thermostat\n"
+	md_text +=  "tc-grps		= Protein Non-Protein	; two coupling groups - more accurate\n"
+	md_text +=  "tau_t		= 0.1	  0.1	        ; time constant, in ps\n"
+	md_text +=  "ref_t		= 310 	  310	        ; reference temperature, one for each group, in K\n"
+	#Pressure coupling is on
+	md_text +=  "pcoupl		        = Parrinello-Rahman	    ; Pressure coupling on in NPT\n"
+	md_text +=  "pcoupltype	        = isotropic	            ; uniform scaling of box vectors\n"
+	md_text +=  "tau_p		        = 2.0		            ; time constant, in ps\n"
+	md_text +=  "ref_p		        = 1.0		            ; reference pressure, in bar\n"
+	md_text +=  "compressibility    = 4.5e-5	            ; isothermal compressibility of water, bar^-1\n"
+	#Periodic boundary conditions
+	md_text +=  "pbc		= xyz		; 3-D PBC\n"
+	#Dispersion correction
+	md_text +=  "DispCorr	= EnerPres	; account for cut-off vdW scheme\n"
+	#Velocity generation
+	md_text +=  "gen_vel		= no		; Velocity generation is of\n"
+
+	em_file.write(em_text)
+	nvt_file.write(nvt_text)
+	npt_file.write(npt_text)
+	md_file.write(md_text)
+	
+	em_file.close()
+	nvt_file.close()
+	npt_file.close()
+	md_file.close()
+	
 
 class min_prot:
 
 	def __init__(self,
 				 pdb_code):
 
-		self.pdb_code = pdb_code
+		self.pdb_code   = pdb_code
 		self.net_charge = 0
-		self.protein = pdb_code[:-4]
-
-		
+		self.protein    = pdb_code[:-4]		
 
 	def top_init(self):
 

@@ -107,12 +107,11 @@ if __name__ == "__main__":
 
 	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
-	elif sys.argv[1] == "-AP":
+	elif sys.argv[1] == "-MD":
 		a = md_prep(sys.argv[2])
 		a.prepare_lig(sys.argv[3],chg=sys.argv[4])
 		a.build_complex()
-		a.prepare_gromacs()
-		#a.min_gromacs()
+		a.min_gromacs()
 
 	elif ( sys.argv[1] == "-pri" ):
 		LH      = "none"
