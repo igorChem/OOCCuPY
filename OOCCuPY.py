@@ -108,8 +108,15 @@ if __name__ == "__main__":
 	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
 	elif sys.argv[1] == "-MD":
+		ligands = [] 
+		charges = []
 		a = md_prep(sys.argv[2])
-		a.prepare_lig(sys.argv[3],chg=sys.argv[4])
+		for i in range(len(sys.argv)):
+			if sys.argv[i] == "-ln":
+				ligands.appen(sys.argv[i]+1)
+			if sys.argv[i] == "-lc":
+				charges.append(sys.argv[i]+1)
+		a.prepare_lig(sys.argv[3],ligands,charges)
 		a.build_complex()
 		a.min_gromacs()
 
