@@ -187,10 +187,14 @@ class pair_RD:
 							g1 = int(line2[0][7:8])
 							g2 = int(line2[0][9:11])							
 						except:
-							g1 = int(line2[0][7:9])
-							g2 = int(line2[0][10:11])
-                                                except:
-                                                        print(line2[0])
+							try:
+								g1 = int(line2[0][7:9])
+								g2 = int(line2[0][10:11])
+							except:
+								print(line2)
+								print(line2[0][7:9])
+								print(line2[0][10:11])
+						
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
 						self.hamilt.append(line2[0][12:15])
