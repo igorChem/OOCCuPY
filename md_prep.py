@@ -10,7 +10,7 @@ import sys,os
 
 
 #Cofactor list
-cofac_list = ["ATP","ADN","atp"]
+cofac_list = ["ATP","ADN","atp","NADP","NADH","NAD","ADP"]
 #ATP atoms list
 atp_list = ["O5'","C5'","C4'","O4'","C3'","O3'","C2'","O2'","C1'"]
 
@@ -21,7 +21,7 @@ pdb4       = path_amber + "/pdb4amber "
 antech     = path_amber + "/antechamber "
 parmchk    = path_amber + "/parmchk2 "
 tleap      = path_amber + "/tleap "
-
+path_cofac = "/home/igorchem/OOCCuPY/"
 #=======================================================================
 #***********************************************************************
 def my_replace(fl,old,new):
@@ -109,7 +109,7 @@ class md_prep:
 		
 	#-------------------------------------------
 	
-	def prepare_lig(self,nlig,lign,chg,rwat=True):
+	def prepare_lig(self,nlig,lign,chg,mult,rwat=True,lig_h=False):
 		'''Method Doc
 		'''
 		
@@ -154,12 +154,16 @@ class md_prep:
 					self.current_pdb = self.pdb[:-4]+"_"+str(j)+"_.pdb"
 				
 			print("=======================================================")
-			print("Removing and adding hydrogens in the ligand pdb") 
-			print(Reduce +"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
-			os.system(Reduce + "-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
-			os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
-		
+			if lig_h:
+				print("Removing and adding hydrogens in the ligand pdb")
+				print(Reduce +"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
+				os.system(Reduce +self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
+				os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
+			input()
 			if self.lig[j] in cofac_list:
+				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
+				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )		
+
 				print("=======================================================")
 				print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
 				self.lig = fix_cofac_atoms(self.lig[j]+".pdb")
@@ -188,8 +192,8 @@ class md_prep:
 				if not par:
 					print("===================================================")
 					print("Run ANTECHAMBER:")
-					print(antech+" -i "+self.lig[j]+".pdb -fi pdb -o "+self.lig[j]+".mol2 -fo mol2 -c bcc -nc "+chg[j])
-					os.system(antech + " -i " + self.lig[j]+".pdb -fi pdb -o " + self.lig[j]+".mol2  -fo mol2 -c bcc -nc "+chg[j] )
+					print(antech+" -i "+self.lig[j]+".pdb -fi pdb -o "+self.lig[j]+".mol2 -fo mol2 -c bcc -nc "+chg[j]+" -m "+mult[j])
+					os.system(antech + " -i " + self.lig[j]+".pdb -fi pdb -o " + self.lig[j]+".mol2  -fo mol2 -c bcc -nc "+chg[j]+" -m "+mult[j] )
 					os.system("rm ANTECHAMBER*")
 		
 					print("===================================================")
@@ -202,18 +206,18 @@ class md_prep:
 					tleap_in = "source leaprc.gaff2 \n"
 					tleap_in += self.lig[j]+" = loadmol2 "+self.lig[j]+".mol2\n"
 					tleap_in += "check "+self.lig[j]+"\n"
-					tleap_in += "loadamberparams " +self.lig[i]+ ".frcmod\n"
+					tleap_in += "loadamberparams " +self.lig[j]+ ".frcmod\n"
 					tleap_in += "saveoff " +self.lig[j]+" "+self.lig[j]+".lib \n"		
 					tleap_in += "saveamberparm prot prmtop inpcrd\n"
 					tleap_in += "quit"
 		
-					tleap_file = open("tleap_in"+"_"+lig[j],'w')
+					tleap_file = open("tleap_in"+"_"+self.lig[j],'w')
 					tleap_file.write(tleap_in)
 					tleap_file.close()
 					print("=======================================================")
 					print("Run tleap and save the library with parameter ligands.")
 					print(tleap + " -f tleap_in")
-					os.system(tleap + " -f tleap_in"+"_"+lig[j])
+					os.system(tleap + " -f tleap_in"+"_"+self.lig[j])
 				
 		os.system("sed 's/OXT/O  /' "+self.current_pdb+" > "+self.pdb[:-4]+"_wl.pdb ")
 		self.current_pdb = self.pdb[:-4] +"_wl.pdb"
@@ -317,8 +321,8 @@ class md_prep:
 		
 		print("=======================================================")
 		print("Preparing gromacs NPT equilibration")
-		print("gmx grompp -f npt.dp -c nvt.gro -p "+self.pdb[:-4]+".top -o npt.tpr -maxwarn 50")
-		os.system("gmx grompp -f npt.dp -c npt.gro -p "+self.pdb[:-4]+".top -o npt.tpr -maxwarn 50")
+		print("gmx grompp -f npt.mdp -c nvt.gro -p "+self.pdb[:-4]+".top -o npt.tpr -maxwarn 50")
+		os.system("gmx grompp -f npt.mdp -c nvt.gro -p "+self.pdb[:-4]+".top -o npt.tpr -maxwarn 50")
 		
 		print("=======================================================")
 		print("Running npt equilibration in gromacs.")
