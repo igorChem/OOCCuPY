@@ -159,7 +159,6 @@ class md_prep:
 				print(Reduce +"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
 				os.system(Reduce +self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
 				os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
-			input()
 			if self.lig[j] in cofac_list:
 				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
 				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )		
@@ -226,12 +225,12 @@ class md_prep:
 		
 		print("=======================================================")
 		print("Preparing Receptor/enzyme!")
-		#print(Reduce +" -Trim "+self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb") 
-		#os.system(Reduce + self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb")
+		print(Reduce +" -Trim "+self.current_pdb+  " > " +self.current_pdb[:-4]+"_p.pdb") 
+		os.system(Reduce+" -Trim "+self.current_pdb+" > "+self.current_pdb[:-4]+"_p.pdb")
 		print("=======================================================")
 		print(pdb4 +  self.current_pdb[:-4]+"_p.pdb"+ " > " +self.current_pdb[:-4]+"_c.pdb")
-		#os.system(pdb4 +  self.current_pdb[:-4]+"_p.pdb"+ " > " +self.current_pdb[:-4]+"_c.pdb")
-		os.system(pdb4 +  self.current_pdb+" > " +self.current_pdb[:-4]+"_c.pdb")
+		os.system(pdb4 +  self.current_pdb[:-4]+"_p.pdb"+ " > " +self.current_pdb[:-4]+"_c.pdb")
+		#os.system(pdb4 +  self.current_pdb+" > " +self.current_pdb[:-4]+"_c.pdb")
 		
 		self.current_pdb = self.current_pdb[:-4]+"_c.pdb"
 		
