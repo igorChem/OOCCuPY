@@ -7,6 +7,7 @@ from mopac_module import *
 from primordia import *
 from amber_module import *
 from md_prep import *
+from mpdb_analysis import *
 import glob
 import sys,os 
 
@@ -155,5 +156,13 @@ if __name__ == "__main__":
 			a = pair_RD()
 			a.write()
 			a.r_scripts()
-
+	elif sys.argv[1] == "-mpdb":
+		na = int(sys.argv[2]) 
+		a = m_pdb(sys.argv[3])
+		ind = []
+		for i in range(na):
+			ind.append(sys.argv[i+4])
+		a.set_pairs(ind)
+		a.calc_distances() 
+	
 

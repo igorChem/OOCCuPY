@@ -77,11 +77,17 @@ class m_pdb:
 		dist.write(dist_text)
 		dist.close()		
 		
-		r_s = open("r_script",'w')
-		r_s_text =  "library(ggplot2)\n"
+		r_s = open("r_script.R",'w')
+		
+		r_s_text =  "library(hexbin)\n"
+		r_s_text += "library(RColorBrewer)\n"
+		r_s_text += "rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))\n"
 		r_s_text += "dat = read.table('dist_analysis',header=T)\n"
+		r_s_text +=	"h<-hexbin(dat)\n"
+		r_s_text +=	"plot(h)\n"
 		r_s_text += "summary(dat)\n"
-		r_s_text += "plot(dat$"
+		
+		r_s.write(r_s_text)
 		
 				
 				
