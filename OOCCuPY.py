@@ -164,5 +164,11 @@ if __name__ == "__main__":
 			ind.append(sys.argv[i+4])
 		a.set_pairs(ind)
 		a.calc_distances() 
+		r1 = 0
+		r2 = 0
+		r1 = float(input("R1:"))
+		r2 = float(input("R2:"))
+		a.find_frame(r1,r2)
+		
 	
 

@@ -82,12 +82,24 @@ class m_pdb:
 		r_s_text =  "library(hexbin)\n"
 		r_s_text += "library(RColorBrewer)\n"
 		r_s_text += "rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))\n"
+		r_s_text += "r <-rf(32)\n"
 		r_s_text += "dat = read.table('dist_analysis',header=T)\n"
 		r_s_text +=	"h<-hexbin(dat)\n"
-		r_s_text +=	"plot(h)\n"
+		r_s_text += "png('dist2D.png',units='in',res=400,width=5,height=4)\n"
+		r_s_text +=	"plot(h,colramp=rf,xlab='Pair 1',ylab='Pair 2')\n"
+		r_s_text += "dev.off()\n"
 		r_s_text += "summary(dat)\n"
 		
 		r_s.write(r_s_text)
+	
+	def find_frame(self,r1,r2):
+		a1 = []
+		
+		for i in range(len(self.r1)):
+			if self.r1[i] >= (r1-0.02) and self.r1[i] <= (r1+0.02) and self.r2[i] >= (r2-0.02) and self.r2[i] <= (r2+0.02):
+				a1.append(i)
+		print(a1)
+			
 		
 				
 				
