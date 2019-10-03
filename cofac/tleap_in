@@ -1,0 +1,5 @@
+source oldff/leaprc.ff99SB
+loadamberparams atp.frcmod
+loadamberprep atp.prep
+atp = loadPdb atp.pdb
+savePdb atp atp2.pdb

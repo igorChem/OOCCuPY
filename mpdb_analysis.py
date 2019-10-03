@@ -98,19 +98,9 @@ class m_pdb:
 		for i in range(len(self.r1)):
 			if self.r1[i] >= (r1-0.02) and self.r1[i] <= (r1+0.02) and self.r2[i] >= (r2-0.02) and self.r2[i] <= (r2+0.02):
 				a1.append(i)
-		print(a1)
-			
-		
+		print(a1)		
 				
 				
-if __name__ == "__main__":
-	na = int(sys.argv[1]) 
-	a = m_pdb(sys.argv[2])
-	ind = []
-	for i in range(na):
-		ind.append(sys.argv[i+3])
-	a.set_pairs(ind)
-	a.calc_distances() 
 	
 				
 					
