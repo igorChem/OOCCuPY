@@ -193,8 +193,7 @@ class pair_RD:
 							except:
 								print(line2)
 								print(line2[0][7:9])
-								print(line2[0][10:11])
-						
+								print(line2[0][10:11])						
 						self.gstep.append(g1)
 						self.gstep2.append(g2)
 						self.hamilt.append(line2[0][12:15])
@@ -204,18 +203,20 @@ class pair_RD:
 						self.hamilt.append(line2[0][11:14])
 				else:
 					line2 = line.split()
-					if len(line2[0]) > 10:
-						#self.gstep.append(int(line2[0][6:-7]))
+					if len(line2[0]) == 15:
 						try:
-							self.gstep.append(int(line2[0][11:-9]))
+							self.gstep.append(int(line2[0][6:8]))
 						except:
-							self.gstep.append(int(line2[0][11:-10]))
+							print(line2[0])
 						self.gstep2.append(0)
-						#self.hamilt.append(line2[0][-6:-3])
-						self.hamilt.append("am1")
-					else:
-						self.gstep.append(int(line2[0][6:]))
-						self.hamilt.append("pm7")
+						self.hamilt.append(line2[0][9:12])
+					elif len(line2[0]) == 14:
+						try:
+							self.gstep.append(int(line2[0][6:7]))
+						except:
+							print(line2[0])
+						self.gstep2.append(0)
+						self.hamilt.append(line2[0][8:11])
 				self.HOF.append(float(line2[2]))
 				self.Elec_en.append(float(line2[1]))
 				self.hardness.append(float(line2[6]))
@@ -228,14 +229,13 @@ class pair_RD:
 			prd = open(self.prds[j],'r')
 			if len(self.prds[j]) > 16:
 				if mode == "1d":
-					#self.lstep.append(int(self.prds[j][6:-15]))
 					try:
-						self.lstep.append(int(self.prds[j][9:-17]))
+						self.lstep.append(int(self.prds[j][6:8]))
+						self.lhamilt.append(self.prds[j][9:12])
 					except:
-						self.lstep.append(int(self.prds[j][11:-18]))
+						self.lstep.append(int(self.prds[j][6:7]))
+						self.lhamilt.append(self.prds[j][8:11])
 					self.lstep2.append(0)
-					#self.lhamilt.append(self.prds[j][-14:-11])
-					self.lhamilt.append("am1")
 				elif mode == "2d":
 					if len(self.prds[j]) == 24:
 						self.lstep.append(int(self.prds[j][7:9]))
