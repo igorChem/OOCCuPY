@@ -93,6 +93,8 @@ def prepare_complex(pdb,lig):
 		compb.tleap_call()
 
 if __name__ == "__main__":
+	
+	print("arg line:",sys.argv)	
 	if ( sys.argv[1] == "-imop" ):
 		sem = sys.argv[2]
 		for i in range(len(sys.argv)):
@@ -112,7 +114,7 @@ if __name__ == "__main__":
 		ligands = [] 
 		charges = []
 		mult    = [] 
-		lh      = False
+		lh      = True
 		a = md_prep(sys.argv[2])
 		for i in range(len(sys.argv)):
 			if sys.argv[i] == "-ln":

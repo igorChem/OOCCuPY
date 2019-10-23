@@ -10,7 +10,7 @@ import sys,os
 
 
 #Cofactor list
-cofac_list = ["ATP","ADN","atp","NADP","NADH","NAD","ADP"]
+cofac_list = ["ATP","atp","NADP","NADH","NAD","ADP"]
 #ATP atoms list
 atp_list = ["O5'","C5'","C4'","O4'","C3'","O3'","C2'","O2'","C1'"]
 
@@ -21,7 +21,7 @@ pdb4       = path_amber + "/pdb4amber "
 antech     = path_amber + "/antechamber "
 parmchk    = path_amber + "/parmchk2 "
 tleap      = path_amber + "/tleap "
-path_cofac = "/home/igorchem/OOCCuPY/"
+path_cofac = "/home/igorchem/OOCCuPY/cofac/"
 #=======================================================================
 #***********************************************************************
 def my_replace(fl,old,new):
@@ -45,8 +45,10 @@ def fix_cofac_atoms(lig):
 	cofac = protein(lig)
 	cofac.pdb_parse()
 	
+	
 	if lig[:3]  == "ATP":
 		LIG  = "atp"
+		os.system("cp " + path_cofac +"atp* .")
 	pdb_res  = open(LIG+".pdb",'w')
 	
 	for atom in cofac.atoms:
@@ -61,6 +63,7 @@ def fix_cofac_atoms(lig):
 		i+=1
 	pdb_res.write(result_text)
 	pdb_res.close()
+
 	return(LIG)
 	
 #***********************************************************************
@@ -113,11 +116,19 @@ class md_prep:
 		'''Method Doc
 		'''
 		
-		self.lig         = lign
 		pdb              = protein(self.pdb)		
 		self.num_lig     = int(nlig)
 		self.current_pdb = self.pdb
 		
+		print("Paramters parsed:\n")
+		print("pdb file: " + self.pdb)
+		print("Num of ligands: "+"self.num_lig")
+		
+		for i in range(len(lign)):
+			print("Lig #" + str(i)+": " + lign[i]) 
+			print("Lig charge #" + str(i)+": " + str(chg[i])) 
+			print("Lig multiplicity #" + str(i)+": " + str(mult[i])) 
+			
 		pdb.pdb_parse()
 		if rwat:
 			pdb.remove_waters()
@@ -161,17 +172,17 @@ class md_prep:
 				os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
 			if self.lig[j] in cofac_list:
 				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
-				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )		
-
+				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )
 				print("=======================================================")
 				print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
-				self.lig = fix_cofac_atoms(self.lig[j]+".pdb")
+				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")
 				print(self.lig[j])
 				fl = os.listdir('.')
 				if self.lig[j] +".frcmod" in fl:
 					print("FRCMOD OK...")
 				else:				
 					print("FRCMOD not found")
+					
 					sys.exit()
 				if self.lig[j] +".lib" in fl:		
 					print("LIB OK...")
