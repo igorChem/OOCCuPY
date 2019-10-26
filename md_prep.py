@@ -21,6 +21,7 @@ pdb4       = path_amber + "/pdb4amber "
 antech     = path_amber + "/antechamber "
 parmchk    = path_amber + "/parmchk2 "
 tleap      = path_amber + "/tleap "
+pymol      = "/home/igorchem/programs/bin/pymol "
 path_cofac = "/home/igorchem/OOCCuPY/cofac/"
 #=======================================================================
 #***********************************************************************
@@ -152,7 +153,6 @@ class md_prep:
 			lig_pdb.write(text_lig)
 			lig_pdb.close()
 			
-		
 			print("=======================================================")
 			print("Removing the ligand atoms from the provided PDB")
 			if self.num_lig == 1:
@@ -160,19 +160,28 @@ class md_prep:
 				os.system("grep -v "+self.lig[j]+" "+ self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")
 				self.current_pdb  = self.pdb[:-4]+"_w.pdb"
 			elif self.num_lig > 1:
-					print("grep -v "+self.lig[j]+" "+self.current_pdb+" > "+self.pdb[:-4]+"_w.pdb ")
-					os.system("grep -v "+self.lig[j]+" "+ self.current_pdb+" > "+self.pdb[:-4]+"_"+str(j)+"_.pdb")
-					self.current_pdb = self.pdb[:-4]+"_"+str(j)+"_.pdb"
-				
+				print("grep -v "+self.lig[j]+" "+self.current_pdb+" > "+self.pdb[:-4]+"_w.pdb ")
+				os.system("grep -v "+self.lig[j]+" "+ self.current_pdb+" > "+self.pdb[:-4]+"_"+str(j)+"_.pdb")
+				self.current_pdb = self.pdb[:-4]+"_"+str(j)+"_.pdb"
+			
+			if self.lig[j] in cofac_list:
+				lig_h = True
+			
 			print("=======================================================")
 			if lig_h:
 				print("Removing and adding hydrogens in the ligand pdb")
 				print(Reduce +"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
-				os.system(Reduce +self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
-				os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
+				os.system(Reduce+"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
+				if not self.lig[j] in cofac_list:
+					print(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
+					os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
+				else: 
+					os.system("cp " +self.lig[j]+"_h.pdb "+ self.lig[j]+".pdb")
+				os.system("cat < "+ self.lig[j]+".pdb")
 			if self.lig[j] in cofac_list:
 				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
 				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )
+				
 				print("=======================================================")
 				print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
 				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")
@@ -181,8 +190,7 @@ class md_prep:
 				if self.lig[j] +".frcmod" in fl:
 					print("FRCMOD OK...")
 				else:				
-					print("FRCMOD not found")
-					
+					print("FRCMOD not found")				
 					sys.exit()
 				if self.lig[j] +".lib" in fl:		
 					print("LIB OK...")
@@ -198,19 +206,20 @@ class md_prep:
 				if self.lig[j]+".frcmod" in fl:
 					print("Found parameters for " + self.lig[j])
 					print("FRCMOD file found for this ligand, antechamber parametrization will be skipped!") 
-					par = True					
+					par = True
+										
 				if not par:
 					print("===================================================")
 					print("Run ANTECHAMBER:")
 					print(antech+" -i "+self.lig[j]+".pdb -fi pdb -o "+self.lig[j]+".mol2 -fo mol2 -c bcc -nc "+chg[j]+" -m "+mult[j])
 					os.system(antech + " -i " + self.lig[j]+".pdb -fi pdb -o " + self.lig[j]+".mol2  -fo mol2 -c bcc -nc "+chg[j]+" -m "+mult[j] )
 					os.system("rm ANTECHAMBER*")
-		
 					print("===================================================")
 					print("Run Pamchek and generate frcmod")				
 					print(parmchk+" -i "+self.lig[j]+".mol2 -f mol2 -o " +self.lig[j]+".frcmod")
 					print(parmchk+" -i "+self.lig[j]+".mol2 -f mol2 -o " +self.lig[j]+".frcmod")
 					os.system(parmchk + " -i "+ self.lig[j]+".mol2 -f mol2 -o " + self.lig[j]+".frcmod")
+										
 					print("=======================================================")	
 					print("Creating tleap input to save ligand library")
 					tleap_in = "source leaprc.gaff2 \n"
