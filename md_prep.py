@@ -41,7 +41,7 @@ def fix_cofac_atoms(lig):
 	'''
 	new_atoms   = []
 	result_text = ""
-	LIG         = ""
+	LIG         = lig
 	
 	cofac = protein(lig)
 	cofac.pdb_parse()
@@ -113,10 +113,13 @@ class md_prep:
 		
 	#-------------------------------------------
 	
-	def prepare_lig(self,nlig,lign,chg,mult,rwat=True,lig_h=False):
+	def prepare_lig(self,nlig,lign,chg,mult,rwat=True,lig_hy="False"):
 		'''Method Doc
 		'''
 		
+		lig_h = False
+		if lig_hy == "T":
+			lig_h = True
 		pdb              = protein(self.pdb)		
 		self.num_lig     = int(nlig)
 		self.current_pdb = self.pdb
@@ -164,9 +167,6 @@ class md_prep:
 				os.system("grep -v "+self.lig[j]+" "+ self.current_pdb+" > "+self.pdb[:-4]+"_"+str(j)+"_.pdb")
 				self.current_pdb = self.pdb[:-4]+"_"+str(j)+"_.pdb"
 			
-			if self.lig[j] in cofac_list:
-				lig_h = True
-			
 			print("=======================================================")
 			if lig_h:
 				print("Removing and adding hydrogens in the ligand pdb")
@@ -175,28 +175,53 @@ class md_prep:
 				if not self.lig[j] in cofac_list:
 					print(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
 					os.system(Reduce +self.lig[j]+"_h.pdb > " + self.lig[j]+".pdb")
-				else: 
+				else:
+					if self.lig[j] in cofac_list:
+						os.system("cp " +self.lig[j]+"_h.pdb "+ self.lig[j]+".pdb")
+			else:
+				if self.lig[j] in cofac_list:
+					print("Removing and adding hydrogens in the ligand pdb")
+					print(Reduce +"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")
+					os.system(Reduce+"-Trim "+self.lig[j]+".pdb > " + self.lig[j]+"_h.pdb")	
 					os.system("cp " +self.lig[j]+"_h.pdb "+ self.lig[j]+".pdb")
-				os.system("cat < "+ self.lig[j]+".pdb")
+					
+			os.system("cat < "+ self.lig[j]+".pdb")	
+			
 			if self.lig[j] in cofac_list:
 				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
 				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )
+				os.system( "cp " + path_cofac + "*prep   "+	os.getcwd() )
 				
 				print("=======================================================")
 				print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
-				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")
+				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")				
 				print(self.lig[j])
 				fl = os.listdir('.')
-				if self.lig[j] +".frcmod" in fl:
+				print(fl)
+				if self.lig[j][:-4] +".frcmod" in fl:
 					print("FRCMOD OK...")
 				else:				
 					print("FRCMOD not found")				
-					sys.exit()
+					sys.exit()	
 				if self.lig[j] +".lib" in fl:		
 					print("LIB OK...")
 				else:
-					print("LIB file not found")
-					sys.exit()	
+					print("=======================================================")	
+					print("Creating tleap input to save ligand library")
+					tleap_in =  "source leaprc.gaff2\n"
+					tleap_in += "loadamberparams " +self.lig[j]+ ".frcmod\n"
+					tleap_in +=  self.lig[j]+" = loadmol2 "+self.lig[j]+".mol2\n"
+					tleap_in += "check "+self.lig[j]+"\n"					
+					tleap_in += "saveoff " +self.lig[j]+" "+self.lig[j]+".lib \n"		
+					tleap_in += "quit"
+					tleap_file = open("tleap_in"+"_"+self.lig[j],'w')
+					tleap_file.write(tleap_in)
+					tleap_file.close()
+					print("=======================================================")
+					print("Run tleap and save the library with parameter ligands.")
+					print(tleap + " -f tleap_in")
+					os.system(tleap + " -f tleap_in"+"_"+self.lig[j])
+				
 			else:
 				print("=======================================================")
 				print("Ligand parameters will be created with ANTECHAMBER.")		
@@ -206,6 +231,7 @@ class md_prep:
 				if self.lig[j]+".frcmod" in fl:
 					print("Found parameters for " + self.lig[j])
 					print("FRCMOD file found for this ligand, antechamber parametrization will be skipped!") 
+					self.lig[j] = self.lig[j]+".pdb"
 					par = True
 										
 				if not par:
@@ -223,11 +249,10 @@ class md_prep:
 					print("=======================================================")	
 					print("Creating tleap input to save ligand library")
 					tleap_in = "source leaprc.gaff2 \n"
-					tleap_in += self.lig[j]+" = loadmol2 "+self.lig[j]+".mol2\n"
-					tleap_in += "check "+self.lig[j]+"\n"
 					tleap_in += "loadamberparams " +self.lig[j]+ ".frcmod\n"
+					tleap_in +=  self.lig[j]+" = loadmol2 "+self.lig[j]+".mol2\n"
+					tleap_in += "check "+self.lig[j]+"\n"					
 					tleap_in += "saveoff " +self.lig[j]+" "+self.lig[j]+".lib \n"		
-					tleap_in += "saveamberparm prot prmtop inpcrd\n"
 					tleap_in += "quit"
 		
 					tleap_file = open("tleap_in"+"_"+self.lig[j],'w')
@@ -237,6 +262,7 @@ class md_prep:
 					print("Run tleap and save the library with parameter ligands.")
 					print(tleap + " -f tleap_in")
 					os.system(tleap + " -f tleap_in"+"_"+self.lig[j])
+					self.lig[j] = self.lig[j]+".pdb"
 				
 		os.system("sed 's/OXT/O  /' "+self.current_pdb+" > "+self.pdb[:-4]+"_wl.pdb ")
 		self.current_pdb = self.pdb[:-4] +"_wl.pdb"
@@ -257,7 +283,8 @@ class md_prep:
 		print("=======================================================")
 		print("Concatenating Receptor/Enzyme with ligand/substrate")
 		for i in range(self.num_lig):
-			pdb_cat(self.current_pdb,self.lig[i]+".pdb",self.current_pdb)	
+			print(self.lig[i])
+			pdb_cat(self.current_pdb,self.lig[i],self.current_pdb)	
 						
 		os.rename(self.current_pdb,self.pdb[:-4]+"_comp.pdb")
 		self.current_pdb = self.pdb[:-4]+"_comp.pdb"
@@ -268,8 +295,8 @@ class md_prep:
 		tleap_in += "source leaprc.gaff2 \n"		
 		tleap_in += "source leaprc.water.tip3p \n"
 		for i in range(self.num_lig):
-			tleap_in += "loadamberparams " + self.lig[i] + ".frcmod\n"
-			tleap_in += "loadoff " + self.lig[i] + ".lib\n"
+			tleap_in += "loadamberparams " + self.lig[i][:-4] + ".frcmod\n"
+			tleap_in += "loadoff " + self.lig[i][:-4] + ".lib\n"
 		tleap_in += "complex = loadPdb " + self.current_pdb+ " \n"
 		tleap_in += "solvatebox complex TIP3PBOX 12.0 \n"
 		tleap_in += "addions2 complex Na+ 0\n"

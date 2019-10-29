@@ -114,7 +114,7 @@ if __name__ == "__main__":
 		ligands = [] 
 		charges = []
 		mult    = [] 
-		lh      = True
+		lh      = "False"
 		a = md_prep(sys.argv[2])
 		for i in range(len(sys.argv)):
 			if sys.argv[i] == "-ln":
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 				mult.append(sys.argv[i+1])
 			if sys.argv[i] == "-lh":
 				lh = True
-		a.prepare_lig(sys.argv[3],ligands,charges,mult,lig_h=lh)
+		a.prepare_lig(sys.argv[3],ligands,charges,mult,lig_hy=lh)
 		a.build_complex()
 		a.min_gromacs()
 
