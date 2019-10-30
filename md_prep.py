@@ -209,18 +209,18 @@ class md_prep:
 					print("=======================================================")	
 					print("Creating tleap input to save ligand library")
 					tleap_in =  "source leaprc.gaff2\n"
-					tleap_in += "loadamberparams " +self.lig[j]+ ".frcmod\n"
-					tleap_in +=  self.lig[j]+" = loadmol2 "+self.lig[j]+".mol2\n"
-					tleap_in += "check "+self.lig[j]+"\n"					
-					tleap_in += "saveoff " +self.lig[j]+" "+self.lig[j]+".lib \n"		
+					tleap_in += "loadamberparams " +self.lig[j][:-4]+ ".frcmod\n"
+					tleap_in +=  self.lig[j][:-4]+" = loadPdb "+self.lig[j]+"\n"
+					tleap_in += "check "+self.lig[j][:-4]+"\n"					
+					tleap_in += "saveoff " +self.lig[j][:-4]+" "+self.lig[j][:-4]+".lib \n"		
 					tleap_in += "quit"
-					tleap_file = open("tleap_in"+"_"+self.lig[j],'w')
+					tleap_file = open("tleap_in"+"_"+self.lig[j][:-4],'w')
 					tleap_file.write(tleap_in)
 					tleap_file.close()
 					print("=======================================================")
 					print("Run tleap and save the library with parameter ligands.")
 					print(tleap + " -f tleap_in")
-					os.system(tleap + " -f tleap_in"+"_"+self.lig[j])
+					os.system(tleap + " -f tleap_in"+"_"+self.lig[j][:-4])
 				
 			else:
 				print("=======================================================")
@@ -299,6 +299,7 @@ class md_prep:
 			tleap_in += "loadoff " + self.lig[i][:-4] + ".lib\n"
 		tleap_in += "complex = loadPdb " + self.current_pdb+ " \n"
 		tleap_in += "solvatebox complex TIP3PBOX 12.0 \n"
+		tleap_in += "check complex \n"
 		tleap_in += "addions2 complex Na+ 0\n"
 		tleap_in += "addions2 complex Cl- 0\n"
 		tleap_in += "savePdb complex "+self.current_pdb+"\n"
