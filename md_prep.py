@@ -194,17 +194,18 @@ class md_prep:
 				
 				print("=======================================================")
 				print("Ligand parameters will be loaded instead of created with ANTECHAMBER")
-				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")				
-				print(self.lig[j])
+				self.lig[j] = fix_cofac_atoms(lign[j]+".pdb")	
+					
 				fl = os.listdir('.')
 				print(fl)
-				if self.lig[j][:-4] +".frcmod" in fl:
+				if self.lig[j]+".frcmod" in fl:
 					print("FRCMOD OK...")
 				else:				
 					print("FRCMOD not found")				
 					sys.exit()	
 				if self.lig[j] +".lib" in fl:		
 					print("LIB OK...")
+					self.lig[j] = self.lig[j]+".pdb"
 				else:
 					print("=======================================================")	
 					print("Creating tleap input to save ligand library")
