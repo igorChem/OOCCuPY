@@ -10,7 +10,7 @@ import sys,os
 
 
 #Cofactor list
-cofac_list = ["ATP","atp","NADP","NADH","NAD","ADP"]
+cofac_list = ["ATP","atp","NADPH","NADP+","NADH","NAD+","ADP"]
 #ATP atoms list
 atp_list = ["O5'","C5'","C4'","O4'","C3'","O3'","C2'","O2'","C1'"]
 
@@ -186,7 +186,7 @@ class md_prep:
 					os.system("cp " +self.lig[j]+"_h.pdb "+ self.lig[j]+".pdb")
 					
 			os.system("cat < "+ self.lig[j]+".pdb")	
-			
+			input()
 			if self.lig[j] in cofac_list:
 				os.system( "cp " + path_cofac + "*lib "+	os.getcwd() )		
 				os.system( "cp " + path_cofac + "*frcmod "+	os.getcwd() )
@@ -246,7 +246,7 @@ class md_prep:
 					print(parmchk+" -i "+self.lig[j]+".mol2 -f mol2 -o " +self.lig[j]+".frcmod")
 					print(parmchk+" -i "+self.lig[j]+".mol2 -f mol2 -o " +self.lig[j]+".frcmod")
 					os.system(parmchk + " -i "+ self.lig[j]+".mol2 -f mol2 -o " + self.lig[j]+".frcmod")
-										
+					input()			
 					print("=======================================================")	
 					print("Creating tleap input to save ligand library")
 					tleap_in = "source leaprc.gaff2 \n"
@@ -264,7 +264,7 @@ class md_prep:
 					print(tleap + " -f tleap_in")
 					os.system(tleap + " -f tleap_in"+"_"+self.lig[j])
 					self.lig[j] = self.lig[j]+".pdb"
-				
+			
 		os.system("sed 's/OXT/O  /' "+self.current_pdb+" > "+self.pdb[:-4]+"_wl.pdb ")
 		self.current_pdb = self.pdb[:-4] +"_wl.pdb"
 
@@ -280,7 +280,7 @@ class md_prep:
 		#os.system(pdb4 +  self.current_pdb+" > " +self.current_pdb[:-4]+"_c.pdb")
 		
 		self.current_pdb = self.current_pdb[:-4]+"_c.pdb"
-		
+		input()
 		print("=======================================================")
 		print("Concatenating Receptor/Enzyme with ligand/substrate")
 		for i in range(self.num_lig):
