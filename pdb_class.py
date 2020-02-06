@@ -83,6 +83,7 @@ class protein:
 		self.resN         = 0
 		self.atoms        = []
 		self.total_charge = 0
+		self.waters       = []
 
 	def pdb_parse(self):
 		i = 1
