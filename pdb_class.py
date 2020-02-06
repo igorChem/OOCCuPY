@@ -199,7 +199,7 @@ class protein:
 		self.protein_center[2] = (self.up_vertice[2] + self.down_vertice[2])/2
 		
 		
-		#print properties 
+		#print properties  
 		print("PDB file: "+self.name)
 		print("Number of atoms: "+str(len(self.atoms)))
 		print("Number of residues: "+str(len(self.chain)))
