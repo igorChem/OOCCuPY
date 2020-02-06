@@ -3,6 +3,7 @@
 #OOCCuPY.py
 
 from pdb_class import *
+from md_analysis import *
 from mopac_module import *
 from primordia import *
 from amber_module import *
@@ -171,6 +172,7 @@ if __name__ == "__main__":
 		r1 = float(input("R1:"))
 		r2 = float(input("R2:"))
 		a.find_frame(r1,r2)
+	elif sys.argv[1] == "-mdAN":
 		
 	
 
