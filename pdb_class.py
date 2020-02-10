@@ -265,16 +265,23 @@ class protein:
 		for i in sorted(rmv_list,reverse=True):
 			del self.chain[i]
 			
-		print(rmv_list_a)
-		input()
 		for i in sorted(rmv_list_a,reverse=True):
 			del self.atoms[i]
-				
 			
-	
+			
 	#-------------------------------------------------------------------
 	
-	
+	def prune_ions(self):
+		ions_rm    = []
+		for i in range(len(self.atoms)):
+			if self.atoms[i].resTyp in ions:
+				ions_rm.append(i)
+		
+		for i in sorted(ions_rm,reverse=True):
+			del self.atoms[i]
+							
+	#-------------------------------------------------------------------
+		
 	def split_complex(self,lign):
 		lig = []
 		atoms_swap = []

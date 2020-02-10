@@ -31,7 +31,6 @@ class md_analysis:
 	#-------------------------------------------------------------------
 	
 	def plot_rmsd_rg(self):
-		
 		rmsd = []
 		rg   = []
 		for i in range(len(self.trj_obj)):
@@ -42,7 +41,7 @@ class md_analysis:
 		
 		r_data     = "time "
 		r_rmsd_txt = open("trj_rmsd_r",'w')
-		r_rg_txt = open("trj_rg_r",'w')
+		r_rg_txt   = open("trj_rg_r",'w')
 		r_script   =""
 		
 		for j in range(len(self.trj_obj)):	
@@ -56,8 +55,10 @@ class md_analysis:
 			r_data += "\n"
 		
 		print("rmsd tables ok")
-			
+		input()
+		
 		r_rmsd_txt.write(r_data)
+		r_rmsd_txt.close()
 		
 		r_data = "time "
 		
@@ -73,6 +74,8 @@ class md_analysis:
 			
 		
 		r_rg_txt.write(r_data)
+		r_rg_txt.close()
+	
 
 		
 		

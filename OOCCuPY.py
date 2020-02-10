@@ -37,7 +37,8 @@ def inp_mopac_from_all_pdbs():
 		list = glob.glob("*.pdb")
 		for pdb in list:
 			a =  protein(pdb)
-			a.remove_waters()
+			a.prune_water(30)
+			#a.prune_ions()			
 			a.write_xyz()
 		
 	elif inp_m == "mop":
