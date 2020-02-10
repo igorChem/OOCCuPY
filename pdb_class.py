@@ -7,6 +7,7 @@
 #load modules
 
 import os
+import math
 
 #=======================================================================
 
@@ -90,7 +91,6 @@ class protein:
 		self.down_vertice   = [0,0,0]
 		self.protein_center = [0,0,0]
 		
-
 		#---------------------------------------------------------------#
 		# pdb parser 
 		#---------------------------------------------------------------#
@@ -118,24 +118,33 @@ class protein:
 					a.element = "H"	
 				elif a.ptype == "OXT":
 					a.ptype = "O"					
-				self.atoms.append(a)
+				self.atoms.append(a)				
+				i+=1
+		pdb_file.close()													
 				
-			i+=1
-		pdb_file.close()
-		
 		#---------------------------------------------------------------
 		# residue definition 
 		# --------------------------------------------------------------
 		
+		r = 1
+		resnum_i = self.atoms[0].resNum
+		print(len(self.atoms),resnum_i)
 		for i in range(len(self.atoms)):
-			if self.atoms[i].ptype == 'N':
-				a=residue()
-				a.name = self.atoms[i].resTyp + self.atoms[i].resNum
-				a.typ = self.atoms[i].resTyp
-				a.num = self.atoms[i].resNum
+			if  i==0 or not self.atoms[i].resNum == resnum_i:
+				a      = residue()
+				a.name = self.atoms[i].resTyp + str(r)
+				a.typ  = self.atoms[i].resTyp
+				a.num  = r
 				a.atomsNum.append(self.atoms[i].num)
 				self.chain.append(a)
+				r+=1
+				resnum_i = self.atoms[i].resNum
+				self.atoms[i].resNum = r-1
+			else:
+				self.atoms[i].resNum = r-1
 
+		
+		'''
 		for i in range(len(self.chain)):
 			for j in range(len(self.atoms)):
 				if self.chain[i].num == self.atoms[j].resNum:
@@ -171,11 +180,10 @@ class protein:
 				for j in range(len(self.chain[i].r_atoms)):
 					self.atoms[cnt] = self.chain[i].r_atoms[j]
 					cnt +=1
-
+		'''
 
 		self.resN = len(self.chain)
-		
-		
+				
 		#--------------------------
 		#define geometric properties of the protein
 		#--------------------------
@@ -197,8 +205,7 @@ class protein:
 		self.protein_center[0] = (self.up_vertice[0] + self.down_vertice[0])/2
 		self.protein_center[1] = (self.up_vertice[1] + self.down_vertice[1])/2
 		self.protein_center[2] = (self.up_vertice[2] + self.down_vertice[2])/2
-		
-		
+				
 		#print properties  
 		print("PDB file: "+self.name)
 		print("Number of atoms: "+str(len(self.atoms)))
@@ -209,17 +216,21 @@ class protein:
 		
 	#-------------------------------------------------------------------	
 	
-	
 	def remove_atom(self,i):
-		del self.atoms[i]
+		del self.atoms[i]		
+		
+	#-------------------------------------------------------------------
 	
 	def remove_residue(self,i):
-		for j in range(self.chain[i].atomsNum[0],self.chain[i].atomsNum[-1]):
-			for k in range(len(self.atoms)):
-				if self.atoms[k].num == j:
-					del self.atoms[k]
+		
+		k=0
+		while not k == len(self.atoms):
+			if self.atoms[k].resNum == i:
+				del self.atoms[k]
+			k +=1
 		del self.chain[i]		
-	
+		
+	#-------------------------------------------------------------------
 
 	def prune_pdb(self):
 		a = []
@@ -230,12 +241,40 @@ class protein:
 		for i in sorted(a,reverse=True):
 			del self.atoms[i]
 	
+	#-------------------------------------------------------------------
+	
 	def prune_water(self,radius):
+		rmv_list = []
+		rmv_list_a = []
+		dist_tmp = 0
 		for i in range(len(self.chain)):
-			if self.chain[i].resTyp == "HOH" or  self.chain[i].resTyp == "WAT" or self.chain[i].resTyp == "SOL":
-				pass
+			if self.chain[i].typ == "HOH" or  self.chain[i].typ == "WAT" or self.chain[i].typ == "SOL":
+				oxygen = self.atoms[self.chain[i].atomsNum[0]]
+				xc = (oxygen.xcoord - self.protein_center[0])**2
+				yc = (oxygen.ycoord - self.protein_center[1])**2
+				zc = (oxygen.zcoord - self.protein_center[2])**2
+				dist_tmp = math.sqrt(xc+yc+zc)
+				if dist_tmp > radius:
+					rmv_list.append(i-1)
+					rmv_list_a.append(self.chain[i].atomsNum[0]-1)
+					rmv_list_a.append(self.chain[i].atomsNum[0])
+					rmv_list_a.append(self.chain[i].atomsNum[0]+1)
+				#else:
+				#	print(dist_tmp)
+		
+		for i in sorted(rmv_list,reverse=True):
+			del self.chain[i]
 			
-
+		print(rmv_list_a)
+		input()
+		for i in sorted(rmv_list_a,reverse=True):
+			del self.atoms[i]
+				
+			
+	
+	#-------------------------------------------------------------------
+	
+	
 	def split_complex(self,lign):
 		lig = []
 		atoms_swap = []
@@ -269,11 +308,6 @@ class protein:
 			del self.atoms[i]
 				
 
-
-		
-		
-		
-	
 
 	def charge_res(self):
 

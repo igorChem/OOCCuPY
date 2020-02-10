@@ -37,7 +37,6 @@ def inp_mopac_from_all_pdbs():
 		list = glob.glob("*.pdb")
 		for pdb in list:
 			a =  protein(pdb)
-			a.pdb_parse()
 			a.remove_waters()
 			a.write_xyz()
 		
@@ -173,6 +172,10 @@ if __name__ == "__main__":
 		r2 = float(input("R2:"))
 		a.find_frame(r1,r2)
 	elif sys.argv[1] == "-mdAN":
+		a = md_analysis()
+		a.load_trajs()
+		a.plot_rmsd_rg()
+		
 		
 	
 
