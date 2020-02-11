@@ -86,7 +86,7 @@ class m_pdb:
 		r_s_text += "dat = read.table('dist_analysis',header=T)\n"
 		r_s_text +=	"h<-hexbin(dat)\n"
 		r_s_text += "png('dist2D.png',units='in',res=400,width=5,height=4)\n"
-		r_s_text +=	"plot(h,colramp=rf,xlab='Pair 1',ylab='Pair 2')\n"
+		r_s_text +=	" \n"
 		r_s_text += "dev.off()\n"
 		r_s_text += "summary(dat)\n"
 		

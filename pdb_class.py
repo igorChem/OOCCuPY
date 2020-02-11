@@ -111,7 +111,10 @@ class protein:
 				a.occ     = float(line[56:60])
 				a.bfactor = float(line[61:66])
 				a.name    = a.Type + str(a.num)
-				a.element = a.ptype[0:2]
+				if "Na+" in a.ptype or "Cl-" in a.ptype:
+					a.element = a.ptype[0:3]
+				else:
+					a.element = a.ptype[0:2]					
 				if a.element[0] =="1" or a.element[0]=="2" or a.element[0]=="3":
 					a.element = "H"
 				elif a.element == "He":

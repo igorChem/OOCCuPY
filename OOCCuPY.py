@@ -37,7 +37,7 @@ def inp_mopac_from_all_pdbs():
 		list = glob.glob("*.pdb")
 		for pdb in list:
 			a =  protein(pdb)
-			a.prune_water(30)
+			a.prune_water(22)
 			#a.prune_ions()			
 			a.write_xyz()
 		

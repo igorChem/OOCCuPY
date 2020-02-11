@@ -45,9 +45,6 @@ class mopac_inp:
 		if mgf:
 			self.mgf = "graphf"
 			
-	
-		
-		
 	def write_mop(self):
 
 		mop_inp = open(self.inpnam,'w')

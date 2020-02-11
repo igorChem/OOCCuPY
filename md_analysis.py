@@ -4,8 +4,13 @@
 
 
 import os,glob,sys
-import mdtraj as md 
+try:
+	import mdtraj as md
+except:
+	pass 
 import numpy as np 
+import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde
 
 trajs = glob.glob("*.xtc")
 
@@ -13,34 +18,21 @@ trj_obj = []
 
 #=======================================================================
 class md_analysis:
-	def __init__(self):
+	def __init__(self,name,tpl):
 		
-		self.trajs   = glob.glob("*.xtc")
-		self.trj_obj = []
-		self.names = []
-		
-	#-------------------------------------------------------------------
-	
-	def load_trajs(self):
-	
-		for i in range(len(trajs)):
-			t = md.load(trajs[i],top=trajs[i][:-4]+".gro")
-			self.trj_obj.append(t)
-			self.names.append(trajs[i][:4])
+		self.trj_obj = md.load(traj,top=tpl)
+		self.rg      = []
+		self.rmsd    = []
 			
 	#-------------------------------------------------------------------
 	
-	def plot_rmsd_rg(self):
-		rmsd = []
-		rg   = []
-		for i in range(len(self.trj_obj)):
-			rm = md.rmsd(self.trj_obj[i],self.trj_obj[i])
-			RG = md.compute_rg(self.trj_obj[i])
-			rmsd.append(rm)
-			rg.append(RG)
+	def get_rmsd_rg(self):
+	
+
+	def write_rmsd(self):
 		
 		r_data     = "time "
-		r_rmsd_txt = open("trj_rmsd_r",'w')
+		r_rmsd_txt = open("rmsd",'w')
 		r_rg_txt   = open("trj_rg_r",'w')
 		r_script   =""
 		
@@ -75,8 +67,4 @@ class md_analysis:
 		
 		r_rg_txt.write(r_data)
 		r_rg_txt.close()
-	
-
-		
-		
 		
