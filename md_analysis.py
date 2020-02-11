@@ -4,10 +4,12 @@
 
 
 import os,glob,sys
+
 try:
 	import mdtraj as md
 except:
-	pass 
+	pass
+	 
 import numpy as np 
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
@@ -21,50 +23,44 @@ class md_analysis:
 	def __init__(self,name,tpl):
 		
 		self.trj_obj = md.load(traj,top=tpl)
-		self.rg      = []
-		self.rmsd    = []
+		self.rg      = 0
+		self.rmsd    = 0
+		self.name    = name
+		self.time    = 0
 			
 	#-------------------------------------------------------------------
 	
 	def get_rmsd_rg(self):
+		self.rg   = md.calculate_rg(self.trj_obj)
+		self.rmsd = md.rmsd(self.trj_obj,self.trj_obj)
+		self.time = self.trj_obj.time 
 	
-
+	#-------------------------------------------------------------------
+	
 	def write_rmsd(self):
 		
 		r_data     = "time "
+		r_data    += self.name + " \n"
 		r_rmsd_txt = open("rmsd",'w')
 		r_rg_txt   = open("trj_rg_r",'w')
 		r_script   =""
 		
-		for j in range(len(self.trj_obj)):	
-			r_data +=self.names[j]+" "
-		r_data +="\n"
-		
-		for i in range(len(self.trj_obj[0])):
-			r_data +=str(self.trj_obj[0].time[i]) +" "
-			for j in range(len(self.trj_obj)):			
-				r_data += str(rmsd[j][i]) +" "
-			r_data += "\n"
-		
-		print("rmsd tables ok")
-		input()
-		
+		for i in range(len(self.rmsd)):
+			r_data += str(self.time[i]) + "  " + str(self.rmsd[i]) +"\n"
+			
 		r_rmsd_txt.write(r_data)
 		r_rmsd_txt.close()
 		
-		r_data = "time "
+		r_data     = "time "
+		r_data    += self.name + " \n"
 		
-		for j in range(len(self.trj_obj)):	
-			r_data +=self.names[j]+" "
-		r_data +="\n"
-		
-		for i in range(len(self.trj_obj[0])):
-			r_data +=str(self.trj_obj[0].time[i]) +" "
-			for j in range(len(self.trj_obj)):			
-				r_data += str(rg[j][i]) +" "
-			r_data += "\n"
+		for i in range(len(self.rg)):
+			r_data += str(self.time[i]) + "  " + str(self.rg[i]) +"\n"
 			
-		
 		r_rg_txt.write(r_data)
 		r_rg_txt.close()
-		
+
+	#-------------------------------------------------------------------
+	
+	def plot_rmsd_rg(self):
+		pass
