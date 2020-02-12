@@ -173,8 +173,9 @@ if __name__ == "__main__":
 		r2 = float(input("R2:"))
 		a.find_frame(r1,r2)
 	elif sys.argv[1] == "-mdAN":
-		a = md_analysis()
-		a.load_trajs()
+		a = md_analysis(sys.argv[2],sys.argv[3])
+		a.get_rmsd_rg()
+		#a.write_data()
 		a.plot_rmsd_rg()
 		
 		

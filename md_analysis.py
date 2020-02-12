@@ -5,11 +5,7 @@
 
 import os,glob,sys
 
-try:
-	import mdtraj as md
-except:
-	pass
-	 
+import mdtraj as md
 import numpy as np 
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
@@ -22,7 +18,7 @@ trj_obj = []
 class md_analysis:
 	def __init__(self,name,tpl):
 		
-		self.trj_obj = md.load(traj,top=tpl)
+		self.trj_obj = md.load(name,top=tpl)
 		self.rg      = 0
 		self.rmsd    = 0
 		self.name    = name
@@ -31,13 +27,13 @@ class md_analysis:
 	#-------------------------------------------------------------------
 	
 	def get_rmsd_rg(self):
-		self.rg   = md.calculate_rg(self.trj_obj)
+		self.rg   = md.compute_rg(self.trj_obj)
 		self.rmsd = md.rmsd(self.trj_obj,self.trj_obj)
 		self.time = self.trj_obj.time 
 	
 	#-------------------------------------------------------------------
 	
-	def write_rmsd(self):
+	def write_data(self):
 		
 		r_data     = "time "
 		r_data    += self.name + " \n"
@@ -63,4 +59,53 @@ class md_analysis:
 	#-------------------------------------------------------------------
 	
 	def plot_rmsd_rg(self):
-		pass
+		
+        # Color by the Probability Density Function. 
+        # Kernel density estimation is a way to estimate 
+        # the probability density function (PDF) of a random 
+        # variable in a non-parametric way
+		fig, (ax1) = plt.subplots(nrows=1)
+
+        # Setting data
+		x = self.rg
+		y = self.rmsd
+
+        # Calculate the point density
+		xy = np.vstack([x,y])
+		z = gaussian_kde(xy)(xy)
+		
+        # Sort the points by density, so that the densest points are plotted last
+		idx = z.argsort()
+		x, y, z = x[idx], y[idx], z[idx]
+
+        # Setting plot type 
+		pdf = ax1.scatter(x, y, c = z, s = 50, edgecolor = '')
+
+        # Plot title
+		ax1.set_title('RG' + ' by ' + 'RMSD')
+
+        # Hide right and top spines
+		ax1.spines['right'].set_visible(False)
+		ax1.spines['top'].set_visible(False)
+		ax1.yaxis.set_ticks_position('left')
+		ax1.xaxis.set_ticks_position('bottom')
+						
+        # Set x and y limits
+		xmin = x.min()
+		xmax = x.max()
+		ymin = y.mean() -0.5
+		ymax = y.mean() + 0.1        
+		plt.xlim(xmin, xmax)
+		plt.ylim(ymin, ymax)
+
+        # Set x and y labels
+		plt.xlabel("RG")
+		plt.ylabel("RMSD")
+
+        # Adding the color bar 
+		colbar = plt.colorbar(pdf)
+		colbar.set_label('Probability Density Function')     
+		plt.show()
+		
+		
+		
