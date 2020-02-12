@@ -67,8 +67,8 @@ class md_analysis:
 		fig, (ax1) = plt.subplots(nrows=1)
 
         # Setting data
-		x = self.rg
-		y = self.rmsd
+		y = self.rg
+		x = self.rmsd
 
         # Calculate the point density
 		xy = np.vstack([x,y])
@@ -82,7 +82,7 @@ class md_analysis:
 		pdf = ax1.scatter(x, y, c = z, s = 50, edgecolor = '')
 
         # Plot title
-		ax1.set_title('RG' + ' by ' + 'RMSD')
+		#ax1.set_title('RG' + ' by ' + 'RMSD')
 
         # Hide right and top spines
 		ax1.spines['right'].set_visible(False)
@@ -91,21 +91,83 @@ class md_analysis:
 		ax1.xaxis.set_ticks_position('bottom')
 						
         # Set x and y limits
-		xmin = x.min()
-		xmax = x.max()
-		ymin = y.mean() -0.5
-		ymax = y.mean() + 0.1        
+		xmin = x.min() 
+		xmax = x.mean() + 1
+		ymin = y.min() -0.05
+		ymax = y.max() +0.05       
 		plt.xlim(xmin, xmax)
 		plt.ylim(ymin, ymax)
 
         # Set x and y labels
-		plt.xlabel("RG")
-		plt.ylabel("RMSD")
+		plt.ylabel("RG")
+		plt.xlabel("RMSD")
 
         # Adding the color bar 
 		colbar = plt.colorbar(pdf)
-		colbar.set_label('Probability Density Function')     
+		colbar.set_label('Probability Density Function')   
+		
+		#printing varible stats 
+		print("printing mean of RMSD: " + str( x.mean() ) )
+		print("printing mean of RG: " + str( y.mean() ) )		
+		
 		plt.show()
+		
+	def get_frame(self):
+		
+		mean_rmsd  = np.mean(self.rmsd)
+		mean_rg    = np.mean(self.rg)
+
+		diff_1     = 0 
+		diff_2     = 0
+		diff_total = []
+
+		for i in range(len(self.rmsd)):
+			diff_1 = (self.rmsd[i] - mean_rmsd)**2 
+			diff_2 = (self.rg[i] - mean_rg)**2 
+			a = diff_1 + diff_2
+			diff_total.append(a)
+		
+		chosen_frame = 0	
+		
+		for i in range(1,len(diff_total)):			
+			if diff_total[i] < diff_total[i-1]:
+				chosen_frame = i 
+		
+		print("chosen frame: "+str(chosen_frame))
+		print("RMSD: "+ str(self.rmsd[chosen_frame]))
+		print("RG: "  + str(self.rg[chosen_frame]))
+		
+		ls_ = glob.glob("*.pdb")
+		if self.name[:-4]+"_trj.pdb" in ls_:
+			print("trj ok")     			
+		else:
+			os.system("/usr/bin/gmx trjconv -f "+ self.name + " -s " + self.name[:-4]+".tpr -pbc mol -dt 10 -o "+ self.name[:-4]+"_trj.pdb")
+		modnum = 0
+		j      = 0
+		init   = 0
+		fin    = 0
+		pdb_file = ""
+		pdb_out  = open(self.name[:-4] +"_"+str(chosen_frame) + ".pdb",'w')
+		
+		with open(self.name[:-4]+"_trj.pdb") as file_object:
+			for line in file_object:
+				if not init > 0:
+					line2 = line.split()
+					if line2[0] == "MODEL" and line2[1] == str(chosen_frame+1):
+						init = j
+				if init > 0:
+					pdb_file +=line
+				if line == "ENDMDL":   
+					break
+				j+=1
+		
+		pdb_out.write(pdb_file)
+		pdb_out.close()
+			
+					
+				
+			
+			
 		
 		
 		

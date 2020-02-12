@@ -34,11 +34,6 @@ class m_pdb:
 					for i in range(len(index)):
 						if ln[1] == index[i]:
 							if i == 0:
-								self.cx1.append(float(ln[6]))
-								self.cy1.append(float(ln[7]))
-								self.cz1.append(float(ln[8]))
-							elif i == 1:
-								self.cx2.append(float(ln[6]))
 								self.cy2.append(float(ln[7]))
 								self.cz2.append(float(ln[8]))
 							elif i == 2:
