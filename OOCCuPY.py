@@ -176,7 +176,7 @@ if __name__ == "__main__":
 		a = md_analysis(sys.argv[2],sys.argv[3])
 		a.get_rmsd_rg()
 		#a.write_data()
-		#a.plot_rmsd_rg()
+		a.plot_rmsd_rg()
 		a.get_frame()
 		
 	
