@@ -134,7 +134,7 @@ if __name__ == "__main__":
 		grid    = 40 
 		prog    = "mopac"
 		eb      = 5
-		bmtd    = "BD" 
+		bmtd    = "EW" 
 		nrb     = 100
 		for i in range(len(sys.argv)):
 			if ( sys.argv[i] == "-prog"):
