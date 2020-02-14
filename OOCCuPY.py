@@ -94,8 +94,7 @@ def prepare_complex(pdb,lig):
 
 if __name__ == "__main__":
 	
-	print("arg line:",sys.argv)	
-	if ( sys.argv[1] == "-imop" ):
+	if ( sys.argv[1] == "-imop" ):           		
 		sem = sys.argv[2]
 		for i in range(len(sys.argv)):
 			if  sys.argv[i] == "-mozyme":
@@ -107,9 +106,8 @@ if __name__ == "__main__":
 			elif sys.argv[i] == "-chg":
 				chg = sys.argv[i+1]
 		inp_mopac_from_all_pdbs()
-
-	elif ( sys.argv[1] == "-sh" ):
 		script_shell_from_mop()
+		
 	elif sys.argv[1] == "-MD":
 		ligands = [] 
 		charges = []

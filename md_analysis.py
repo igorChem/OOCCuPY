@@ -155,10 +155,11 @@ class md_analysis:
 					line2 = line.split()
 					if line2[0] == "MODEL" and line2[1] == str(chosen_frame+1):
 						init = j
-				if init > 0:
+				elif init > 0:
+					line2 = line.split()
 					pdb_file +=line
-				if line == "ENDMDL":   
-					break
+					if line2[0] == "TER":
+						break
 				j+=1
 		
 		pdb_out.write(pdb_file)
