@@ -111,7 +111,7 @@ class protein:
 				a.occ     = float(line[56:60])
 				a.bfactor = float(line[61:66])
 				a.name    = a.Type + str(a.num)
-				if "Na+" in a.ptype or "Cl-" in a.ptype:
+				if "Na+" in a.ptype or "Cl-" in a.ptype or "Zn" in a.ptype:
 					a.element = a.ptype[0:3]
 				else:
 					a.element = a.ptype[0:2]					
@@ -246,16 +246,21 @@ class protein:
 	
 	#-------------------------------------------------------------------
 	
-	def prune_water(self,radius):
+	def prune_water(self,radius,res):
+		reference = [self.protein_center[0],self.protein_center[1],self.protein_center[2]]
+		if res > 0:
+			reference[0] = self.atoms[self.chain[res-1].atomsNum[0]].xcoord
+			reference[1] = self.atoms[self.chain[res-1].atomsNum[0]].ycoord
+			reference[2] = self.atoms[self.chain[res-1].atomsNum[0]].zcoord
 		rmv_list = []
 		rmv_list_a = []
 		dist_tmp = 0
 		for i in range(len(self.chain)):
 			if self.chain[i].typ == "HOH" or  self.chain[i].typ == "WAT" or self.chain[i].typ == "SOL":
 				oxygen = self.atoms[self.chain[i].atomsNum[0]]
-				xc = (oxygen.xcoord - self.protein_center[0])**2
-				yc = (oxygen.ycoord - self.protein_center[1])**2
-				zc = (oxygen.zcoord - self.protein_center[2])**2
+				xc = (oxygen.xcoord - reference[0])**2
+				yc = (oxygen.ycoord - reference[1])**2
+				zc = (oxygen.zcoord - reference[2])**2
 				dist_tmp = math.sqrt(xc+yc+zc)
 				if dist_tmp > radius:
 					rmv_list.append(i-1)
