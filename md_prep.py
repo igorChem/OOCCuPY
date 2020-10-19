@@ -137,12 +137,14 @@ class md_prep:
 		
 		#if rwat:
 		#	pdb.remove_waters()
-			
+		
+		
 		for j in range(self.num_lig):
 			lig = []
 			self.lig_charge.append(int(chg[j]))
 			self.lig.append(lign[j])
-					
+			
+			'''		
 			for atom in pdb.atoms:
 				if atom.resTyp == lign[j]:
 					lig.append(atom)
@@ -156,11 +158,15 @@ class md_prep:
 				i+=1			
 			lig_pdb.write(text_lig)
 			lig_pdb.close()
+			'''
+			
 			
 			print("=======================================================")
 			print("Removing the ligand atoms from the provided PDB")
 			if self.num_lig == 1:
-				print("grep -v "+self.lig[j]+" "+self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")
+				print("grep "+self.lig[j]+" "+ self.pdb+" > "+self.lig[j]+".pdb ")				
+				os.system("grep "+self.lig[j]+" "+ self.pdb+" > "+self.lig[j]+".pdb ")
+				print("grep -v "+self.lig[j]+" "+self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")				
 				os.system("grep -v "+self.lig[j]+" "+ self.pdb+" > "+self.pdb[:-4]+"_w.pdb ")
 				self.current_pdb  = self.pdb[:-4]+"_w.pdb"
 			elif self.num_lig > 1:
