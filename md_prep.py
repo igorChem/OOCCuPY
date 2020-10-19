@@ -135,8 +135,8 @@ class md_prep:
 			
 		#pdb.pdb_parse()
 		
-		if rwat:
-			pdb.remove_waters()
+		#if rwat:
+		#	pdb.remove_waters()
 			
 		for j in range(self.num_lig):
 			lig = []
