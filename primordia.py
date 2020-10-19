@@ -4,120 +4,10 @@
 
 import os,glob
 import datetime
+import numpy as np
 
 x = datetime.datetime.now()
 
-def primordia_inp(option=3,program="mopac",lh="potential_fukui",gridn=0,eband=5,bandm="BD",norb=100,pdb="none"):
-
-	f = open("input_pri",'w')
-	text ="eband {0} pymols\n".format(eband)
-
-
-	if 	 option == '1':
-		if program   == "mopac":
-			aux = glob.glob("*aux")
-			for ax in aux:
-				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
-		elif program == "gamess":
-			aux = glob.glob("*log")
-			for ax in aux:
-				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
-		elif program == "orca":
-			aux = glob.glob("*out")
-			for ax in aux:
-				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)
-		elif program == "gaussian":
-			aux = glob.glob("*fchk")
-			for ax in aux:
-				text+="1 {0} {1} {2} {3} \n".format(ax,lh,gridn,program)		
-	elif option == '2':
-		if program   == "mopac":
-			aux = glob.glob("*aux")
-			for i in sorted(aux,reverse=True):
-				if aux[i][-6:-4] == "cat":
-					del aux[i]
-				elif aux[i][-7:-4] == "an":
-					del aux[i]			
-			for i in range(len(aux)):
-				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
-		elif program == "gamess":
-			aux = glob.glob("*log")
-			for i in sorted(aux,reverse=True):
-				if aux[i][-6:-4] == "cat":
-					del aux[i]
-				elif aux[i][-7:-4] == "an":
-					del aux[i]			
-			for i in range(len(aux)):
-				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
-		elif program == "orca":
-			aux = glob.glob("*out")
-			for i in sorted(aux,reverse=True):
-				if aux[i][-6:-4] == "cat":
-					del aux[i]
-				elif aux[i][-7:-4] == "an":
-					del aux[i]			
-			for i in range(len(aux)):
-				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
-		elif program == "gaussian":
-			aux = glob.glob("*fchk")
-			for i in sorted(aux,reverse=True):
-				if aux[i][-6:-4] == "cat":
-					del aux[i]
-				elif aux[i][-7:-4] == "an":
-					del aux[i]			
-			for i in range(len(aux)):
-				text+="2 {0} {1} {2} {3} {4} {5} \n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
-	elif option == '3':
-		aux = glob.glob("*aux")
-		if pdb == "none":	
-			for i in range(len(aux)):
-				text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,aux[i][:-4]+".pdb",program,bandm)
-		else:
-			for i in range(len(aux)):
-				text+="3 {0} {1} {2} {3} {4} {5} 0 0 0 0 {6}\n".format(aux[i],lh,gridn,norb,pdb,program,bandm)
-	
-	elif option == '4':
-		aux = glob.glob("*aux")
-		alist =[]
-
-		for i in range(len(aux)):
-			if aux[i][-7:-4] == "cat":
-				alist.append(i)
-			elif aux[i][-6:-4] == "an":
-				alist.append(i)
-
-		for i in sorted(alist,reverse=True):
-				del aux[i]
-	
-		log = glob.glob("*log")
-		blist =[]
-		for i in range(len(log)):
-			if log[i][-6:-4] == "an":
-				blist.append(i)
-			elif log[i][-7:-4] == "cat":
-				blist.append(i)
-				
-		for i in sorted(blist,reverse=True):			
-			del log[i]
-
-		for i in range(len(aux)):
-			text+="1 {0} {1} {2} {3} \n".format(aux[i],lh,gridn,"mopac")
-		for i in range(len(log)):
-			text+="1 {0} {1} {2} {3} \n".format(log[i],lh,gridn,"gamess")
-		clist = []
-		for i in range(len(aux)):
-			if aux[i][-6:-4] == "zy":
-				clist.append(i)
-		for i in sorted(clist,reverse=True):
-				del aux[i]
-		for i in range(len(aux)):
-			text+="2 {0} {1} {2} {3} {4} {5} {6}\n".format(aux[i][:-4]+".mgf",aux[i][:-4]+"_cat.mgf",aux[i][:-4]+"_an.mgf",lh,gridn,2,"mopac")
-		for i in range(len(log)):
-			text+="2 {0} {1} {2} {3} {4} {5} {6}\n".format(log[i],log[i][:-4]+"_cat.log",log[i][:-4]+"_an.log",lh,gridn,2,"gamess")
-
-
-	f.write(text)
-	f.close()
 
 
 class pair_RD:
@@ -569,5 +459,124 @@ class primordia:
 		f.write(tesxt)
 		f.close()
 
-    
-     
+#***********************************************************************    
+class primordia_traj:
+	def __init__(self,avg,residue_lst):
+		self.rds_avg    = None
+		self.rds_sd     = None
+		self.labels_rd  = "EAS NAS RAS Netphilicity Softness Hardness_A Hardness_B Hardness_C Hardness_D Multiphilic Electrophilic Fukushima Electron_Density Softness_dual MEP"
+		self.labels_res = []
+		self.res_list   = residue_lst
+		self.avg        = avg 
+		self.trajs      = glob.glob("*residues.lrd")
+		self.rds_values = None
+		self.rds        = None
+		
+		self.traj_len = len(self.trajs)
+		self.list_len = len(self.res_list)
+		
+		self.rds_avg    = np.zeros( (self.list_len,15),dtype=float )
+		self.rds_sd     = np.zeros( (self.list_len,15),dtype=float ) 
+		self.rds_values = np.zeros( (self.traj_len,self.list_len,15),dtype=float )
+		self.rds        = np.zeros( (self.traj_len,300,15),dtype=float )
+		
+	#===================================================================
+	
+	def fill_arrays(self):
+	
+		#---------------------------------------------------------------	
+		i = 0
+		for fl in self.trajs:
+			res_rd = open(fl,'r')
+			j = 0
+			for line in res_rd:
+				line2 = line.split()
+				if j > 0:
+					self.labels_res.append(line2[0])
+					for k in range(14):
+						#print(line2[k+1])
+						#input()
+						self.rds[i][j-1][k] = line2[k+1]					
+					#print(self.rds[i][j-1][k])
+					#input()				
+				j += 1
+			i += 1
+	
+
+		#---------------------------------------------------------------
+		m = 0
+		for x in range(self.traj_len):
+			for y in range(j):
+				if y in self.res_list:
+					if m < self.list_len:
+						for z in range(15):
+							if m < self.list_len:
+								print(self.rds[x][y][z])
+								self.rds_values[x][m][z] = self.rds[x][y][z]
+								print(self.rds_values[x][y][z])
+								input()
+								
+					m+=1
+					
+			print(self.rds[x][y][z])	
+			input()				
+					
+						
+						
+		#---------------------------------------------------------------
+		
+		sumtmp = 0.0		
+		for x in range(15):
+			for y in range(self.list_len):
+				sumtmp = 0.0;
+				for z in range(self.traj_len):
+					sumtmp += self.rds_values[z][y][x]
+					
+				self.rds_avg[y][x] = sumtmp/self.traj_len
+
+		devtmp = 0.0
+		for x in range(15):
+			for y in range(self.list_len):
+				devtmp = 0.0
+				for z in range(self.traj_len):
+					devtmp += (abs(self.rds_values[z][y][x] - self.rds_avg[y][x]))**2
+				
+				self.rds_sd[y][x] = np.sqrt(devtmp/self.traj_len)
+		
+	
+	#===================================================================
+	
+	def write_data(self):
+		
+			
+		if not self.avg:
+			k = 0
+			for res in self.res_list:
+				report_fl = open(self.labels_res[int(res)]+"_data_residue",'w')
+				report_txt = self.labels_rd
+				report_txt += "\n"; 
+				for j in range(self.traj_len):
+					for i in range(15):
+						print(self.rds_values[j][k][i])
+						print(j,k,i)
+						input()
+						report_txt += str(self.rds_values[j][k][i])
+						report_txt += " "
+					report_txt+="\n"
+				report_fl.write(report_txt)
+				report_fl.close()						
+				k+=1
+						
+
+			
+		pass
+		
+	#===================================================================	
+	
+	def write_R(self):
+		pass
+		
+		
+	
+	
+	

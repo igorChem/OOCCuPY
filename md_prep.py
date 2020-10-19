@@ -126,14 +126,15 @@ class md_prep:
 		
 		print("Paramters parsed:\n")
 		print("pdb file: " + self.pdb)
-		print("Num of ligands: "+"self.num_lig")
+		print("Num of ligands: "+self.num_lig)
 		
 		for i in range(len(lign)):
 			print("Lig #" + str(i)+": " + lign[i]) 
 			print("Lig charge #" + str(i)+": " + str(chg[i])) 
 			print("Lig multiplicity #" + str(i)+": " + str(mult[i])) 
 			
-		pdb.pdb_parse()
+		#pdb.pdb_parse()
+		
 		if rwat:
 			pdb.remove_waters()
 			

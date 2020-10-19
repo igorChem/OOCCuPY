@@ -179,6 +179,17 @@ if __name__ == "__main__":
 		#a.write_data()
 		a.plot_rmsd_rg()
 		a.get_frame()
+	elif sys.argv[1] == "-res":
+		from primordia import *
+		res_list = []
+		for i in range(2,len(sys.argv)):
+			res_list.append(int(sys.argv[i]))
+		avg = False
+		if sys.argv[-1] == "avg":
+			avg = True
+		a = primordia_traj(avg,res_list) 
+		a.fill_arrays()
+		a.write_data()
 		
 	
 
