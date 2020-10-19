@@ -125,7 +125,7 @@ if __name__ == "__main__":
 			if sys.argv[i] == "-lm":
 				mult.append(sys.argv[i+1])
 			if sys.argv[i] == "-lh":
-				lh = True
+				lh = "T"
 		a.prepare_lig(sys.argv[3],ligands,charges,mult,lig_hy=lh)
 		a.build_complex()
 		a.min_gromacs()
