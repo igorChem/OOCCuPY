@@ -144,7 +144,6 @@ class md_prep:
 			self.lig.append(lign[j])
 					
 			for atom in pdb.atoms:
-				print(lign[j])
 				if atom.resTyp == lign[j]:
 					lig.append(atom)
 			
