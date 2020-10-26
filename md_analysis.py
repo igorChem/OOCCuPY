@@ -30,6 +30,16 @@ class md_analysis:
 		self.rg   = md.compute_rg(self.trj_obj)
 		self.rmsd = md.rmsd(self.trj_obj,self.trj_obj)
 		self.time = self.trj_obj.time 
+		dits = input("Get distances? y/n")
+		pairs = []
+		if dits == "y":
+			n_d = int(input("How many pairs?: "))
+			for i in range(n_d):
+				number_1 = float(input( "Pair #"+str(n_d)+ " First number :" )
+				number_2 = float(input( "Pair #"+str(n_d)+ " Second number :" )
+				pairs.appen(number_1)
+				pairs.appen(number_2)
+		
 	
 	#-------------------------------------------------------------------
 	
