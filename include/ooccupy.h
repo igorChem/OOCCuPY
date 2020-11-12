@@ -16,7 +16,7 @@
 /*********************************************************************/
 
 #ifndef OOCCUPY
-#DEFINE OOCCUPY
+#define OOCCUPY
 
 #include <string>
 #include <vector>

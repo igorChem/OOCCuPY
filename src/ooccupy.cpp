@@ -1,7 +1,7 @@
 //ooccupy.cpp
 
 /*********************************************************************/
-/* This source code file is part of OOCCuPy software project created 
+/* This source code file is part of OOCCuPy++ software project created 
  * by Igor Barden Grillo at Federal University of Paraíba. 
  * barden.igor@gmail.com ( Personal e-mail ) 
  * igor.grillo@acad.pucrs.br ( Academic e-mail )
@@ -16,7 +16,18 @@
 /*********************************************************************/
 
 #include <iostream>
-#include <include/ooccupy.h>
+#include <ctime>
+#include <string>
+#include <vector>
+
+#include "../include/global.h"
+#include "../include/ooccupy.h"
+#include "../include/traj.h"
+
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
 
 /**********************************************************************/
 ooccupy::ooccupy(){
@@ -29,7 +40,7 @@ ooccupy::~ooccupy(){
 /**********************************************************************/
 ooccupy::ooccupy(int argc, char* argv[]):
 	m_argc(argc)						{
-		
+	
 	for(int i =0;i<m_argc;i++){
 		m_argv.emplace_back(argv[i]);
 	}
@@ -42,8 +53,13 @@ ooccupy::ooccupy(int argc, char* argv[]):
 /**********************************************************************/
 void ooccupy::run(){
 	if ( m_argv[1] == "-traj_geo"){
+		traj Trajectory( m_argv[2] );
+		Trajectory.mdtraj_geo();
+	}
+	else if ( m_argv[1] == "-atom_d" ){
 		
-	}else if ( m_argv[1] == "-extract_frames"){
+	}
+	else if ( m_argv[1] == "-extract_frames"){
 		
 	}
 }

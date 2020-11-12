@@ -25,6 +25,7 @@
 #include <memory>
 #include <experimental/filesystem>
 
+//========================================================
 bool IF_file(const char* name); 
 bool IF_file(std::experimental::filesystem::path& name); 
 bool check_file_ext(std::string ext,const char* file_name);
@@ -33,5 +34,8 @@ std::string change_extension(const char* file_name,std::string new_ext);
 void rename_file(const char* file_name,std::string new_file_name);
 std::string get_file_name(const char* path_name);
 std::string str_array(std::string& line, int in, int fin);
-
+double mean_dvec(std::vector<double>& vec);
+double max_dvec(std::vector<double>& vec);
+double min_dvec(std::vector<double>& vec);
+double sum_dvec(std::vector<double>& vec);
 #endif

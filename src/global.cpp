@@ -25,7 +25,7 @@
 #include <experimental/filesystem>
 
 #include "../include/global.h"
-
+//=============================================================================
 using std::string;
 namespace fs = std::experimental::filesystem;
 
@@ -82,6 +82,34 @@ string str_array(std::string& line, int in, int fin){
 	for(int i=in;i<fin;i++){ 
 		result[cnt++] = line[i];
 	}
+	return result;
+}
+/*********************************************************************************/
+double mean_dvec(std::vector<double>& vec){
+	double result = 0.0;
+	for(unsigned int i=0;i<vec.size();i++){
+		result += vec[i];
+	}	
+	return result/vec.size();
+}
+/********************************************************************************/
+double max_dvec(std::vector<double>& vec){
+	std::sort( vec.begin(), vec.end() );
+	if ( vec.size() > 0) return vec[vec.size()-1];
+	else return 0.0;
+}
+/********************************************************************************/
+double min_dvec(std::vector<double>& vec){
+	std::sort( vec.begin(), vec.end() );
+	if ( vec.size() > 0) return vec[0];
+	else return 0.0;
+}
+/********************************************************************************/
+double sum_dvec(std::vector<double>& vec){
+	double result = 0.0;
+	for(unsigned int i=0;i<vec.size();i++){
+		result += vec[i];
+	}	
 	return result;
 }
 //==================================================================================

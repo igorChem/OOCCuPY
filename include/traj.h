@@ -15,8 +15,11 @@
  
 /*********************************************************************/
 
+#ifndef TRAJ
+#define TRAJ
+
 #include <iostream>
-#include <vector<
+#include <vector>
 #include <string>
 #include <fstream>
 
@@ -25,11 +28,14 @@ class traj{
 	public:
 		std::vector<int> atoms_pairs;
 		std::string traj_file;
+		std::string py_name;
 		std::ofstream python_script;
 		std::ofstream R_script;
 		traj();
 		traj(std::string file_name);
 		traj(std::string file_name, std::vector<int> atoms);
+		traj( const traj& rhs ) =  delete;
+		traj& operator=( const traj& rhs ) =  delete;
 		~traj();
 		void mdtraj_geo();
 		void mdtraj_distances();
