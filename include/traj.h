@@ -29,6 +29,7 @@ class traj{
 		std::vector<int> atoms_pairs;
 		std::string traj_file;
 		std::string py_name;
+		std::string R_name;
 		std::ofstream python_script;
 		std::ofstream R_script;
 		traj();
@@ -38,9 +39,11 @@ class traj{
 		traj& operator=( const traj& rhs ) =  delete;
 		~traj();
 		void mdtraj_geo();
-		void mdtraj_distances();
-		void extract_frame(const char* pdb_file, int* frames);
-		std::vector<int> bi_most_probable_point( std::vector<double> v1, std::vector<double> v2 );
+		void calc_distances(const char* pdb_file);
+		void extract_frame(const char* pdb_file, int frames);
+		void extract_frames(const char* pdb_file, int interval,int fr_sz);
+		int bi_most_probable_point( std::vector<double> v1, std::vector<double> v2 );
+		void prune_waters(int radius);
 	
 };
 

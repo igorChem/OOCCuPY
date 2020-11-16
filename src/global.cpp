@@ -22,11 +22,13 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 #include <experimental/filesystem>
 
 #include "../include/global.h"
 //=============================================================================
 using std::string;
+using std::vector;
 namespace fs = std::experimental::filesystem;
 
 /*********************************************************************************/
@@ -69,13 +71,13 @@ string change_extension(const char* file_name,string new_ext){
 	return name_wth_ext;
 }
 /*********************************************************************************/
-void rename_file(const char* file_name,std::string new_file_name){
+void rename_file(const char* file_name,string new_file_name){
 	fs::path f_name(file_name);
 	fs::path nf_name( fs::current_path() / new_file_name );
 	fs::rename(f_name,nf_name);
 }
 /*********************************************************************************/
-string str_array(std::string& line, int in, int fin){
+string str_array(string& line, int in, int fin){
 	string result = "";
 	result.resize(fin-in+2);
 	int cnt = 0;
@@ -85,7 +87,7 @@ string str_array(std::string& line, int in, int fin){
 	return result;
 }
 /*********************************************************************************/
-double mean_dvec(std::vector<double>& vec){
+double mean_dvec(vector<double>& vec){
 	double result = 0.0;
 	for(unsigned int i=0;i<vec.size();i++){
 		result += vec[i];
@@ -93,13 +95,13 @@ double mean_dvec(std::vector<double>& vec){
 	return result/vec.size();
 }
 /********************************************************************************/
-double max_dvec(std::vector<double>& vec){
+double max_dvec(vector<double>& vec){
 	std::sort( vec.begin(), vec.end() );
 	if ( vec.size() > 0) return vec[vec.size()-1];
 	else return 0.0;
 }
 /********************************************************************************/
-double min_dvec(std::vector<double>& vec){
+double min_dvec(vector<double>& vec){
 	std::sort( vec.begin(), vec.end() );
 	if ( vec.size() > 0) return vec[0];
 	else return 0.0;
@@ -112,4 +114,28 @@ double sum_dvec(std::vector<double>& vec){
 	}	
 	return result;
 }
+/******************************************************************************/
+double sd_dvec(vector<double>& vec){
+	double mean = mean_dvec(vec);
+	double sd = 0;
+	for(unsigned int i=0;i<vec.size();i++){
+		sd += (vec[i]-mean)*(vec[i]-mean);
+	}
+	sd/=vec.size();
+	sd = sqrt(sd);
+}
+/******************************************************************************/
+vector<double> scale_dvec(vector<double>& vec){
+	vector<double> result( vec.size() );
+	double mean = mean_dvec(vec);
+	for(unsigned int i=0;i<vec.size();i++){
+		result[i] = vec[i] - mean;
+	}
+	double sd = sd_dvec(result);
+	for(unsigned int i=0;i<result.size();i++){
+		result[i]/=sd;
+	}
+	return result;
+}
+
 //==================================================================================

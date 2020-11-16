@@ -56,11 +56,24 @@ void ooccupy::run(){
 		traj Trajectory( m_argv[2] );
 		Trajectory.mdtraj_geo();
 	}
-	else if ( m_argv[1] == "-atom_d" ){
-		
+	else if ( m_argv[1] == "-dist_an" ){
+		vector<int> ats;
+		for(int i=3;i<m_argc;i++){
+			ats.push_back( std::stoi(m_argv[i]) );
+		}
+		traj Trajectory(m_argv[2],ats);
+		Trajectory.calc_distances( m_argv[2].c_str() );
+	}
+	else if ( m_argv[1] == "-extract_frame"){
+		int arg3 = stoi(m_argv[3]);
+		traj Trajectory;
+		Trajectory.extract_frame(m_argv[2].c_str(),arg3);
 	}
 	else if ( m_argv[1] == "-extract_frames"){
-		
+		int arg3 = stoi(m_argv[3]);
+		int arg4 = stoi(m_argv[4]);
+		traj Trajectory;
+		Trajectory.extract_frames(m_argv[2].c_str(),arg3,arg4);
 	}
 }
 /**********************************************************************/

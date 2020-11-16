@@ -22,7 +22,6 @@
 #include <iostream>
 #include <string>
 #include <vector> 
-#include <memory>
 #include <experimental/filesystem>
 
 //========================================================
@@ -38,4 +37,6 @@ double mean_dvec(std::vector<double>& vec);
 double max_dvec(std::vector<double>& vec);
 double min_dvec(std::vector<double>& vec);
 double sum_dvec(std::vector<double>& vec);
+double sd_dvec(std::vector<double>& vec);
+std::vector<double> scale_dvec(std::vector<double>& vec);
 #endif
